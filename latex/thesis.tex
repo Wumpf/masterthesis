@@ -89,10 +89,8 @@ morecomment=[s][\color{darkgreen}]{/*}{*/}
 \geometry{a4paper,left=30mm,right=20mm, top=2cm, bottom=3cm} 
 
 % todo note command
-%\newcommand\todo[1] {\textbf{\textcolor{red}{[todo: #1]}}}
-\newcommand\todo[1] {\errmessage{[todo: #1]}}
-
-\newcommand\citationneeded[1] {\textbf{\textcolor{red}{citation needed?}} [\emph{#1}]{}}
+\usepackage{todonotes}
+\newcommand\citationneeded[1] { \textbf{\textcolor{red}{[?!]}}\todo{citation needed!  \emph{#1}} }
 
 % Shorthand for including bibliography information to subfiles. This way each subfile will have access to the bibliography
 \def\subfilebib{\bibliographystyle{alpha}\bibliography{bibliography}}

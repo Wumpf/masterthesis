@@ -3,8 +3,14 @@
 
 \chapter{Main}\label{chap:basics}
 
-\section{Caches}
-\subsection{Cache Generation}
+\section{Overview}
+
+\section{Realtime Light Cache Placement}
+
+\subsection{Abandoned Approaches}
+
+\subsection{ACTUAL TECHNIQUE NAME}
+
 Cache properties (on creation):
 \begin{easylist}[itemize]
 # position (world space)
@@ -31,7 +37,6 @@ Approaches:
 ### triangles that add their sample to a voxel are changing from one frame to another
 ### independently the same happens to the number of caches available for interpolation (might also be a problem in previous GBuffer extract approach)
 ### Depending on rotation, the normal average can change rather fast
-
 \end{easylist}
 
 Note on Voxelization: Voxelization needs to be conservative, otherwise holes. Neighborsearch can not fill those!
@@ -39,6 +44,23 @@ Note on Voxelization: Voxelization needs to be conservative, otherwise holes. Ne
 \subsection{Memory representation}
 Non-perfect Hashing. Striving for low collision count.
 Still much better than full grid!
+
+\section{Cache Lighting}
+
+\subsection{Shadowing}
+
+\section{Cache Interpolation}
+
+
+
+\section{Implementation Details}
+
+As many as possible details should be delayed into this chapter. If it gets large or starts to mirror the main part, make it a chapter!
+
+This is the right place for describing how to use Compute, OpenGL etc. for achieving the rather abstract formulated goals of the sections before.
+
+Deferred Renderer, 32bits per Layer RGB(A) srgb - Diffuse, RG 16snorm - Normals with angles, extra infos todo, R32F Depth Buffer (swapped near/far)\\
+(This detail belongs more or less to Eva...)
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
