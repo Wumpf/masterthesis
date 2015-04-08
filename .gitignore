@@ -124,3 +124,7 @@ sympy-plots-for-*.tex/
 # WinEdt
 *.bak
 *.sav
+/latex/Introduction.pdf
+/latex/Main.pdf
+/latex/RelatedWork.pdf
+/latex/thesis.pdf

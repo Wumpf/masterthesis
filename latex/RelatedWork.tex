@@ -1,0 +1,75 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+
+\chapter{Related Work}
+\label{chap:prevwork}
+
+% Categories from GISTAR
+% * Finite Elements (also contains voxel based GI)
+% * Monte-Carlo ray tracing
+% * Photon Mapping
+% * Instant Radiosity
+% * Many lights (hierarchical! gathering of lights)
+% * Point-based (render points somehow)
+% * Discrete ordinate methods (propagation volumes etc.)
+% * Precomputation
+
+Awesome overview of all realtime global illumination techniques before 2012 \cite{bib:RealtimeGIOverview} Ritschel et al..
+
+\section {Instant Radiosity \& Many Lights Methods}
+Survey about many lights in general \cite{bib:manylightssurvey2014}.
+
+
+\subsection{Reflective Shadow Mapping}
+Dachsbacher et. al. \cite{bib:reflectiveshadowmaps}
+
+Various Clustering attempts.
+
+\subsection{Shading}
+Multi-resolution splatting techniques ([All Nichols] Hierarchical
+image-space radiosity for interactive global illumination, Multiresolution splatting for indirect illumination, Interactive indirect illumination using adaptive multiresolution splatting) are not as efficient as "Tiled Deferred Shading" (according to \cite{bib:clusturedpreconvoledradiancecaching} (where it is just a side note!)) ... logically Tiled Deferred Shading is even better.
+Interleaved Sampling (Interleaved sampling. In
+Proc. of Eurographics Workshop on Rendering (2001)) also a good idea 
+
+Clustured Forward/Deferred Shading: Finding Unique clusturs is DIFFERENT in paper \cite{bib:clusturedshading} and practical implementation like "Pratical Clustured Shading" (SIGG2013, Humus). Paper uses (local) sorting and page tables. Humus uses Volume Texture. Ollson Siggra2013 presentation uses parallel prefix sum.
+
+\subsection{Shadows for Many Lights}
+Book about realtime shadows (2011)\cite{bib:realtimeshadowsbook}.\\
+Imperfect shadow maps Ritschel et. al. \cite{bib:imperfectshadowmaps}.\\
+
+Virtual Shadows: Shadow Mapping using a Virtual Texturing. TODO Read, there is much more to this. \cite{bib:virtualshadowmaps}
+
+\section{Discrete Ordinate Methods}
+GPU Radiosity (because its the king of discrete methods!).\\
+Light Propagation Volumes.\\
+Voxel Cone Tracing and Voxel Based GI.\\
+Radiance Hints \cite{bib:radiancehints}.
+
+\section{Light Skin}
+There is this paper \cite{bib:LightskinPaper} of Lensing et. al.
+
+\section{(Ir-)Radiance Caching}
+Irradiance Caching \cite{bib:irradiancecaching}.\\
+Radiance Caching \cite{bib:radiancecaching}.\\
+GPU versions.
+
+
+(Clustered) Preconvoled Radiance Caching \cite{bib:clusteredpreconvoledradiancecaching}
+"Pre-convolved radiance caching (PCRC) [SNRS12] proposes to store incident radiance in a texture with one texel per direction and preconvolve it—in essence creating a mip-map-pyramid of the
+radiance texture with accumulated radiance in the higher
+levels. Additionally, a low-resolution mip-map level is cosine folded to store irradiance. Using these two textures, evaluating the RCs requires only two texture lookups instead of re-evaluating the reflection functions. Irradiance can also be gathered into screen-space caches from a photon map [WWZ09] to integrate caustics." (from \cite{bib:clusteredpreconvoledradiancecaching})\\
+Improvements in the clustured algorithm: "Creation" via Voxel Cones, "Distribution" in ScreenSpace, "Evaluation" gathering instead of splatting. The "Distribution" works similar to clustured deferred shading - each cluster results in a radiance cache with an interesting way to extract the normal. Evaluation scheme is extremely simple, does not take cache normals into account. Of course no temporal coherence -.-
+
+\section{Enlighten}?
+
+
+\section{Voxelization}
+
+\cite{bib:GPUGems2}[Chapter 42] $http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter42.html$
+
+Modern GPU in OpenGL Insights \cite{bib:openglinsightsvoxel}
+
+Maxwell GPUs per Hardware
+
+\subfilebib % Makes bibliography available when compiling as subfile
+\end{document}

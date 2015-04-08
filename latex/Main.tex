@@ -1,0 +1,44 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+
+\chapter{Main}\label{chap:basics}
+
+\section{Caches}
+\subsection{Cache Generation}
+Cache properties (on creation):
+\begin{easylist}[itemize]
+# position (world space)
+# normal
+# material properties? (roughness etc.)
+\end{easylist}
+
+Goals:
+\begin{easylist}[itemize]
+# Avoids precomputation
+# Temporal coherency
+# roughly equal distribution in screen space
+## Less caches in distant regions, more caches in near regions
+\end{easylist}
+Approaches:
+\begin{easylist}[itemize]
+# GBuffer extract
+## super slow since many neighboring pixels use atomics to write into same memory locations
+## temporarly relatively smooth under scene changes, but visible information loss and changes at depth discontinuities
+
+# During (converative) Voxelization
+## performance ok'ish
+## Bad coherence under scene changes if voxel resolution not high enough. Many sources:
+### triangles that add their sample to a voxel are changing from one frame to another
+### independently the same happens to the number of caches available for interpolation (might also be a problem in previous GBuffer extract approach)
+### Depending on rotation, the normal average can change rather fast
+
+\end{easylist}
+
+Note on Voxelization: Voxelization needs to be conservative, otherwise holes. Neighborsearch can not fill those!
+
+\subsection{Memory representation}
+Non-perfect Hashing. Striving for low collision count.
+Still much better than full grid!
+
+\subfilebib % Makes bibliography available when compiling as subfile
+\end{document}

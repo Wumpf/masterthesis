@@ -1,0 +1,134 @@
+\documentclass[fontsize=12pt, paper=a4, headinclude, twoside=false, parskip=half+, pagesize=auto, numbers=noenddot, headsepline, footsepline, open=right, toc=listof, toc=bibliography]{scrreprt}
+
+% font encoding
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% Style, math graphics
+\usepackage{lmodern}
+\usepackage{setspace}
+\usepackage{caption3}
+\usepackage{acronym}
+\usepackage{amsmath}
+\usepackage{marvosym}
+\usepackage{graphicx}
+\usepackage{xcolor, luximono, listings}
+\usepackage{listings}
+\usepackage{geometry}
+
+% Multirow in tables
+\usepackage{multirow}
+
+% Text floating around figure
+\usepackage{wrapfig}
+% Subfigures
+\usepackage{subcaption}
+
+% Easy use of list (alternative to itemize)
+\usepackage[sharp]{easylist}
+
+% Links/URLs in proper colors
+\usepackage{hyperref}
+\definecolor{dark-red}{rgb}{0.4,0.15,0.15}
+\definecolor{dark-blue}{rgb}{0.15,0.15,0.4}
+\definecolor{medium-blue}{rgb}{0,0,0.6}
+\hypersetup{
+    colorlinks, linkcolor={dark-red},
+    citecolor={dark-blue}, urlcolor={medium-blue}
+}
+
+% Redfine some autoref macros for proper case.
+\renewcommand*{\chapterautorefname}{Chapter}
+\renewcommand*{\sectionautorefname}{Section}
+\renewcommand*{\subsectionautorefname}{Subsection}
+\renewcommand*{\subsubsectionautorefname}{Subsubsection}
+
+
+% Citeing
+\usepackage[numbers]{natbib}
+% Use subfiles instead of includes
+\usepackage{subfiles}
+
+\captionsetup{width=12cm}
+\definecolor{darkgreen}{rgb}{0.1,0.7,0.2}
+\definecolor{backgray}{rgb}{0.8,0.8,0.8}
+
+% C/C++ programming languages
+%\lstloadlanguages{C,C++}
+
+% HLSL programming language (no complete keyword set!)
+\lstdefinelanguage{HLSL}
+{
+sensitive=true,
+morekeywords=[1]{
+attribute, const, uniform, varying,
+flat, smooth, break, continue, do,
+for, while, switch, case, default, if,
+else, in, out, inout,
+float, float2, float3, float4, float4x4,
+int, void, unsigned,bool, true, false, invariant, discard, struct, return,},
+morekeywords=[2]{
+mul, saturate, clamp, floor, min, max, dot, normalize, lerp,
+}
+morecomment=[l]{//},
+morecomment=[s]{/*}{*/},
+morecomment=[l][keywordstyle4]{\#},
+}
+\lstset{
+language=HLSL,
+basicstyle=\ttfamily,
+basicstyle=\scriptsize,
+keywordstyle=\color{blue},
+commentstyle=\color{darkgreen},
+stringstyle=\color{yellow},
+backgroundcolor=\color{white},
+morecomment=[s][\color{darkgreen}]{/*}{*/}
+}
+
+% paper format
+\geometry{a4paper,left=30mm,right=20mm, top=2cm, bottom=3cm} 
+
+% todo note command
+%\newcommand\todo[1] {\textbf{\textcolor{red}{[todo: #1]}}}
+\newcommand\todo[1] {\errmessage{[todo: #1]}}
+
+\newcommand\citationneeded[1] {\textbf{\textcolor{red}{citation needed?}} [\emph{#1}]{}}
+
+% Shorthand for including bibliography information to subfiles. This way each subfile will have access to the bibliography
+\def\subfilebib{\bibliographystyle{alpha}\bibliography{bibliography}}
+
+% Where all graphics to be found
+\graphicspath{ {../pictures/} }
+\DeclareGraphicsExtensions{.png,.jpg}
+
+\begin{document}
+
+% Undef subfilebib for main file, so there is only one bibliography when compiling the whole thesis.
+\def\subfilebib{}
+
+\subfile{Title}
+\setcounter{page}{1} % Ignore titel page in numbering.
+
+% TOC
+\subfile{TOC}
+
+\subfile{Acknowledgements}
+\subfile{Abstract}
+
+% The Thesis itself
+\subfile{Introduction}
+\subfile{Prerequisites}
+\subfile{RelatedWork}
+\subfile{Main}
+\subfile{Evaluation}
+\subfile{Conclusion}
+
+\bibliographystyle{alpha}
+\bibliography{bibliography}
+
+\subfile{StatementOfAuthorship}
+
+% List of figures. Quite useless I think atm, but maybe I'll come back to it. Note that currently there are no short captions - it is possible to define both short and long captions.
+%\listoffigures
+
+\end{document}
