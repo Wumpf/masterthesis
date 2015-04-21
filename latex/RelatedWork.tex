@@ -62,6 +62,15 @@ Improvements in the clustured algorithm: "Creation" via Voxel Cones, "Distributi
 
 \section{Enlighten}?
 
+\section{Voxel Cone Tracing}
+
+\todo{original voxel cone tracing} Has been evaluated in game engines. "MITTRING M.: The Technology Behind the Unreal Engine 4 Elemental demo. SIGGRAPH 2012 Advances in RealTime Rendering in 3D Graphics and Games Course, 2012." 
+
+Layered Reflective Shadow Maps for Voxel-based Indirect Illumination decouples occlusion from lighting data.
+Visibility determination is handled via Voxel Cone tracing while the actual lighting is performed by lookups in a pre-filtered Layered Reflective Shadow Map.
+Doing so avoids most of the memory and initialization/update overhead associated with the large voxel data structure, since each voxel encodes only binary visibility information.
+Layers to avoid discontinuities, etc.
+
 
 \section{Voxelization}
 
