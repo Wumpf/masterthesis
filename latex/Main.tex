@@ -67,21 +67,24 @@ Need already a certain tessellation levels to compute tessellation
 ## Need some kind of octree data structure
 ## Caches need maximal influence radius
 ### difficult to find a meaningful (like blocker distance)
-
 \end{easylist}
 
 Note on Voxelization: Voxelization needs to be conservative, otherwise holes. Neighborsearch can not fill those!
 
 
-\subsection{ACTUAL TECHNIQUE NAME}
+\subsection{Adaptive Realtime (Ir-)Radiance Volumes}
 Cache properties yield 6 dimensional space: Position (XYZ), Normal ($\theta$, $\omega$), Roughness (R)
 
 Linear interpolation in 6D: 64 neighbors\\
 Linear interpolation in 5D: 32 neighbors (not using roughness)
 
-Buckets in 5D used by Clustered deferred Shading!
+Can drastically reduce neighbor count:
+\begin{easylist}
+# Tetrahedral interpolation (instead of cube) of positions
+# Interpolate 3 normals (thinks of a hexahedra or icosahedra)
+\end{easylist}
 
-
+Grid on position and sparse structure in normal/roughness? Think of preconvolved irradiance caches, but with 
 
 \subsection{Memory representation}
 Non-perfect Hashing. Striving for low collision count.
