@@ -1,0 +1,74 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+
+\appendix
+
+
+\chapter{Abandoned Caching Approaches} \label{chap:abandoned}
+
+Cache properties (on creation):
+\begin{easylist}[itemize]
+# position (world space)
+# normal
+# material properties? (roughness etc.)
+\end{easylist}
+
+Goals:
+\begin{easylist}[itemize]
+# Avoids precomputation
+# Temporal coherency
+# roughly equal distribution in screen space
+## Less caches in distant regions, more caches in near regions
+\end{easylist}
+Approaches:
+\begin{easylist}[itemize]
+# GBuffer extract
+## super slow since many neighboring pixels use atomics to write into same memory locations
+## temporarly relatively smooth under scene changes, but visible information loss and changes at depth discontinuities
+
+# During (converative) Voxelization
+## performance ok'ish
+## Bad coherence under scene changes if voxel resolution not high enough. Many sources:
+### triangles that add their sample to a voxel are changing from one frame to another
+### independently the same happens to the number of caches available for interpolation (might also be a problem in previous GBuffer extract approach)
+### Depending on rotation, the normal average can change rather fast
+
+# Image space cache buckets
+## no matter how the caches are aligned, from a world space point of view the selection of available caches of a pixel changes rapidly
+## great performance
+
+# Vertex based buckets
+## Problems with tessellation:
+### Almost impossible to give a guarantee like "every n pixels, there is a vertex"
+### Maximal tessellation (you can always be too close)
+### http://sebastiansylvan.com/2010/04/18/the-problem-with-tessellation-in-directx-11/
+Need already a certain tessellation levels to compute tessellation
+### Generated vertices are not unique and do not have indices
+### Propably to costly to do it multiple times (especially if used to generate actual triangles)
+### Might already be in use for displacement mapping
+## windows of missing information are difficult to predict
+## General topology based methods:
+### Need of additional information about topology
+### Removing caches (=vertices) leads to propagation on topology which can be costly
+
+# "Global" cache methods in general
+## Similar interpolation problems like Irradiance Caching
+## Need some kind of octree data structure
+## Caches need maximal influence radius
+### difficult to find a meaningful (like blocker distance)
+\end{easylist}
+
+Note on Voxelization: Voxelization needs to be conservative, otherwise holes. Neighborsearch can not fill those!
+
+
+\subsection{Notes on Caches in LightSkin}
+
+Problems
+\begin{easylist}[itemize]
+# large memory footprint
+# too few? Can not occupy entire GPU if a thread is spanned for each one
+# count is not view adaptive
+\end{easylist}
+
+
+\end{document}

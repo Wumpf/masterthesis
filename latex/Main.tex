@@ -5,71 +5,44 @@
 
 \section{Overview}
 
+Many parts of our approach are based on several well-known techniques of which most have already been discussed in \autoref{chap:prevwork} and \autoref{chap:basics}.
+Where necessary, details of the respective algorithms will be elaborated to address specifics implied by the overall technique.
+
+Indirect light is only computed at 
+
+First a novel scheme for evaluating and interpolating indirect light is introduced.
+This is done by the \emph{Gather}-Pass, which resembles the first of the three steps our technique executes every frame.
+
+Our approach is divided into three basic steps which are called \emph{Marking}, \emph{Lighting} and \emph{Apply}.
+Additionally we need to maintain a voxelization of the scene to compute indirect shadows. 
+
+
+Our technique performs steps in each frame:
+\begin{easylist}[itemize]
+# Cache Gathering
+# Cache Lighting
+# Cache Apply
+\end{easylist}
+
+
 \section{Realtime Light Cache Placement}
 
-\subsection{Notes on Caches in LightSkin}
+Inspired by the Lensing's LightSkin approach \cite{bib:LightskinPaper}, we wanted to compute indirect lighting only in specific locations instead of a per-pixel basis (as opposed to techniques like classic Reflective Shadow Maps or Voxel Cone Tracing).
+Since the goal of this work is a fully dynamic solution that works without any pre-computations, it is necessary to place such caches at runtime.
 
-Problems
-\begin{easylist}[itemize]
-# large memory footprint
-# too few? Can not occupy entire GPU if a thread is spanned for each one
-# count is not view adaptive
-\end{easylist}
+Such an approach has several challenges in general:
+Each cache has both be placed and provided with data in a temporal coherent way to avoid flickering.
+Pixels need to have easy access to a certain number of caches to be able to interpolate them.
+Note that this apply pass can have temporal coherence problems on its own, as the mapping from world positions to caches needs to be stable no matter how densely they are sampled, i.e. by how many pixels an object covers.
 
-\subsection{Abandoned Approaches}
-Cache properties (on creation):
-\begin{easylist}[itemize]
-# position (world space)
-# normal
-# material properties? (roughness etc.)
-\end{easylist}
+On the other hand, there are several intrinsic advantages which can be expected of a dynamic light cache placement:
+The number of caches can be easily controlled by  ... screen space... distance ....
+Low memory footprint, scalable
 
-Goals:
-\begin{easylist}[itemize]
-# Avoids precomputation
-# Temporal coherency
-# roughly equal distribution in screen space
-## Less caches in distant regions, more caches in near regions
-\end{easylist}
-Approaches:
-\begin{easylist}[itemize]
-# GBuffer extract
-## super slow since many neighboring pixels use atomics to write into same memory locations
-## temporarly relatively smooth under scene changes, but visible information loss and changes at depth discontinuities
+We evaluated several approaches before we came up with our final algorithm.
+If you are interested you can read the summary of these attempts in \autoref{chap:abandoned}.
 
-# During (converative) Voxelization
-## performance ok'ish
-## Bad coherence under scene changes if voxel resolution not high enough. Many sources:
-### triangles that add their sample to a voxel are changing from one frame to another
-### independently the same happens to the number of caches available for interpolation (might also be a problem in previous GBuffer extract approach)
-### Depending on rotation, the normal average can change rather fast
-
-# Image space cache buckets
-## no matter how the caches are aligned, from a world space point of view the selection of available caches of a pixel changes rapidly
-## great performance
-
-# Vertex based buckets
-## Problems with tessellation:
-### Almost impossible to give a guarantee like "every n pixels, there is a vertex"
-### Maximal tessellation (you can always be too close)
-### http://sebastiansylvan.com/2010/04/18/the-problem-with-tessellation-in-directx-11/
-Need already a certain tessellation levels to compute tessellation
-### Generated vertices are not unique and do not have indices
-### Propably to costly to do it multiple times (especially if used to generate actual triangles)
-### Might already be in use for displacement mapping
-## windows of missing information are difficult to predict
-## General topology based methods:
-### Need of additional information about topology
-### Removing caches (=vertices) leads to propagation on topology which can be costly
-
-# "Global" cache methods in general
-## Similar interpolation problems like Irradiance Caching
-## Need some kind of octree data structure
-## Caches need maximal influence radius
-### difficult to find a meaningful (like blocker distance)
-\end{easylist}
-
-Note on Voxelization: Voxelization needs to be conservative, otherwise holes. Neighborsearch can not fill those!
+We ended up with a conceptually easy ....
 
 
 \subsection{Adaptive Realtime (Ir-)Radiance Volumes}
@@ -91,10 +64,14 @@ Non-perfect Hashing. Striving for low collision count.
 Still much better than full grid!
 
 \section{Cache Lighting}
+Array Cubemap only up to 2048 layer for nvidia
 
-\subsection{Shadowing}
+\section{Indirect Shadows}
 
-Array Cubemap only up to 2048 layer for nvidia http://delphigl.de/glcapsviewer/gl_stats_caps_single.php?listreportsbycap=GL_MAX_ARRAY_TEXTURE_LAYERS
+\subsection{Scene Voxelization}
+
+\subsection{Cone Casts on Filtered Reflective Shadow Maps}
+
 
 \section{Cache Interpolation}
 
@@ -102,7 +79,7 @@ Array Cubemap only up to 2048 layer for nvidia http://delphigl.de/glcapsviewer/g
 
 \section{Implementation Details}
 
-As many as possible details should be delayed into this chapter. If it gets large or starts to mirror the main part, make it a chapter!
+\emph{As many as possible details should be delayed into this chapter. If it gets large or starts to mirror the main part, make it a chapter!}
 
 This is the right place for describing how to use Compute, OpenGL etc. for achieving the rather abstract formulated goals of the sections before.
 
