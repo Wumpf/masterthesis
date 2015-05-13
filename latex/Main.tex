@@ -27,7 +27,7 @@ Our technique performs steps in each frame:
 
 \section{Realtime Light Cache Placement}
 
-Inspired by the Lensing's LightSkin approach \cite{bib:LightskinPaper}, we wanted to compute indirect lighting only in specific locations instead of a per-pixel basis (as opposed to techniques like classic Reflective Shadow Maps or Voxel Cone Tracing).
+Inspired by Lensing's LightSkin approach \cite{bib:LightskinPaper}, we wanted to compute indirect lighting only in specific locations instead of a per-pixel basis (as opposed to techniques like classic Reflective Shadow Maps or Voxel Cone Tracing).
 Since the goal of this work is a fully dynamic solution that works without any pre-computations, it is necessary to place such caches at runtime.
 
 Such an approach has several challenges in general:
@@ -46,25 +46,14 @@ We ended up with a conceptually easy ....
 
 
 \subsection{Adaptive Realtime (Ir-)Radiance Volumes}
-Cache properties yield 6 dimensional space: Position (XYZ), Normal ($\theta$, $\omega$), Roughness (R)
 
-Linear interpolation in 6D: 64 neighbors\\
-Linear interpolation in 5D: 32 neighbors (not using roughness)
-
-Can drastically reduce neighbor count:
-\begin{easylist}
-# Tetrahedral interpolation (instead of cube) of positions
-# Interpolate 3 normals (thinks of a hexahedra or icosahedra)
-\end{easylist}
-
-Grid on position and sparse structure in normal/roughness? Think of preconvolved irradiance caches, but with 
 
 \subsection{Memory representation}
 Non-perfect Hashing. Striving for low collision count.
 Still much better than full grid!
 
 \section{Cache Lighting}
-Array Cubemap only up to 2048 layer for nvidia
+
 
 \section{Indirect Shadows}
 

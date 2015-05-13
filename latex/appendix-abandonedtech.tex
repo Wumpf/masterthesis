@@ -4,7 +4,9 @@
 \appendix
 
 
-\chapter{Abandoned Caching Approaches} \label{chap:abandoned}
+\chapter{Abandoned Approaches} \label{chap:abandoned}
+
+\section{Light Cache Generation}
 
 Cache properties (on creation):
 \begin{easylist}[itemize]
@@ -61,6 +63,20 @@ Need already a certain tessellation levels to compute tessellation
 Note on Voxelization: Voxelization needs to be conservative, otherwise holes. Neighborsearch can not fill those!
 
 
+
+Cache properties yield 6 dimensional space: Position (XYZ), Normal ($\theta$, $\omega$), Roughness (R)
+
+Linear interpolation in 6D: 64 neighbors\\
+Linear interpolation in 5D: 32 neighbors (not using roughness)
+
+Can drastically reduce neighbor count:
+\begin{easylist}
+# Tetrahedral interpolation (instead of cube) of positions
+# Interpolate 3 normals (thinks of a hexahedra or icosahedra)
+\end{easylist}
+
+Grid on position and sparse structure in normal/roughness? Think of preconvolved irradiance caches, but with 
+
 \subsection{Notes on Caches in LightSkin}
 
 Problems
@@ -70,5 +86,10 @@ Problems
 # count is not view adaptive
 \end{easylist}
 
+
+\section{Shadowing}
+
+?
+Array Cubemap only up to 2048 layer for nvidia
 
 \end{document}
