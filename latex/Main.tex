@@ -37,17 +37,25 @@ Naturally, such constraints also affect the following lighting and interpolation
 We evaluated several approaches before we came up with our final algorithm.
 If you are interested you can read the summary of these attempts in \autoref{chap:abandoned}.
 
-\subsection{Adaptive Realtime (Ir-)Radiance Volumes}
+\subsection{Adaptive Realtime (Ir-)Radiance Volumes} \todo{Better name?}
 To cancel out temporal artifacts entirely, we decided to place caches only on the nodes of a regular grid in world space.
+The main disadvantage of this method is, that cache are not placed on surfaces and thus have no concrete orientation.
 
+During the cache allocation pass, each pixel activates its eight nearest caches.
+This is done by screen pass, using the depth buffer from the previously rendered scene.
+\todo{write: allows for optimizations since neighboring pixels activate the same cache - see blabla}
 
+The grid moves with the view frustum to cover it entirely.
+However, all movements are snapped to the distance between two caches, since smooth movements would lead again to temporal incoherences.
 
-\subsection{Memory representation}
-
-\subsection{View Dependent Cache Allocation}
+Even so, usually only a very small fraction of all grid cells contains an activated cache.
+use grid for addresses only
+large buffer with all cache data instead,
+what does a cache contain?
 
 \section{Indirect Lighting}
 
+need rsm ... 
 
 \subsection{Indirect Shadows}
 
@@ -60,7 +68,7 @@ To cancel out temporal artifacts entirely, we decided to place caches only on th
 
 
 
-\section{Implementation Details}
+\section{Implementation}
 
 \emph{As many as possible details should be delayed into this chapter. If it gets large or starts to mirror the main part, make it a chapter!}
 
@@ -68,6 +76,21 @@ This is the right place for describing how to use Compute, OpenGL etc. for achie
 
 Deferred Renderer, 32bits per Layer RGB(A) srgb - Diffuse, RG 16snorm - Normals with angles, extra infos todo, R32F Depth Buffer (swapped near/far)\\
 (This detail belongs more or less to Eva...)
+
+\subsection{Pipeline Overview}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{renderingpipeline_draft}
+\end{figure}
+
+\todo{same with image}
+
+\todo{explanation}
+
+\subsection{Cache Allocation}
+cacheList via shared memory etc.
+"Adress Coord Cache"
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
