@@ -4,62 +4,56 @@
 \chapter{Main}\label{chap:basics}
 
 \section{Overview}
+Our technique consists of three basic steps which are executed in every frame: Cache allocation, indirect lighting and cache interpolation.
+The cache allocation pass assigns cells on a regular grid to cache memory.
+Using a reflective shadow map, indirect lighting is then computed for all currently active cells.
+Finally each pixel interpolates an indirect lighting value using all neighboring caches within the grid.
 
+Each of the following major sections will explain one of these steps.
+The last major section of this chapter will elaborate several implementation details, some of them crucial to the overall performance.\\
 Many parts of our approach are based on several well-known techniques of which most have already been discussed in \autoref{chap:prevwork} and \autoref{chap:basics}.
 Where necessary, details of the respective algorithms will be elaborated to address specifics implied by the overall technique.
 
-Indirect light is only computed at 
+\section{Cache Allocation}
+Inspired by Lensing's LightSkin approach \cite{bib:LightskinPaper}, we wanted to compute indirect lighting only at specific locations instead at per-pixel frequency (as opposed to techniques like classic Reflective Shadow Maps or Voxel Cone Tracing).
+\todo{detailed motivation to do that}
+Since the goal of this work is a fully dynamic solution that works without any pre-computations, it is necessary to place such caches entirely at runtime.
 
-First a novel scheme for evaluating and interpolating indirect light is introduced.
-This is done by the \emph{Gather}-Pass, which resembles the first of the three steps our technique executes every frame.
+\subsection{General Properties and Requirements of Dynamic Cache Placement}
+There are several intrinsic advantages which can be expected of a dynamic light cache placement when compared to a precomputed placement.
+Since we target for a single bounce of indirect light, caches are only used by currently visible locations (for multiple bounces it might be necessary to transfer lights between caches).
+Also it should be possible to decrease the number of caches for distant objects, thus keeping the cache to screen-space density within a given bound.
+Both properties result in a much lower memory footprint especially for large scenes when compared to precomputed solutions.
 
-Our approach is divided into three basic steps which are called \emph{Marking}, \emph{Lighting} and \emph{Apply}.
-Additionally we need to maintain a voxelization of the scene to compute indirect shadows. 
+While it can be very beneficial to place caches dependent on the current few, this also may introduce several temporal artifacts, i.e. strong changes in indirect lighting from one frame to the next.
+Additionally, target pixels need to have easy access to a certain number of caches to be able to interpolate them.
+Note that such an apply pass can have temporal coherence problems on its own, as assignment of caches to surrounding world positions needs to be stable, no matter how densely they are sampled, i.e. by how many pixels an object covers.
 
-
-Our technique performs steps in each frame:
-\begin{easylist}[itemize]
-# Cache Gathering
-# Cache Lighting
-# Cache Apply
-\end{easylist}
-
-
-\section{Realtime Light Cache Placement}
-
-Inspired by Lensing's LightSkin approach \cite{bib:LightskinPaper}, we wanted to compute indirect lighting only in specific locations instead of a per-pixel basis (as opposed to techniques like classic Reflective Shadow Maps or Voxel Cone Tracing).
-Since the goal of this work is a fully dynamic solution that works without any pre-computations, it is necessary to place such caches at runtime.
-
-Such an approach has several challenges in general:
-Each cache has both be placed and provided with data in a temporal coherent way to avoid flickering.
-Pixels need to have easy access to a certain number of caches to be able to interpolate them.
-Note that this apply pass can have temporal coherence problems on its own, as the mapping from world positions to caches needs to be stable no matter how densely they are sampled, i.e. by how many pixels an object covers.
-
-On the other hand, there are several intrinsic advantages which can be expected of a dynamic light cache placement:
-The number of caches can be easily controlled by  ... screen space... distance ....
-Low memory footprint, scalable
+So far, the data requirements of each cache were not defined.
+Precomputed caches can naturally hold almost arbitrary data (within a given memory bound).
+Dynamic caches on the other side need to refill theses data every frame, which is not only costly performance-wise but may also cancel out certain types of data as it may not be accessible. \todo{give an example? like lensing with area}
+Naturally, such constraints also affect the following lighting and interpolation passes tremendously.
 
 We evaluated several approaches before we came up with our final algorithm.
 If you are interested you can read the summary of these attempts in \autoref{chap:abandoned}.
 
-We ended up with a conceptually easy ....
-
-
 \subsection{Adaptive Realtime (Ir-)Radiance Volumes}
+To cancel out temporal artifacts entirely, we decided to place caches only on the nodes of a regular grid in world space.
+
 
 
 \subsection{Memory representation}
-Non-perfect Hashing. Striving for low collision count.
-Still much better than full grid!
 
-\section{Cache Lighting}
+\subsection{View Dependent Cache Allocation}
+
+\section{Indirect Lighting}
 
 
-\section{Indirect Shadows}
+\subsection{Indirect Shadows}
 
-\subsection{Scene Voxelization}
+\subsubsection{Scene Voxelization}
 
-\subsection{Cone Casts on Filtered Reflective Shadow Maps}
+\subsubsection{Cone Casts on Filtered Reflective Shadow Maps}
 
 
 \section{Cache Interpolation}
