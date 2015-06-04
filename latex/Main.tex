@@ -42,9 +42,10 @@ If you are interested you can read the summary of these attempts in \autoref{cha
 
 \subsection{Cascaded Cache Address Volume}
 To cancel out temporal artifacts entirely, we decided to place caches only at the nodes of a regular world space grid.
-The main disadvantage of this method is, that cache are not placed on surfaces and thus can not have a specific orientation.\\
-Since only a small fraction of all grid cells contains any caches, caches are stored in a separate buffer and only their addresses are saved within the grid.
+The main disadvantage of this method is, that caches are not placed on surfaces and thus can not have a specific orientation.\\
+Since only a small fraction of all grid cells contains any caches, they are stored in a separate buffer and only their addresses are saved within the grid.
 Accordingly, we call this grid the \emph{Cache Address Volume (CAV)}.
+This approach reduces not only the memory consumption drastically, it makes it also much easier to perform the lighting for each cache, as they lie now consecutive in memory instead of being scattered within a volume.
 
 During the cache allocation pass the CAV is cleared and then refilled depending on the current view.
 This is done by a full-screen pass, using the per-pixel world-positions from the previously rendered scene (which can be acquired using the depth buffer).
@@ -75,12 +76,23 @@ With four byte address in each cell, this results in 4MB for all CAV cascades. \
 \todo{image showing cascades!}
 
 \section{Indirect Lighting}
+The indirect lighting of the caches relies on reflective shadow maps (see \todo{citation needed}).
+In principle each cache iterates on the entire RSM to retrieve the encoded indirect lighting informations.
+The following chapters explain how this information is processed and how the results are saved for later interpolation.
 
-need rsm ... 
+\subsection{Diffuse Lighting}
+Diffuse lighting is handles straight forward.
+Each RSM pixel is interpreted as a disc-shaped light as described by Lensing (see \todo{either explain here or earlier}).
+The total irradiance per normal is summed up into a low-order spherical harmonics representation.
+
+Using zonal harmonics, the irradiance contribution of a single light to the spherical harmonics coefficients can be computed analytically.
+Assume that the direction to the light would be $(0,0,1)$, then the irradiance 
+\begin{equation}
+\end{equation}
 
 
-Different basis: SH1, SH2, H4, H6
-It is possible to use hemispherical basis to represent the irradiance for a given normal, since for a given view, the possible normal directions are limited to a hemisphere. ....
+\subsection{Specular Lighting}
+
 
 \subsection{Indirect Shadows}
 
