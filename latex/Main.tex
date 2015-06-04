@@ -40,23 +40,39 @@ Naturally, such constraints also affect the following lighting and interpolation
 We evaluated several approaches before we came up with our final algorithm.
 If you are interested you can read the summary of these attempts in \autoref{chap:abandoned}.
 
-\subsection{Adaptive Real-Time (Ir-)Radiance Volumes} \todo{Better name?}
-To cancel out temporal artifacts entirely, we decided to place caches only on the nodes of a regular grid in world space.
-The main disadvantage of this method is, that cache are not placed on surfaces and thus have no concrete orientation.
+\subsection{Cascaded Cache Address Volume}
+To cancel out temporal artifacts entirely, we decided to place caches only at the nodes of a regular world space grid.
+The main disadvantage of this method is, that cache are not placed on surfaces and thus can not have a specific orientation.\\
+Since only a small fraction of all grid cells contains any caches, caches are stored in a separate buffer and only their addresses are saved within the grid.
+Accordingly, we call this grid the \emph{Cache Address Volume (CAV)}.
 
-During the cache allocation pass, each pixel activates its eight nearest caches.
-This is done by screen pass, using the depth buffer from the previously rendered scene.
-\todo{write: allows for optimizations since neighboring pixels activate the same cache - see blabla}
+During the cache allocation pass the CAV is cleared and then refilled depending on the current view.
+This is done by a full-screen pass, using the per-pixel world-positions from the previously rendered scene (which can be acquired using the depth buffer).
+Each pixel allocates caches at the eight nearest CAV cells.
+If an affected cell already contains a valid cache address, it is skipped as pixels do not introduce any data besides the cache allocation itself.
+Since neighboring pixels often access the same grid cells, there is room for some optimizations using shared memory which are explained in \ref{sec:impl:cachealloc}.
 
-The grid moves with the view frustum to cover it entirely.
-However, all movements are snapped to the distance between two caches, since smooth movements would lead again to temporal incoherences.
+\subsubsection{Cascading}
+Similar to Cascaded Light Propagation Volumes~\cite{bib:lpt} a set of nested CAV cascades are centered around the camera.
+This introduces a distance dependent level of detail and keeps the number of caches constant, even for large scenes.
+The cascade positions are snapped to multiples of their grid size to ensure consistent lighting results. \todo{elaborate the snapping-whys further?}
+For simplicity, all CAV cascades are cubes of the same resolution with their grid size doubling for each consecutive cascade.
 
-Even so, usually only a very small fraction of all grid cells contains an activated cache.
-use grid for addresses only
-large buffer with all cache data instead,
-what does a cache contain?
+Caches are only allocated using the smallest CAV cascade which encloses a given pixel world-position.
+Since a pixel needs to be able to access eight different neighboring cells, decision boundaries are used which are smaller than the actual extent of the cascade.
+As the snapped movement introduces temporal incoherency, we move the decision boundaries smoothly with the camera and shrink them further by another grid cell size to ensure that the decision boundaries are fully enclosed in their respective cascades.
 
-\subsection{Cascading}
+Additionally, there are transition areas between two successive cascades.
+A transition area is as wide as the grid cell size of the smaller involved cascade.
+Within these areas, caches are allocated in both cascades to make it possible to avoid hard edges during the interpolation stage late on.\\
+
+Contrary to Light Propagation Volumes, the cascades are not displaced with the view direction, but strictly centered around the camera position as this helps to keep the level of detail stable against view rotations.\\
+While this means that a very large portion of each cascade is never used at all, the costs are still rather low since there are no computations involved for empty cells.
+Also, the memory footprint is small: %nevertheless
+A high detailed setup consists of four cascades, each with a resolution of $64^3$.
+With four byte address in each cell, this results in 4MB for all CAV cascades. \todo{Try 16bit addresses?!}
+
+\todo{image showing cascades!}
 
 \section{Indirect Lighting}
 
@@ -97,7 +113,7 @@ Deferred Renderer, 32bits per Layer RGB(A) srgb - Diffuse, RG 16snorm - Normals 
 
 \todo{explanation}
 
-\subsection{Cache Allocation}
+\subsection{Cache Allocation} \label{sec:impl:cachealloc}
 cacheList via shared memory etc.
 "Adress Coord Cache"
 
