@@ -51,7 +51,7 @@ During the cache allocation pass the CAV is cleared and then refilled depending 
 This is done by a full-screen pass, using the per-pixel world-positions from the previously rendered scene (which can be acquired using the depth buffer).
 Each pixel allocates caches at the eight nearest CAV cells.
 If an affected cell already contains a valid cache address, it is skipped as pixels do not introduce any data besides the cache allocation itself.
-Since neighboring pixels often access the same grid cells, there is room for some optimizations using shared memory which are explained in \ref{sec:impl:cachealloc}.
+Since neighboring pixels often access the same grid cells, there is room for some optimizations using shared memory which are explained in \autoref{sec:impl:cachealloc}.
 
 \subsubsection{Cascading}
 Similar to Cascaded Light Propagation Volumes~\cite{bib:lpt} a set of nested CAV cascades are centered around the camera.
@@ -71,30 +71,61 @@ Contrary to Light Propagation Volumes, the cascades are not displaced with the v
 While this means that a very large portion of each cascade is never used at all, the costs are still rather low since there are no computations involved for empty cells.
 Also, the memory footprint is small: %nevertheless
 A high detailed setup consists of four cascades, each with a resolution of $64^3$.
-With four byte address in each cell, this results in 4MB for all CAV cascades. \todo{Try 16bit addresses?!}
-
+With four byte address in each cell, this results in 4MB for all CAV cascades.
 \todo{image showing cascades!}
 
 \section{Indirect Lighting}
 The indirect lighting of the caches relies on reflective shadow maps (see \todo{citation needed}).
-In principle each cache iterates on the entire RSM to retrieve the encoded indirect lighting informations.
+In principle each cache iterates on the entire RSM to retrieve the encoded lighting informations.
 The following chapters explain how this information is processed and how the results are saved for later interpolation.
 
 \subsection{Diffuse Lighting}
-Diffuse lighting is handles straight forward.
-Each RSM pixel is interpreted as a disc-shaped light as described by Lensing (see \todo{either explain here or earlier}).
-The total irradiance per normal is summed up into a low-order spherical harmonics representation.
+We make use of the common separation of diffuse and specular lighting, making the later an optional feature that may be deactivated to save resources if necessary. \todo{principle should be in the basics chapter}
+Diffuse lighting is comparatively easy to compute and represent since, for a given position and reflectivity, it is a low frequency function over a surface normal, independently of the view direction.
 
-Using zonal harmonics, the irradiance contribution of a single light to the spherical harmonics coefficients can be computed analytically.
-Assume that the direction to the light would be $(0,0,1)$, then the irradiance 
+Recall the rendering equation for pure diffuse surfaces:
 \begin{equation}
+L_o (\mathrm{x}) = \frac{\rho}{\pi}\int\limits_{2\pi sr} L_i(x,\omega_i) \cdot \cos\theta \,\mathrm{d}\omega_i
 \end{equation}
+Using the reflective shadow map, an approximation of the integral can be expressed as a sum over $n$ virtual area lights:
+\begin{align}
+L_o (\mathrm{x})
+&=\frac{\rho}{\pi}\sum\limits_{i=0}^{n} L_i \cdot (\hat{\mathbf{n}} \cdot \hat{\mathbf{d}}_i)^+ = \\
+&=\frac{\rho}{\pi}\sum\limits_{i=0}^{n} \frac{I_i }{||\mathrm{x} - \mathrm{x}_i||^2 +  A_i} \cdot (\hat{\mathbf{n}} \cdot \hat{\mathbf{d}}_i)^+ \\
+&=\frac{\rho}{\pi}\sum\limits_{i=0}^{n} \frac{\frac{\phi_i}{\pi} (\hat{\mathbf{n}}_i \cdot (-\hat{\mathbf{d}}_i) )^+}{||\mathrm{x} - \mathrm{x}_i||^2 +  A_i} \cdot (\hat{\mathbf{n}} \cdot \hat{\mathbf{d}}_i)^+
+\end{align}
+\todo{Where do we explain the disc light thing? Need to derive this formular much slower!}
+%Each RSM pixel is interpreted as a disc-shaped light as described by Lensing (see \todo{either explain here or earlier}).
 
+The reflectivity $\rho$ is usually given by a texture and varies per pixel.
+However, since it is not part of the sum over all RSM pixels, it can be applied easily during the cache interpolation stage.\\
+As caches are not placed on surfaces, there is no known normal vector $\hat{\mathbf{n}}$.
+The only other quantity that does not depend on the RSM is the position, which is known for each cache.
+Accordingly, each cache saves irradiance as a function over the normal vector.
+We chose a low-order spherical harmonics representation since it allows iterative computation and easy evaluation at runtime.\\ 
+The irradiance contribution of a single light to the spherical harmonics coefficients can be derived analytically. \todo{put the meat of all this in prerequisites}
+For a single light, the irradiance is symmetric to its direction.
+Using this property, rotated Zonal Harmonic coefficients can provide an much easier way of deriving the irradiance contribution than directly using Spherical Harmonics.
+First, Zonal Harmonic coefficients $z_l$ are computed for a fixed light direction, pointing to $(0,0,1)$.
+\begin{align}
+z_l =&\int\limits_{2 \pi sr} L_i \cdot (\omega \cdot (0,0,1))^+ \cdot y^0_l(\omega) \,\mathrm{d}\omega\\
+=&\int\limits_{2 \pi sr} L_i \cdot \cos\theta \cdot y^0_l(\omega) \,\mathrm{d}\omega
+\end{align}
+Note that by integrating only over the upper hemisphere, the cosine does not need to be explicitly clamped.
+Due to the rotation invariance of Spherical Harmonics, the resulting Zonal Harmonics coefficients can be rotated to the light direction $\hat{\mathbf{d}}_i$.
+\begin{equation} \label{eq:zonalrotate}
+	c_l^m = \sqrt{\frac{4\pi}{2l+1}} \cdot z_l \cdot y_l^m(\hat{\mathbf{d}}_i)
+\end{equation}
+The resulting expressions for the first three SH bands can be found in \autoref{chap:shcosinelobe}.
+
+To perform the diffuse cache lighting, the coefficients for all virtual lights are accumulated and saved into the cache buffer for later evaluation. \todo{add a note on how many bandy are required}
 
 \subsection{Specular Lighting}
-
+optional...
 
 \subsection{Indirect Shadows}
+optional but crucial, difficult .... ....
+
 
 \subsubsection{Scene Voxelization}
 

@@ -1,0 +1,44 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+
+\appendix
+
+\chapter{Spherical Harmonics Evaluation} 
+All vectors in this appendix are given in spherical coordinates.
+To convert to Cartesian coordinates, the following formula can be used:
+\begin{equation}
+\begin{pmatrix}x\\y\\z\end{pmatrix} = \begin{pmatrix}\cos(\varphi)\sin(\theta)\\ \sin(\varphi)\sin(\theta)\\ \cos(\theta)\end{pmatrix}
+\end{equation}
+
+\section{Polynomial Forms of Spherical Harmonics Basis}
+\begin{align}
+y^0_0(\theta, \varphi) =& \frac{1}{2\cdot \sqrt{\pi }} \\
+y^{-1}_1(\theta, \varphi) =& \frac{-\sqrt{3}\cdot \mathrm{sin}\left( \theta\right) \cdot \mathrm{sin}\left( \varphi\right) }{2 \sqrt{\pi }} \\
+y^0_1(\theta, \varphi) =& \frac{\sqrt{3}\cdot \mathrm{cos}\left( \theta\right) }{2 \sqrt{\pi }} \\
+y^1_1(\theta, \varphi) =& \frac{-\sqrt{3}\cdot \mathrm{sin}\left( \theta\right) \cdot \mathrm{cos}\left( \varphi\right) }{2 \sqrt{\pi }} \\
+y^{-2}_2(\theta, \varphi) =& \frac{\sqrt{15}\cdot \mathrm{sin}\left( \theta\right) \cdot \mathrm{sin}\left( \varphi\right) \cdot \mathrm{sin}\left( \theta\right) \cdot \mathrm{cos}\left( \varphi\right) }{2 \sqrt{\pi }} \\
+y^{-1}_2(\theta, \varphi) =& \frac{-\sqrt{15}\cdot \mathrm{sin}\left( \theta\right) \cdot \mathrm{sin}\left( \varphi\right) \cdot \mathrm{cos}\left( \theta\right) }{2 \sqrt{\pi }} \\
+y^0_2(\theta, \varphi) =& \frac{\sqrt{5}\cdot \left( 3\cdot {{\mathrm{cos}\left( \theta\right) }^{2}}-1\right) }{4 \sqrt{\pi }} \\
+y^{1}_2(\theta, \varphi) =& \frac{-\sqrt{15}\cdot \mathrm{sin}\left( \theta\right) \cdot \mathrm{cos}\left( \varphi\right) \cdot \mathrm{cos}\left( \theta\right) }{2 \sqrt{\pi }} \\
+y^{2}_2(\theta, \varphi) =& \frac{\sqrt{15}\cdot \left( {{\left( \mathrm{sin}\left( \theta\right) \cdot \mathrm{cos}\left( \varphi\right) \right) }^{2}}-{{\left( \mathrm{sin}\left( \theta\right) \cdot \mathrm{sin}\left( \varphi\right) \right) }^{2}}\right) }{4 \sqrt{\pi }}
+\end{align}
+
+\newpage
+
+\section{Clamped Cosine Lobe in Spherical Harmonics Representation} \label{chap:shcosinelobe}
+Spherical Harmonics coefficients for a clamped cosine lobe in a given direction.
+
+\begin{align}
+c^0_0 =& \frac{\sqrt{\pi }}{2}\\
+c^{-1}_1 =& -\frac{\sqrt{\pi }\cdot \mathrm{sin}\left( \varphi\right) \cdot \mathrm{sin}\left( \theta\right) }{\sqrt{3}}\\
+c^0_1 =& \frac{\sqrt{\pi }\cdot \mathrm{cos}\left( \theta\right) }{\sqrt{3}}\\
+c^1_1 =& -\frac{\sqrt{\pi }\cdot \mathrm{cos}\left( \varphi\right) \cdot \mathrm{sin}\left( \theta\right) }{\sqrt{3}}\\
+c^{-2}_2 =& \frac{\sqrt{15 \, \pi}\cdot \mathrm{cos}\left( \varphi\right) \cdot \mathrm{sin}\left( \varphi\right) \cdot {{\mathrm{sin}\left( \theta\right) }^{2}}}{8}\\
+c^{-1}_2 =& -\frac{\sqrt{15 \, \pi}\cdot \mathrm{sin}\left( \varphi\right) \cdot \mathrm{cos}\left( \theta\right) \cdot \mathrm{sin}\left( \theta\right) }{8}\\
+c^0_2 =& \frac{\sqrt{5 \, \pi}\cdot \left( 3\cdot {{\mathrm{cos}\left( \theta\right) }^{2}}-1\right) }{16}\\
+c^1_2 =& -\frac{\sqrt{15 \, \pi}\cdot \mathrm{cos}\left( \varphi\right) \cdot \mathrm{cos}\left( \theta\right) \cdot \mathrm{sin}\left( \theta\right) }{8}\\
+c^2_2 =& \frac{\sqrt{15 \, \pi}\cdot \left( {{\mathrm{cos}\left( \varphi\right) }^{2}}\cdot {{\mathrm{sin}\left( \theta\right) }^{2}}-{{\mathrm{sin}\left( \varphi\right) }^{2}}\cdot {{\mathrm{sin}\left( \theta\right) }^{2}}\right) }{16}
+\end{align}
+
+
+\end{document}
