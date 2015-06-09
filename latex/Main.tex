@@ -54,25 +54,31 @@ If an affected cell already contains a valid cache address, it is skipped as pix
 Since neighboring pixels often access the same grid cells, there is room for some optimizations using shared memory which are explained in \autoref{sec:impl:cachealloc}.
 
 \subsubsection{Cascading}
-Similar to Cascaded Light Propagation Volumes~\cite{bib:lpt} a set of nested CAV cascades are centered around the camera.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{cascades}
+	\caption{Visualization of CAV cascades. The white lines to the right show the active view frustum. The brightness differences within a cascade (single colored area) hint the cache size.} \label{fig:cavcascades}
+\end{figure}
+
+Similar to Cascaded Light Propagation Volumes \cite{bib:lpt} a set of nested CAV cascades are centered around the camera.
+\autoref{fig:cavcascades} visualizes the cascading system.
 This introduces a distance dependent level of detail and keeps the number of caches constant, even for large scenes.
 The cascade positions are snapped to multiples of their grid size to ensure consistent lighting results. \todo{elaborate the snapping-whys further?}
 For simplicity, all CAV cascades are cubes of the same resolution with their grid size doubling for each consecutive cascade.
 
 Caches are only allocated using the smallest CAV cascade which encloses a given pixel world-position.
-Since a pixel needs to be able to access eight different neighboring cells, decision boundaries are used which are smaller than the actual extent of the cascade.
-As the snapped movement introduces temporal incoherency, we move the decision boundaries smoothly with the camera and shrink them further by another grid cell size to ensure that the decision boundaries are fully enclosed in their respective cascades.
-
+Since a pixel needs to be able to access eight different neighboring cells, separate "decision boundaries" are used.
+These boundaries are smaller than the actual extent of the cascade.
+As the snapped movement introduces temporal incoherency, we move the decision boundaries smoothly with the camera and shrink them further by another grid cell size to ensure that they are fully enclosed by their respective cascades.\\
 Additionally, there are transition areas between two successive cascades.
-A transition area is as wide as the grid cell size of the smaller involved cascade.
-Within these areas, caches are allocated in both cascades to make it possible to avoid hard edges during the interpolation stage late on.\\
+A transition area is as wide as the grid cell size of the smaller involved cascade. \todo{might want to try larger transition area}
+Within these areas, caches are allocated in both cascades to make it possible to avoid hard edges during the interpolation stage late on.
 
 Contrary to Light Propagation Volumes, the cascades are not displaced with the view direction, but strictly centered around the camera position as this helps to keep the level of detail stable against view rotations.\\
 While this means that a very large portion of each cascade is never used at all, the costs are still rather low since there are no computations involved for empty cells.
-Also, the memory footprint is small: %nevertheless
+Also, the memory footprint is still rather small: %nevertheless
 A high detailed setup consists of four cascades, each with a resolution of $64^3$.
 With four byte address in each cell, this results in 4MB for all CAV cascades.
-\todo{image showing cascades!}
 
 \section{Indirect Lighting}
 The indirect lighting of the caches relies on reflective shadow maps (see \todo{citation needed}).
