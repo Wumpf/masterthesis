@@ -159,13 +159,92 @@ After the all caches were lit, MipMaps of the Specular Environment Map atlas are
 Similar to classical reflection maps \cite[p.~308]{bib:RealtimeRenderingBook} they will later be used to estimate the specular lighting for Blinn-Phong exponents bellow $\gamma_{max}$.
 
 \subsection{Indirect Shadows}
-optional but crucial, difficult .... ....
+So far, indirect visibility was ignored.
+In most cases however, approximate shadows are extremely important to the overall image quality. \todo{"prove" with image}
+This chapter presents a voxel cone tracing based approach with several adjustments and new simplifications to fit in our framework.
 
+\subsubsection{Voxelization}
+To estimate shadowing effectively, we trace cones in from the caches to virtual lights within a binary voxelization of the scene.
+The general approach very similar to the cone tracing step in \cite{bib:layeredrsm} Layered Reflective Shadow Maps from Sugihara et al. \cite{bib:layeredrsm}.
+Contrary to the original voxel cone tracing work of Crassin et al. \cite{bib:voxelconetracing} and similar to Sugihara et al., we only need to perform \emph{binary} voxelization and do not store any additional data per voxel.
+Due to the low memory footprint of this data representation, we do not need to use a sparse data structure even for moderately large scenes.
+This allows us to update the voxelization every frame for a relatively low cost.
+By averaging the occlusion percentage, mipmaps are created from the initial binary data (where the occlusion percentage is either zero or one).
 
-\subsubsection{Scene Voxelization}
+Note that higher mipmap-levels tend to have too low occlusion values since we voxelize only surfaces.
+Instead, a solid voxelization would be required.
+However, such solid voxelizations are not only computational more intense, they also would require a clear cut definition of the outer and inner volume which is not given by most triangles meshes (see \todo{citation needed?}).
+\todo{Voxel blending?}
 
-\subsubsection{Cone Casts on Filtered Reflective Shadow Maps}
+\subsubsection{Cone Trace LOD}
+Contrary to both Sugihara's layered reflective shadow maps and Crassin's voxel cone tracing we do not use the cone tracing to look up a prefilter lighting value.
+Instead, the tracing is only used to determine if a given virtual light is visible from the position of a cache.
+We found, that tracing a cone to every virtual light is, depending on the RSM resultion, often too expensive.
+However, most virtual lights lie very close in space and do not need to be tested separately.
+%To be able to exploit this property and reduce the number of needed cones, we pre-filter the depth map of the reflective shadow map.
+Inspired by Variance Shadow Maps from Donnelly and Lauritzen \cite{bib:vsm}, we save not only depth but also squared depth in the reflective shadow map and prefilter the combined depth texture by creating mipmaps.
+As in Variance Shadow Maps, the squared depth will be used to retrieve the variance of the depth value.
+We introduce \emph{Indirect Shadow LOD} as a global parameter that determines for which miplevel-level cones are traced to check the visibility of the underlying group of virtual lights. 
+All other lighting computations will still work on the lowest, unfiltered level but use the previously computed shadowing value which stays the same across multiple lights.\\
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{shadowconetracelod.pdf}
+	\caption{Shadow cone tracing from a cache (grey circle left) to a group of virtual lights (black crosses). The angle of a shadow cone depends on the sphere around the virtual lights which is the maximum of the projected sample width (red) and the depth variance (blue).} \label{fig:shadowcone}
+\end{figure}
+The pre-filtered depth texture is now used to estimate the angle of a cone that encloses a group of virtual lights. 
+To do so, a sphere around the concerning virtual lights needs to be estimated.
+\autoref{fig:shadowcone} illustrates the algorithm.
+The center of the sphere (green cross in \autoref{fig:shadowcone}) is determined directly by the shadow sample position and its depth which is implicitly the average depth of all underlying virtual lights.
+%Both are implicitly separate averages over all underlying virtual lights.
+For the radius the maximum of two separate estimations $r_e1$ and $r_e2$ are used.
+If it is assumed that depth values are normal distributed, approximately $95\%$ of all values lie within the range of two times their standard deviation (blue line in \autoref{fig:shadowcone}).
+The standard deviation $\sigma$ can be easily computed:
+\begin{align}
+E(d) =& \frac{1}{N} \sum\limits_{i=1}^{N} d_i\\
+E(d^2) =& \frac{1}{N} \sum\limits_{i=1}^{N} d_i^2\\
+\sigma^2 =& E(d^2) - E(d)\\
+r_e1 =& \sqrt{E(d^2) - E(d)}
+\end{align}
+The average depth $E(d)$ and averaged squared depth $E(d^2)$ of the virtual lights are available through the pre-filtered depth texture.
+
+While the first estimate works well if the virtual lights have very different distances to their origin-light, it underestimates if they are parallel to the near plane of the origin-light.
+Thus, the second estimate (depicted red in \autoref{fig:shadowcone}) is the size of the sample area, projected to the position of the sphere .
+The sample area is determined by the relative sample size, given by the width $n_w$ and depth $n_d$ of near clip plane, the RSM resolution $R$ and the chosen Indirect Shadow LOD $l$. \todo{at some point earlier: RSM always square!}
+\begin{equation}
+r_e2 = E(d) \cdot \frac{n_w}{n_d \cdot R \cdot 2^{-l} }
+\end{equation}
+
+\subsubsection{Cone Trace Sampling Steps}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{conetracestep.pdf}
+	\caption{Sampling a shadow cone from a cache to a light(-group). The first two enclosing circles do not touch each other because the sample distance would then below the minimum.} \label{fig:shadowconestep}
+\end{figure}
+The ray from cache to the sphere is sampled in increasing steps.
+%Starting with a step size of one voxel width, the steps are doubled with each additional sample.
+For each sample, we need to determine the mip-level in the voxel-volume of which a single voxel is approximately as large as the cone segment that is represented by the sample.
+This is estimated by the radius $r_s$ of the inner circle of the current sample, as depicted in \autoref{fig:shadowconestep}.
+It can be computed by easy trigonometry:
+\begin{equation}
+r_s = d_s \cdot \sin \alpha = d_s \cdot \frac{max(r_e1, r_e2)}{||\mathrm{p_c} - \mathrm{p_l}||}
+\end{equation}
+$d_s$ is the distance of the given sample to the cache. $\mathrm{p_c}$ and $\mathrm{p_c}$ are the positions of the cache and light.
+Note that actual cone angle $\alpha$ does not need to be evaluated at any time.
+If all values are given in voxel volume coordinates, the miplevel is simply $log_2(r_s)$.\\
+The distance $d_s$ of the next sample is chosen so that two inner circles touch each other:
+\begin{align}
+d_{s'} =& d_s + r_s + r_{s'} = d_s + r_s + d_{s'} \cdot \sin \alpha\\
+d_{s'} =& \frac{d_s + r_s}{1-\sin\alpha}
+\end{align}
+To avoid needless oversampling for thin cones, step sizes smaller than one voxel are no allowed (as happend between the first two samples in \autoref{fig:shadowconestep}).
+
+Using a trilinear texture filter, the opacity values $\alpha_s$ from the voxel volume are interpolated within and across mipmap-levels.
+The total visibility $V$ is accumulated front to back:
+\begin{equation}
+V = 1 - \sum\limits_{s=1}\alpha_s \prod\limits_{j=0}^{s-1}(1-\alpha_j)
+\end{equation}
+The sampling stops if either the light group position is reached or the visibility approaches zero.
 
 \section{Cache Interpolation}
 
@@ -197,6 +276,15 @@ Uses also Blinn-Phong.
 \subsection{Cache Allocation} \label{sec:impl:cachealloc}
 cacheList via shared memory etc.
 "Adress Coord Cache"
+
+\subsection{Indirect Lighting}
+
+Traverse in Morton Order.
+
+\subsubsection{Voxelization}
+This can be done very fast using the GPU.
+We use the conservative voxelization algorithm described by Crassin and Green in "OpenGL Insights" \cite{bib:openglinsightsvoxel}.
+On more recent hardware conservative voxelization is supported directly
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}

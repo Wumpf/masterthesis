@@ -11,7 +11,7 @@
 \usepackage{acronym}
 \usepackage{amsmath}
 \usepackage{marvosym}
-\usepackage{graphicx}
+\usepackage[pdftex]{graphicx}
 \usepackage{xcolor, luximono, listings}
 \usepackage{listings}
 \usepackage{geometry}
@@ -37,7 +37,7 @@
     citecolor={dark-blue}, urlcolor={medium-blue}
 }
 
-% Redfine some autoref macros for proper case.
+% Redfine some autoref macros for proper caseing.
 \renewcommand*{\chapterautorefname}{Chapter}
 \renewcommand*{\sectionautorefname}{Section}
 \renewcommand*{\subsectionautorefname}{Subsection}
@@ -46,6 +46,7 @@
 
 % Citeing
 \usepackage[numbers]{natbib}
+
 % Use subfiles instead of includes
 \usepackage{subfiles}
 
@@ -56,34 +57,34 @@
 % C/C++ programming languages
 %\lstloadlanguages{C,C++}
 
-% HLSL programming language (no complete keyword set!)
-\lstdefinelanguage{HLSL}
-{
-sensitive=true,
-morekeywords=[1]{
-attribute, const, uniform, varying,
-flat, smooth, break, continue, do,
-for, while, switch, case, default, if,
-else, in, out, inout,
-float, float2, float3, float4, float4x4,
-int, void, unsigned,bool, true, false, invariant, discard, struct, return,},
-morekeywords=[2]{
-mul, saturate, clamp, floor, min, max, dot, normalize, lerp,
-}
-morecomment=[l]{//},
-morecomment=[s]{/*}{*/},
-morecomment=[l][keywordstyle4]{\#},
-}
-\lstset{
-language=HLSL,
-basicstyle=\ttfamily,
-basicstyle=\scriptsize,
-keywordstyle=\color{blue},
-commentstyle=\color{darkgreen},
-stringstyle=\color{yellow},
-backgroundcolor=\color{white},
-morecomment=[s][\color{darkgreen}]{/*}{*/}
-}
+% GLSL programming language (no complete keyword set!)
+%\lstdefinelanguage{GLSL}
+%{
+%sensitive=true,
+%morekeywords=[1]{
+%attribute, const, uniform, varying,
+%flat, smooth, break, continue, do,
+%for, while, switch, case, default, if,
+%else, in, out, inout,
+%float, float2, float3, float4, float4x4,
+%int, void, unsigned,bool, true, false, invariant, discard, struct, return,},
+%morekeywords=[2]{
+%mul, saturate, clamp, floor, min, max, dot, normalize, lerp,
+%}
+%morecomment=[l]{//},
+%morecomment=[s]{/*}{*/},
+%morecomment=[l][keywordstyle4]{\#},
+%}
+%\lstset{
+%language=HLSL,
+%basicstyle=\ttfamily,
+%basicstyle=\scriptsize,
+%keywordstyle=\color{blue},
+%commentstyle=\color{darkgreen},
+%stringstyle=\color{yellow},
+%backgroundcolor=\color{white},
+%morecomment=[s][\color{darkgreen}]{/*}{*/}
+%}
 
 % paper format
 \geometry{a4paper,left=30mm,right=20mm, top=2cm, bottom=3cm} 
@@ -98,6 +99,9 @@ morecomment=[s][\color{darkgreen}]{/*}{*/}
 % Where all graphics to be found
 \graphicspath{ {../pictures/} }
 \DeclareGraphicsExtensions{.png,.jpg}
+
+
+
 
 \begin{document}
 
