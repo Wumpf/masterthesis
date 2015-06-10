@@ -40,7 +40,7 @@ Naturally, such constraints also affect the following lighting and interpolation
 We evaluated several approaches before we came up with our final algorithm.
 If you are interested you can read the summary of these attempts in \autoref{chap:abandoned}.
 
-\subsection{Cascaded Cache Address Volume}
+\subsection{Cache Address Volume}
 To cancel out temporal artifacts entirely, we decided to place caches only at the nodes of a regular world space grid.
 The main disadvantage of this method is, that caches are not placed on surfaces and thus can not have a specific orientation.\\
 Since only a small fraction of all grid cells contains any caches, they are stored in a separate buffer and only their addresses are saved within the grid.
@@ -52,8 +52,9 @@ This is done by a full-screen pass, using the per-pixel world-positions from the
 Each pixel allocates caches at the eight nearest CAV cells.
 If an affected cell already contains a valid cache address, it is skipped as pixels do not introduce any data besides the cache allocation itself.
 Since neighboring pixels often access the same grid cells, there is room for some optimizations using shared memory which are explained in \autoref{sec:impl:cachealloc}.
+\todo{Add image here that demonstrates that only visibe caches are lit. Nice would be "view space inflicted shadow"}
 
-\subsubsection{Cascading}
+\subsubsection{Cascading} \label{sec:impl:cavcascading}
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{cascades}
@@ -126,7 +127,7 @@ The resulting expressions for the first three SH bands can be found in \autoref{
 
 To perform the diffuse cache lighting, the coefficients for all virtual lights are accumulated and saved into the cache buffer for later evaluation. \todo{add a note on how many bandy are required}
 
-\subsection{Specular Lighting}
+\subsection{Specular Lighting} \label{sec:impl:specenvmap}
 For specular lighting the Blinn-Phong BRDF~\cite{bib:blinnphongbrdf} is used, as it is very simple to compute and delivers comparatively plausible results \cite[p.~251f]{bib:RealtimeRenderingBook}.
 We use the normalization factor derived by Sloan and Hoffman as described in Realtime Rendering \cite[p.~257]{bib:RealtimeRenderingBook}. Using virtual point lights from the Reflective Shadow Map, the specular part of the visible radiance is defined as following:
 \begin{equation}
@@ -149,19 +150,20 @@ This means that each given virtual point light contributes only to a single hemi
 For the specular lighting, the hemisphere is discretized into a limited number of directions.
 Using the large $\gamma_{max}$ assumption, each light is only applied to the nearest data point.\\
 %
-Similar to the work of McGuire et al. on plausible Blinn-Phong cubemaps \cite{bib:envmipmap}, we require that the solid angle of the Blinn-Phong lobe does not exceed the angle between two data points.
-This allows to compute a plausible value for $\gamma_{max}$, given a number of $m$ uniformly distributed directions.
+Similar to the work of McGuire et al. \cite{bib:envmipmap} on plausible Blinn-Phong cubemaps, we require that the solid angle of the Blinn-Phong lobe does not exceed the angle between two data points.
+This allows to compute a plausible value for $\gamma_{max}$, given a number of $D$ uniformly distributed directions.
 \begin{align}
-\int\limits_{2\pi sr} (\cos\theta)^{\gamma_{max}}  \,\mathrm{d}\omega = \frac{2\pi}{m}\\
-\gamma_{max} = m-1
+\int\limits_{2\pi sr} (\cos\theta)^{\gamma_{max}}  \,\mathrm{d}\omega = \frac{2\pi}{D}\\
+\gamma_{max} = D-1
 \end{align}
 %
 To be able to efficiently address values per direction, the hemisphere is projected onto a square.
-Note that it is important, that this projection introduces as few distortion as possible since otherwise the directions are no longer distributed equally.
-For this purpose we use uniform Shirly and Chiu's concentric maps \cite{bib:concentricmaps}.\\ \todo{describe how maps work?}
+First, all directions are expressed in the local view space, which is an arbitrary transformation that maps the direction to the camera to $(0,0,1)$.
+For the projection itself it is important that it introduces as little distortion as possible since otherwise the directions are no longer distributed equally.
+For this purpose we use uniform concentric maps by Shirly and Chiu \cite{bib:concentricmaps}.\\ \todo{describe how maps work?}
 We call the resulting maps \emph{Specular Environment Maps} and store them on a large texture atlas.
 Depending on the quality setting, each cache uses typically a resolution between 8x8 and 32x32 pixels on this atlas.
-After the all caches were lit, MipMaps of the Specular Environment Map atlas are created.
+After all caches are lit, MipMaps of the Specular Environment Map atlas are created.
 Similar to classical reflection maps \cite[p.~308]{bib:RealtimeRenderingBook} they will later be used to estimate the specular lighting for Blinn-Phong exponents bellow $\gamma_{max}$.
 
 \subsection{Indirect Shadows}
@@ -253,11 +255,29 @@ V = 1 - \sum\limits_{s=1}\alpha_s \prod\limits_{j=0}^{s-1}(1-\alpha_j)
 The sampling stops if either the light group position is reached or the visibility approaches zero.
 
 \section{Cache Interpolation}
+After all caches have been populated with lighting data, their information needs to be interpolated across the screen.
 
+As in the cache allocation pass, each pixel uses its world position to compute its eight nearest caches.
+For the diffuse lighting, the irradiance Spherical Harmonic is evaluated with the per-pixel normal in each cache.
+The result is bilinear interpolated depending on the relative position of the pixel to its eight nearest caches.
+To retrieve the final visible radiance, the interpolated radiance value is then multiplied with the diffuse BRDF.
 
+For the specular lighting we need to determine the relative coordinate and, depending on the Blinn-Phong exponent, at which mipmap-level the Specular Environement Map of each cache should be sampled.
+Identical to the computation of the Specular Environment Map, finding the coordinate involves the projection of the normal vector using a local view space (see \autoref{sec:impl:specenvmap}).
+Since the direction to the camera from cache to cache is almost the same, we transform the per-pixel normal only to its own local view space.
+This introduces a slight inaccuracy but circumvents the possibility that a normal vector might lie outside of a cache's local view hemisphere.\\
+The mipmap-level is computed similar as $\gamma_{max}$ before, only that this time the mipmap-level $m$ is searched for.
+\begin{align}
+\int\limits_{2\pi sr} (\cos\theta)^{\gamma}  \,\mathrm{d}\omega = \frac{2\pi}{(R \cdot 2^{-m})}\\
+m = \log_2 \Big(\frac{2 \cdot R^2}{\gamma + 1} \Big) \cdot \frac{1}{2}
+\end{align}
+where $R$ is the resolution of a single Specular Environment Map.
+As before with the diffuse lighting, the results of all caches are bilinear interpolated and multiplied with the specular reflectivity of the corresponding pixel.
+
+Pixels in transition areas (see \autoref{sec:impl:cavcascading}) compute two radiance values, one for both CAV cascade.
+The results are interpolated linearly.
 
 \section{Implementation}
-
 \emph{As many as possible details should be delayed into this chapter. If it gets large or starts to mirror the main part, make it a chapter!}
 
 This is the right place for describing how to use Compute, OpenGL etc. for achieving the rather abstract formulated goals of the sections before.
