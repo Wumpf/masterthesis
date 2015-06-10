@@ -72,8 +72,10 @@ Since a pixel needs to be able to access eight different neighboring cells, sepa
 These boundaries are smaller than the actual extent of the cascade.
 As the snapped movement introduces temporal incoherency, we move the decision boundaries smoothly with the camera and shrink them further by another grid cell size to ensure that they are fully enclosed by their respective cascades.\\
 Additionally, there are transition areas between two successive cascades.
-A transition area is as wide as the grid cell size of the smaller involved cascade. \todo{might want to try larger transition area}
 Within these areas, caches are allocated in both cascades to make it possible to avoid hard edges during the interpolation stage late on.
+The size of the transition areas can be chosen freely.
+Where not noted otherwise, we use transition areas that are as wide as two times the grid cell size of the smaller involved cascade.
+This delivers sufficiently smooth transitions for reasonable performance costs and in our scenes.
 
 Contrary to Light Propagation Volumes, the cascades are not displaced with the view direction, but strictly centered around the camera position as this helps to keep the level of detail stable against view rotations.\\
 While this means that a very large portion of each cascade is never used at all, the costs are still rather low since there are no computations involved for empty cells.
