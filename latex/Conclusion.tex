@@ -13,5 +13,17 @@
 
 Solid Voxelization: "Fast Parallel Surface and Solid Voxelization on GPUs"  Schwarz \& Seidel 
 
+
+* something temporal? accumulating information?
+* Alter lookup lookup direction for caches to improve specular sampling
+  * Similar to SH gradients
+  * It should somehow be possible to...
+* "supergrid" shares certain values between caches
+* better fill hole: dilate on lowest (or all?) level intead of pull/push like approach ?
+* only relevant parts on specular envmap
+* Jitter cache grid
+  * tried shortly, but looked like a bad idea
+* different projection for specenvmap
+
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
