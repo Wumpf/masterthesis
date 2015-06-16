@@ -88,7 +88,7 @@ The indirect lighting of the caches relies on reflective shadow maps (see \todo{
 In principle each cache iterates on the entire RSM to retrieve the encoded lighting informations.
 The following chapters explain how this information is processed and how the results are saved for later interpolation.
 
-\subsection{Diffuse Lighting}
+\subsection{Diffuse Lighting} \label{sec:impl:diffuse}
 We make use of the common separation of diffuse and specular lighting, making the later an optional feature that may be deactivated to save resources if necessary. \todo{principle should be in the basics chapter}
 Diffuse lighting is comparatively easy to compute and represent since, for a given position and reflectivity, it is a low frequency function over a surface normal, independently of the view direction.
 
@@ -121,10 +121,7 @@ z_l =&\int\limits_{2 \pi sr} L_i \cdot (\omega \cdot (0,0,1))^+ \cdot y^0_l(\ome
 =&\int\limits_{2 \pi sr} L_i \cdot \cos\theta \cdot y^0_l(\omega) \,\mathrm{d}\omega
 \end{align}
 Note that by integrating only over the upper hemisphere, the cosine does not need to be explicitly clamped.
-Due to the rotation invariance of Spherical Harmonics, the resulting Zonal Harmonics coefficients can be rotated to the light direction $\hat{\mathbf{d}}_i$.
-\begin{equation} \label{eq:zonalrotate}
-	c_l^m = \sqrt{\frac{4\pi}{2l+1}} \cdot z_l \cdot y_l^m(\hat{\mathbf{d}}_i)
-\end{equation}
+Due to the rotation invariance of Spherical Harmonics, the resulting Zonal Harmonics coefficients can be rotated to the light direction (see \autoref{sec:pre:zonalharmonics}).
 The resulting expressions for the first three SH bands can be found in \autoref{chap:shcosinelobe}.
 
 To perform the diffuse cache lighting, the coefficients for all virtual lights are accumulated and saved into the cache buffer for later evaluation. \todo{add a note on how many bandy are required}
