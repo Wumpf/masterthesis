@@ -2,6 +2,9 @@
 \begin{document}
 
 \chapter{Prerequisites}\label{chap:basics}
+The following sections explain some of the underlying principles that are required to understand the later chapters in this thesis.
+Readers that are familiar with the basic concepts of photorealistic and realtime rendering may skip parts of this chapter.
+
 % What belongs here:
 % - Mathematics
 % - Things that I would expect the reader to know if this would be a paper
@@ -10,9 +13,29 @@
 % - References to work that is directly related to the topic
 
 \section{Theoretical Foundation}
-todo: We're doing science, so we need to know stuff prior to knowing stuff!
+This section explains some of the fundamentals of physically based rendering.
+For more detailed explanations the reader is referred to the book \emph{Physically Based Rendering, From Theory to Implementation} by Pharr and Humphreys \cite{bib:pbrt}.
 
-\subsection{Photometric Quantities}
+\subsection{Physical Foundation}
+Light is generally an electromagnetic wave which originates at a light source and is bounced of or absorbed by the surfaces it hits.
+As such, there are several complicated physical properties like diffraction,interference and quantization effects (due to the particle properties of electromagnetic waves) which are usually ignored for rendering, as they play most of the time a minor role.
+Each light particle (= photon) has a certain wavelength which is responsible for the perceived color.
+We are only interested in the visible part of the spectrum which ranges from about $380nm$ to $780nm$.
+The number of photons registered by the eye defines the brightness.\\
+As the human retina has only three receptors, each with a given range of wavelength-support, it is usually sufficient to perform all calculations using only the three basic color stimuli red, green and blue \cite{bib:colorscience}.
+However, as recently pointed out by Meng et al. \cite{bib:spectrumrendering} there are several problems that might lead to color shifts violation of energy conservation. \todo{recheck if I heared that talk (upcoming EGSR)}
+
+
+\subsection{Radiometric Quantities}
+There are several basic quantities that describe the transport and perception of light.
+
+
+%$\phi$ & \textbf{Radiant Flux}, light power\\
+%$I$ & \textbf{Radiant Intensity}, flux density per solid angle\\
+%$E$ & \textbf{Irradiance}, flux density per area\\
+%$L$ & \textbf{Radiance}, flux density per area per solid angle\\
+%$\rho$ & \textbf{Reflectance}, ratio between incoming and outgoing flux\\
+
 L,I,E, the whole zoo
 
 \subsection{Rendering Equation}
