@@ -14,6 +14,7 @@ Readers that are familiar with the basic concepts of photorealistic and realtime
 
 \section{Theoretical Foundation}
 This section explains some of the fundamentals of physically based rendering.
+We will only discuss a few basics which are helpful for a good understanding of this thesis.
 For more detailed explanations the reader is referred to the book \emph{Physically Based Rendering, From Theory to Implementation} by Pharr and Humphreys \cite{bib:pbrt}.
 
 \subsection{Physical Foundation}
@@ -21,22 +22,50 @@ Light is generally an electromagnetic wave which originates at a light source an
 As such, there are several complicated physical properties like diffraction,interference and quantization effects (due to the particle properties of electromagnetic waves) which are usually ignored for rendering, as they play most of the time a minor role.
 Each light particle (= photon) has a certain wavelength which is responsible for the perceived color.
 We are only interested in the visible part of the spectrum which ranges from about $380nm$ to $780nm$.
-The number of photons registered by the eye defines the brightness.\\
+The number of photons registered by the eye defines the brightness.
+\\
 As the human retina has only three receptors, each with a given range of wavelength-support, it is usually sufficient to perform all calculations using only the three basic color stimuli red, green and blue \cite{bib:colorscience}.
-However, as recently pointed out by Meng et al. \cite{bib:spectrumrendering} there are several problems that might lead to color shifts violation of energy conservation. \todo{recheck if I heared that talk (upcoming EGSR)}
-
+However, as recently pointed out by Meng et al. \cite{bib:spectrumrendering} there are several problems that might lead to color shifts and violation of energy conservation. \todo{recheck when I heared that talk (upcoming EGSR)}
 
 \subsection{Radiometric Quantities}
 There are several basic quantities that describe the transport and perception of light.
+\\
+\emph{Radiant flux} $\phi$ describes the energetic output of a light source.
+It measures how much energy a light source emits over time and is thus given in watts.
+\\
+Irradiance $E$ determines how much light (flux $phi$) per area $A$ a surface receives:
+\begin{equation}
+E = \frac{\mathrm{d}\phi}{\mathrm{d}A}
+\end{equation}
+The opposite, how much light per area is leaving a surface, is also called radiant exitance of radiosity.
+However, as in many other works, we will use the term for both incident and exitant light.
+\\
+The remaining two quantities depends on a \emph{solid angle}, the 3D equivalent of a 2D arc length.
+The solid angle subtended by an object is computed by the projected area on the unit sphere in a given point.
+Solid angles are measured in steradians $sr$.
+As common, we use the symbol $\omega$ both for the solid angle itself and the normalized directions of a differential solid angles when integrating over a (parts of) a sphere.
+\\
+\emph{Intensity} $I$ gives how much flux $\phi$ per solid angle $\omega$ is emitted in a certain direction:
+\begin{equation}
+I = \frac{\mathrm{d}\phi}{\mathrm{d}\omega}
+\end{equation}
+It is especially useful to describe in which direction light sources emit more or less light.
+\\
+The last and most important quantity is \emph{radiance} $L$ since it is the which is "visible" as it corresponds to the seen brightness.
+It is defined as emitted flux $\phi$ per solid angle $\omega$ per projected emitter area $A^\perp$ in respect to a certain detector.
+\begin{equation}
+L = \frac{\mathrm{d}\phi}{\mathrm{d}\omega \cdot \mathrm{d}A^\perp }
+\end{equation}
+The projected ("seen") differential area $\mathrm{d}A^\perp$ is depended of the angle $\theta$ between emitter surface and detector direction:
+\begin{equation}
+\mathrm{d}A^\perp = \mathrm{d}A \cdot \cos\theta
+\end{equation}
 
-
+\todo{figures for flux, I, E, L and solid angle}
 %$\phi$ & \textbf{Radiant Flux}, light power\\
 %$I$ & \textbf{Radiant Intensity}, flux density per solid angle\\
 %$E$ & \textbf{Irradiance}, flux density per area\\
 %$L$ & \textbf{Radiance}, flux density per area per solid angle\\
-%$\rho$ & \textbf{Reflectance}, ratio between incoming and outgoing flux\\
-
-L,I,E, the whole zoo
 
 \subsection{Rendering Equation}
 Rendering Equation
@@ -44,6 +73,8 @@ Rendering Equation
 \subsection{Bidirectional Reflectance Distribution Function}
 Introduce theory and Blinn-Phong
 separation of Diffuse and Specular
+
+%$\rho$ & \textbf{Reflectance}, ratio between incoming and outgoing flux\\
 
 \section{Realtime Rendering}
 Super awesome book about EVERYTHING! \cite{bib:RealtimeRenderingBook} (Tomas Akenine-M\"{o}ller and Eric Haines and Natty Hoffman).
