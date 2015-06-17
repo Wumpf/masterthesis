@@ -39,12 +39,18 @@ E = \frac{\mathrm{d}\phi}{\mathrm{d}A}
 \end{equation}
 The opposite, how much light per area is leaving a surface, is also called radiant exitance of radiosity.
 However, as in many other works, we will use the term for both incident and exitant light.
-\\
+
 The remaining two quantities depends on a \emph{solid angle}, the 3D equivalent of a 2D arc length.
 The solid angle subtended by an object is computed by the projected area on the unit sphere in a given point.
 Solid angles are measured in steradians $sr$.
-As common, we use the symbol $\omega$ both for the solid angle itself and the normalized directions of a differential solid angles when integrating over a (parts of) a sphere.
-\\
+A solid angle representing the entire unit sphere, has $4\pi\,sr$.
+As common, we use the symbol $\omega$ both for the solid angle itself and the normalized directions of a differential solid angles when integrating over (a part of) a sphere.
+For example, an integration of a direction dependent function $f(\mathbf{x})$ over all directions in a hemisphere is expressed as:
+\begin{equation}
+\int_{2\pi\,sr} f(\omega) \, \mathrm{d}\omega
+\end{equation} 
+$\mathrm{d}\omega$ denotes the differential steradian, $\omega$ alone a single direction on the unit hemisphere.
+
 \emph{Intensity} $I$ gives how much flux $\phi$ per solid angle $\omega$ is emitted in a certain direction:
 \begin{equation}
 I = \frac{\mathrm{d}\phi}{\mathrm{d}\omega}
@@ -68,13 +74,34 @@ The projected ("seen") differential area $\mathrm{d}A^\perp$ is depended of the 
 %$L$ & \textbf{Radiance}, flux density per area per solid angle\\
 
 \subsection{Rendering Equation}
-Rendering Equation
+The well-known rendering equation by Kajiya \cite{bib:renderingequation} is a general description of the radiance in a given point $x$ in a direction $\omega_o$:
+\begin{equation}
+L_o(x, \omega_o) = L_e(x, \omega_o) + \int_{2\pi\,sr} f(x, \omega_i, \omega_o) \cdot L_i(x, \omega_i) \cdot \cos\theta_i \, \mathrm{d}\omega_i
+\end{equation}
+Where $L_e$ is the self-emission and $L_i$ the incoming radiance for a given direction.
+$f$ denotes the \emph{bidirectional reflection distribution function} (BRDF) that describes how the surface reflects light.
+It will be examined more closely in the next section.
+The integral sums for all directions $\omega_i$ on the hemisphere, how much light is reflected to a observer in the direction $\omega_o$.
+Note that the evaluation of a single $L_i$ again requires the evaluation of the entire equation.
+This means that in theory the radiance at any point in any direction depends on all other points.
+Approaches that try to solve or approximate this recursive property of the rendering equation are thus performing \emph{global illumination}, as opposed to \emph{local illumination} where $L_i$ only includes directly visible light sources.
+
+One of the easiest ways of solving the rendering equation is path tracing which was presented alongside the equation.
+It solves the integral via a Monte Carlo integration:
+For each radiance sample multiple rays are shot into the scene.
+At each intersection the emissivity of the surface is evaluated. 
+The ray is reflected accordingly to the local material, using the BRDF as probability density.
+
+There are several phenomenons which are ignored by this basic form of the rendering equation.
+For example it is assumed that light travels through vacuum, i.e. no scattering or absorption within participating media occurs.
 
 \subsection{Bidirectional Reflectance Distribution Function}
 Introduce theory and Blinn-Phong
 separation of Diffuse and Specular
 
 %$\rho$ & \textbf{Reflectance}, ratio between incoming and outgoing flux\\
+
+\subsection{Common Types of Light Sources and Basic Relations}
 
 \section{Realtime Rendering}
 Super awesome book about EVERYTHING! \cite{bib:RealtimeRenderingBook} (Tomas Akenine-M\"{o}ller and Eric Haines and Natty Hoffman).
