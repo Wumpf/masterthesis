@@ -1,9 +1,9 @@
 \documentclass[thesis.tex]{subfiles}
 \begin{document}
 
-\chapter*{Index of Notation}
+\addchap{Index of Notation}
 
-The notations used in this paper are almost identical to those used in the book Physically Based Rendering~\cite{bib:pbrt}. Photometric quantities are explained in more detail in section \todo{There should be section where all this is explained}.
+The notations used in this paper are almost identical to those used in the book Physically Based Rendering~\cite{bib:pbrt}. Photometric quantities and relations are explained in more detail in \autoref{sec:preq:theo}.
 
 \subsubsection*{Mathematical}
 
@@ -19,15 +19,17 @@ $\hat{\mathbf{v}}$ & Normalized vector $\mathbf{v}$
 \end{tabular}
 
 
-\subsubsection*{Quantities}
+\subsubsection*{Quantities \& Functions}
 
 \begin{tabular}{ l l l}
 $A$ & \textbf{Area}\\
+$\omega$ & \textbf{Solid Angle}\\
 $\phi$ & \textbf{Radiant Flux}, light power\\
 $I$ & \textbf{Radiant Intensity}, flux density per solid angle\\
 $E$ & \textbf{Irradiance}, flux density per area\\
 $L$ & \textbf{Radiance}, flux density per area per solid angle\\
 $\rho$ & \textbf{Reflectance}, ratio between incoming and outgoing flux\\
+$f_r$ & \textbf{BRDF}, function on the relation between irradiance and outgoing radiance\\
 \end{tabular}
 
 

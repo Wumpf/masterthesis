@@ -121,21 +121,16 @@ z_l =&\int\limits_{2 \pi sr} L_i \cdot (\omega \cdot (0,0,1))^+ \cdot y^0_l(\ome
 =&\int\limits_{2 \pi sr} L_i \cdot \cos\theta \cdot y^0_l(\omega) \,\mathrm{d}\omega
 \end{align}
 Note that by integrating only over the upper hemisphere, the cosine does not need to be explicitly clamped.
-Due to the rotation invariance of Spherical Harmonics, the resulting Zonal Harmonics coefficients can be rotated to the light direction (see \autoref{sec:pre:zonalharmonics}).
+Due to the rotation invariance of Spherical Harmonics, the resulting Zonal Harmonics coefficients can be rotated to the light direction (see \autoref{sec:preq:zonalharmonics}).
 The resulting expressions for the first three SH bands can be found in \autoref{chap:shcosinelobe}.
 
 To perform the diffuse cache lighting, the coefficients for all virtual lights are accumulated and saved into the cache buffer for later evaluation. \todo{add a note on how many bandy are required}
 
 \subsection{Specular Lighting} \label{sec:impl:specenvmap}
-For specular lighting the Blinn-Phong BRDF~\cite{bib:blinnphongbrdf} is used, as it is very simple to compute and delivers comparatively plausible results \cite[p.~251f]{bib:RealtimeRenderingBook}.
-We use the normalization factor derived by Sloan and Hoffman as described in Realtime Rendering \cite[p.~257]{bib:RealtimeRenderingBook}. Using virtual point lights from the Reflective Shadow Map, the specular part of the visible radiance is defined as following:
+As mentioned in \autoref{sec:preq:brdf} we make use of a normalized version of the Blinn-Phong BRDF.
+Using virtual point lights from the Reflective Shadow Map, we define the specular part of the visible radiance is defined as following:
 \begin{equation}
 L_s (\mathrm{x}) = \rho_s \cdot \frac{\gamma + 8}{8\pi} \cdot \sum\limits_{i=0}^{n} ((\hat{\mathbf{n}} \cdot \hat{\mathbf{h}}_i)^+)^\gamma \cdot L_i \cdot (\hat{\mathbf{n}} \cdot \hat{\mathbf{d}}_i)^+
-\end{equation}
-The specular reflectivity $\rho_s$ and the Blinn-Phong exponent $\gamma$ are each given by textures and may vary per pixel.
-The half-vector $\hat{\mathbf{h}}_i$ is defined over the normalized direction to the light $\hat{\mathbf{d}}_i$ and the normalized direction to the viewer $\hat{\mathbf{v}}$:
-\begin{equation}
-\hat{\mathbf{h}}_i = \frac{\hat{\mathbf{d}}_i + \hat{\mathbf{v}}}{||\hat{\mathbf{d}}_i + \hat{\mathbf{v}}||}
 \end{equation}
 %Since the view direction is fixed for a given frame, 
 It would be possible to approximate the specular lighting via multiple sets of Spherical Harmonics coefficients similar as done previously for the diffuse lighting.

@@ -2,7 +2,7 @@
 
 \begin{document}
 
-\chapter{Prerequisites}\label{chap:basics}
+\chapter{Prerequisites}\label{chap:preq}
 The following sections explain some of the underlying principles that are required to understand the later chapters in this thesis.
 Readers that are familiar with the basic concepts of photorealistic and realtime rendering may skip parts of this chapter.
 
@@ -13,7 +13,7 @@ Readers that are familiar with the basic concepts of photorealistic and realtime
 % What does not belong here:
 % - References to work that is directly related to the topic
 
-\section{Theoretical Foundation}
+\section{Theoretical Foundation} \label{sec:preq:theo}
 This section explains some of the fundamentals of physically based rendering.
 We will only discuss a few basics which are helpful for a good understanding of this thesis.
 For more detailed explanations the reader is referred to the book \emph{Physically Based Rendering, From Theory to Implementation} by Pharr and Humphreys \cite{bib:pbrt}.
@@ -161,20 +161,44 @@ The ray is reflected accordingly to the local material, using the BRDF as probab
 There are several phenomenons which are ignored by this basic form of the rendering equation.
 For example it is assumed that light travels through vacuum, i.e. no scattering or absorption within participating media occurs.
 
-\subsection{Bidirectional Reflectance Distribution Function}
-The BRDF $f_r(\mathrm{x}, \omega_i, \omega_o)$ determines the ratio between the differential outgoing radiance $\mathrm{d}L$ to a direction $\omega_o$ and the differential irradiance $\mathrm{d}E$ from $\omega_i$ at the surface position $\mathrm{x}$:
+\subsection{Bidirectional Reflectance Distribution Function}\label{sec:preq:brdf}
+For a given surface position, the BRDF $f_r(\omega_i, \omega_o)$ determines the ratio between the differential outgoing radiance $\mathrm{d}L$ in the direction $\omega_o$ and the differential irradiance $\mathrm{d}E$ from $\omega_i$:
 \begin{equation}
-f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\mathrm{d}L}{\mathrm{d}E}
+f_r(\omega_i, \omega_o) = \frac{\mathrm{d}L}{\mathrm{d}E}
 \end{equation}
 The values of the BRDF also depend on wavelength, but as mentioned earlier we use RGB vectors instead.
+Physically plausible BRDFs are always positive, are energy-preserving and give the same result if $\omega_i$ and $\omega_o$ are swapped (Helmholtz reciprocity).
+The BRDF determines the color and reflectence properties of a surface.
+Thus, a given configuration is often also called \emph{material}.
 
-TODO
-Introduce theory and Blinn-Phong
-separation of Diffuse and Specular
+There are many different attempts to describe the BRDF by an analytical model.
+The most basic one is the Lambert BRDF, also simply called diffuse material.
+Diffuse surfaces behave like lambert emitters and distribute incoming radiance in all directions.
+It is defined as:
+\begin{equation}
+f_r(\omega_i, \omega_o) = \frac{\rho_d}{\pi}
+\end{equation}
+Where $\rho_d$ is the diffuse \emph{reflectance}.
+Reflectance is defined as ratio between all outgoing and all incoming light:
+\begin{equation}
+\rho = \frac{\phi_o}{\phi_i} = \frac{\int\limits_{2\pi\,sr} L_o(\omega_o)\cdot \cos\theta_o  \, \mathrm{d}\omega_o}{\int\limits_{2\pi\,sr} L_i(\omega_o)\cdot \cos\theta_i  \, \mathrm{d}\omega_i}
+\end{equation}
+It is often used in combination with a second BRDF to account for specular highlights.
+Note that it is possible to combine arbitrary BRDFs as long as the combined result is still physically plausible.
 
-%$\rho$ & \textbf{Reflectance}, ratio between incoming and outgoing flux\\
-
-
+In this thesis we make mainly use of the \emph{Blinn-Phong} BRDF \cite{bib:blinnphongbrdf}.
+It is a very simple half-vector BRDF which delivers more plausible results than the more frequently used \emph{Phong} BRDF \cite[p.~251f]{bib:RealtimeRenderingBook}.
+The half-vector $\hat{\mathbf{h}}$ is the normalized sum of direction to the light $\hat{\mathbf{d}}$ and the direction to the viewer $\hat{\mathbf{v}}$:
+\begin{equation}
+\hat{\mathbf{h}}_i = \frac{\hat{\mathbf{d}} + \hat{\mathbf{v}}}{||\hat{\mathbf{d}} + \hat{\mathbf{v}}||}
+\end{equation}
+Since the original formulation of this BRDF is not energy preserving, we use the normalization form derived by Sloan and Hoffman as described in \cite[p.~257]{bib:RealtimeRenderingBook}.
+For a given surface normal $\hat{\mathbf{n}}$ and the \emph{half-vector} $\hat{\mathbf{h}}$ it is defined as:
+\begin{equation}
+f_r(\hat{\mathbf{n}}, \hat{\mathbf{h}}) = \rho_s \cdot \frac{\gamma + 8}{8\pi} \cdot ((\hat{\mathbf{n}} \cdot \hat{\mathbf{h}})^+)^\gamma
+\end{equation}
+Where $\rho_s$ is the specular reflectance (also called specular color) and $\gamma$ the specular exponent which steers the sharpness of the highlight.
+Both may vary with the position on a surface.
 
 \section{Realtime Rendering}
 Super awesome book about EVERYTHING! \cite{bib:RealtimeRenderingBook} (Tomas Akenine-M\"{o}ller and Eric Haines and Natty Hoffman).
@@ -195,7 +219,7 @@ Basics only!
 OpenGL 4.5 pipeline picture?
 A lot of information about shaders and compute.
 
-\section{Spherical Harmonics}\label{sec:pre:sh}
+\section{Spherical Harmonics}\label{sec:preq:sh}
 Spherical Harmonics (SH) are a set of orthonormal basis functions, analogous to the Fourier transform's basis functions, but defined on the surface of a sphere.
 They are often used in computer graphics to approximate spherical functions like visibility, lighting or reflectance. Similarly, they will later be used in \autoref{sec:impl:diffuse} to describe the total irradiance for a given normal.
 
@@ -261,7 +285,7 @@ By truncating the SH representation to $n$ bands, a function $f$ can be approxim
 	\widetilde{f}(s) = \sum_{l=0}^{n-l}\sum_{m=-l}^l c_l^m y_l^m(s)
 \end{equation}
 
-\subsection{Rotation and Zonal Harmonics} \label{sec:pre:zonalharmonics}
+\subsection{Rotation and Zonal Harmonics} \label{sec:preq:zonalharmonics}
 Spherical Harmonics are rotationally invariant:
 If a function $g$ is a copy rotated by $R$ named $f$, then for the corresponding SH projections $\widetilde{g}$ and $\widetilde{f}$ it is true that:
 \begin{equation}
