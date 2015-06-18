@@ -1,4 +1,5 @@
 \documentclass[thesis.tex]{subfiles}
+
 \begin{document}
 
 \chapter{Prerequisites}\label{chap:basics}
@@ -29,18 +30,7 @@ However, as recently pointed out by Meng et al. \cite{bib:spectrumrendering} the
 
 \subsection{Radiometric Quantities}
 There are several basic quantities that describe the transport and perception of light.
-\\
-\emph{Radiant flux} $\phi$ describes the energetic output of a light source.
-It measures how much energy a light source emits over time and is thus given in watts.
-\\
-Irradiance $E$ determines how much light (flux $phi$) per area $A$ a surface receives:
-\begin{equation}
-E = \frac{\mathrm{d}\phi}{\mathrm{d}A}
-\end{equation}
-The opposite, how much light per area is leaving a surface, is also called radiant exitance of radiosity.
-However, as in many other works, we will use the term for both incident and exitant light.
-
-The remaining two quantities depends on a \emph{solid angle}, the 3D equivalent of a 2D arc length.
+Several of them depends on a \emph{solid angle}, the 3D equivalent of a 2D arc length.
 The solid angle subtended by an object is computed by the projected area on the unit sphere in a given point.
 Solid angles are measured in steradians $sr$.
 A solid angle representing the entire unit sphere, has $4\pi\,sr$.
@@ -49,15 +39,59 @@ For example, an integration of a direction dependent function $f(\mathbf{x})$ ov
 \begin{equation}
 \int_{2\pi\,sr} f(\omega) \, \mathrm{d}\omega
 \end{equation} 
-$\mathrm{d}\omega$ denotes the differential steradian, $\omega$ alone a single direction on the unit hemisphere.
+$\mathrm{d}\omega$ denotes the differential steradian, while $\omega$ alone is a single direction on the unit hemisphere.
 
-\emph{Intensity} $I$ gives how much flux $\phi$ per solid angle $\omega$ is emitted in a certain direction:
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.45\textwidth}
+\centering
+\includepdftex{flux}
+\caption{Flux $\phi$, light emittance per second.}
+\label{fig:flux}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\centering
+\includepdftex{intensity}
+\caption{Intensity $I = \frac{\mathrm{d}\phi}{\mathrm{d}\omega}$}
+\label{fig:intensity}
+\end{subfigure}
+
+\vspace{10pt}
+
+\begin{subfigure}[b]{0.45\textwidth}
+\centering
+\includepdftex{irradiance}
+\caption{Irradiance $E = \frac{\mathrm{d}\phi_{in}}{\mathrm{d}A}$}
+\label{fig:irradiance}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\textwidth}
+\centering
+\includepdftex{radiance}
+\caption{Radiance $L = \frac{\mathrm{d}\phi}{\mathrm{d}\omega \cdot \mathrm{d}A^\perp }$}
+\label{fig:radiance}
+\end{subfigure}
+\caption{Sketches visualizing different radiometric quantities.}
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+\emph{Radiant flux} $\phi$ describes the energetic output of a light source (see \autoref{fig:flux}).
+It measures how much energy a light source emits over time and is thus given in watts.
+\\
+\emph{Intensity} $I$ gives how much flux $\phi$ per solid angle $\omega$ is emitted in a certain direction (see \autoref{fig:intensity}).
 \begin{equation}
 I = \frac{\mathrm{d}\phi}{\mathrm{d}\omega}
 \end{equation}
 It is especially useful to describe in which direction light sources emit more or less light.
 \\
-The last and most important quantity is \emph{radiance} $L$ since it is the which is "visible" as it corresponds to the seen brightness.
+Irradiance $E$ determines how much light (incoming flux $phi_{in}$) per area $A$ a surface receives (see \autoref{fig:irradiance}).
+\begin{equation}
+E = \frac{\mathrm{d}\phi_{in}}{\mathrm{d}A}
+\end{equation}
+The opposite, how much light per area is leaving a surface, is also called radiant exitance of radiosity.
+However, as in many other works, we will use the term for both incident and exitant light.
+\\
+The last and most important quantity is \emph{radiance} $L$ since it is the which is "visible" as it corresponds to the seen brightness (see \autoref{fig:radiance}).
 It is defined as emitted flux $\phi$ per solid angle $\omega$ per projected emitter area $A^\perp$ in respect to a certain detector.
 \begin{equation}
 L = \frac{\mathrm{d}\phi}{\mathrm{d}\omega \cdot \mathrm{d}A^\perp }
@@ -67,21 +101,29 @@ The projected ("seen") differential area $\mathrm{d}A^\perp$ is depended of the 
 \mathrm{d}A^\perp = \mathrm{d}A \cdot \cos\theta
 \end{equation}
 
-\todo{figures for flux, I, E, L and solid angle}
 %$\phi$ & \textbf{Radiant Flux}, light power\\
 %$I$ & \textbf{Radiant Intensity}, flux density per solid angle\\
 %$E$ & \textbf{Irradiance}, flux density per area\\
 %$L$ & \textbf{Radiance}, flux density per area per solid angle\\
 
 \subsection{Rendering Equation}
-The well-known rendering equation by Kajiya \cite{bib:renderingequation} is a general description of the radiance in a given point $x$ in a direction $\omega_o$:
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\includepdftex{renderingequation}
+\caption{Schematic sketch of the rendering equation. The seen radiance $L_o(\mathrm{x}, \omega_o)$ depends on the incoming radiance $L_i(\mathrm{x}, \omega_o)$ for all directions on the hemisphere.}
+\label{fig:renderingeq}
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+The well-known rendering equation by Kajiya \cite{bib:renderingequation} is a general description of the radiance in a given point $\mathrm{x}$ in a direction $\omega_o$:
 \begin{equation}
-L_o(x, \omega_o) = L_e(x, \omega_o) + \int_{2\pi\,sr} f(x, \omega_i, \omega_o) \cdot L_i(x, \omega_i) \cdot \cos\theta_i \, \mathrm{d}\omega_i
+L_o(\mathrm{x}, \omega_o) = L_e(\mathrm{x}, \omega_o) + \int_{2\pi\,sr} f(\mathrm{x}, \omega_i, \omega_o) \cdot L_i(\mathrm{x}, \omega_i) \cdot \cos\theta_i \, \mathrm{d}\omega_i
 \end{equation}
 Where $L_e$ is the self-emission and $L_i$ the incoming radiance for a given direction.
 $f$ denotes the \emph{bidirectional reflection distribution function} (BRDF) that describes how the surface reflects light.
 It will be examined more closely in the next section.
 The integral sums for all directions $\omega_i$ on the hemisphere, how much light is reflected to a observer in the direction $\omega_o$.
+\autoref{fig:renderingeq} visualizes the concept.
 Note that the evaluation of a single $L_i$ again requires the evaluation of the entire equation.
 This means that in theory the radiance at any point in any direction depends on all other points.
 Approaches that try to solve or approximate this recursive property of the rendering equation are thus performing \emph{global illumination}, as opposed to \emph{local illumination} where $L_i$ only includes directly visible light sources.
