@@ -106,6 +106,30 @@ The projected ("seen") differential area $\mathrm{d}A^\perp$ is depended of the 
 %$E$ & \textbf{Irradiance}, flux density per area\\
 %$L$ & \textbf{Radiance}, flux density per area per solid angle\\
 
+\subsection{Basic Relations and Common Types of Light Sources}
+A point light is an emitter without any extent, radiating in all directions with the intensity $I$.
+The irradiance in respect to such a light source declines with the square of the distance $d$ as the area "seen" by the source declines quadratically.
+Additionally, the "seen" area is depended on the angle $theta$ between the light direction and the surface normal.
+The resulting formula is known as photometric distance law.
+\begin{equation}
+E = \frac{I \cdot \cos\theta}{d^2}
+\end{equation}
+
+Another reoccurring type of light source is the spot light.
+Generally, a spot light is a point light with a limited region of intensities bigger than zero.
+In this thesis we define the intensity of a spot light with an opening angle of $\alpha$ that points in the direction $\mathrm{l}$ depending on as following:
+\begin{equation}
+I(\mathrm{d}) = \Big(\frac{(\mathrm{l} \cdot \mathrm{d}) - \cos\alpha }{1-\cos\alpha}\Big)^+ \cdot I_0
+\end{equation}
+\todo{how we define our spot lights is not really a basic, but it fits so nicely in here?}
+
+A Lambert emitter is that appears equally bright from every direction.
+That means that the radiance is independent of the angle under which the emitter is seen.
+This results in a cosine falloff of the intensity of such an emitter:
+\begin{equation}
+I(\theta) = (\cos\theta)^+ \cdot I_0
+\end{equation}
+
 \subsection{Rendering Equation}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
@@ -117,10 +141,10 @@ The projected ("seen") differential area $\mathrm{d}A^\perp$ is depended of the 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 The well-known rendering equation by Kajiya \cite{bib:renderingequation} is a general description of the radiance in a given point $\mathrm{x}$ in a direction $\omega_o$:
 \begin{equation}
-L_o(\mathrm{x}, \omega_o) = L_e(\mathrm{x}, \omega_o) + \int_{2\pi\,sr} f(\mathrm{x}, \omega_i, \omega_o) \cdot L_i(\mathrm{x}, \omega_i) \cdot \cos\theta_i \, \mathrm{d}\omega_i
+L_o(\mathrm{x}, \omega_o) = L_e(\mathrm{x}, \omega_o) + \int_{2\pi\,sr} f_r(\mathrm{x}, \omega_i, \omega_o) \cdot L_i(\mathrm{x}, \omega_i) \cdot \cos\theta_i \, \mathrm{d}\omega_i
 \end{equation}
 Where $L_e$ is the self-emission and $L_i$ the incoming radiance for a given direction.
-$f$ denotes the \emph{bidirectional reflection distribution function} (BRDF) that describes how the surface reflects light.
+$f_r$ denotes the \emph{bidirectional reflection distribution function} (BRDF) that describes how the surface reflects light.
 It will be examined more closely in the next section.
 The integral sums for all directions $\omega_i$ on the hemisphere, how much light is reflected to a observer in the direction $\omega_o$.
 \autoref{fig:renderingeq} visualizes the concept.
@@ -138,12 +162,19 @@ There are several phenomenons which are ignored by this basic form of the render
 For example it is assumed that light travels through vacuum, i.e. no scattering or absorption within participating media occurs.
 
 \subsection{Bidirectional Reflectance Distribution Function}
+The BRDF $f_r(\mathrm{x}, \omega_i, \omega_o)$ determines the ratio between the differential outgoing radiance $\mathrm{d}L$ to a direction $\omega_o$ and the differential irradiance $\mathrm{d}E$ from $\omega_i$ at the surface position $\mathrm{x}$:
+\begin{equation}
+f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\mathrm{d}L}{\mathrm{d}E}
+\end{equation}
+The values of the BRDF also depend on wavelength, but as mentioned earlier we use RGB vectors instead.
+
+TODO
 Introduce theory and Blinn-Phong
 separation of Diffuse and Specular
 
 %$\rho$ & \textbf{Reflectance}, ratio between incoming and outgoing flux\\
 
-\subsection{Common Types of Light Sources and Basic Relations}
+
 
 \section{Realtime Rendering}
 Super awesome book about EVERYTHING! \cite{bib:RealtimeRenderingBook} (Tomas Akenine-M\"{o}ller and Eric Haines and Natty Hoffman).
