@@ -201,29 +201,88 @@ Where $\rho_s$ is the specular reflectance (also called specular color) and $\ga
 Both may vary with the position on a surface.
 
 \section{Realtime Rendering}
-Super awesome book about EVERYTHING! \cite{bib:RealtimeRenderingBook} (Tomas Akenine-M\"{o}ller and Eric Haines and Natty Hoffman).
+This section gives an overview over a few important aspects of realtime rendering.
+However, it is assumed that the reader is already familiar with the most basic concepts like (camera-)transformations, (triangle) geometry setup, texture/normal mapping, filtering and mip-mapping.
+Informations about these topics can be found in the book \emph{Real-Time Rendering} by Akenine-M\"{o}ller et al. \cite{bib:RealtimeRenderingBook}. %, on which parts of this section are based.
+\todo{currently there is only a bit on lighting, nothing more. introduction and title does not fit!}
 
-\subsection{Local Illumination}
+\subsection{Realtime Direct Lighting}
+While global illumination as expressed by the rendering equation is currently very difficult to achieve, different local illumination approaches have been used successfully in productive real-time rendering for many years.
+
+\subsubsection{Shadow Mapping}
+Depending on the definition, direct lighting may already no longer dubbed as local illumination since it requires for to determine the direct visibility of all light sources. 
+Visibility checks in general are a "global problem" since it is necessary to take the entire scene between light emitter and receiver into account.
+Especially for non-dimensionless light sources like area or environment lights (light from the entire sky) direct visibility determination is already a difficult problem.
+
+The most popular technique for direct shadows from dimensionless light sources is \emph{shadow mapping} \cite{bib:shadowmapping} since it maps very well today's graphics hardware.
+A shadow map is a texture containing depth values rendered with the view of a corresponding light source.
+When shading an object, the distance to the light source is now compared with its depth value stored in the shadow map.
+If the stored value is smaller, the pixel lies in the shadow, otherwise not.
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\subcaptionbox{Self-shadow aliasing caused by texels that are both bellow and above the surface. \label{fig:shadowacne}}{
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{shadow/shadowacne_rtr}
+   	\end{subfigure}
+   	~
+ 	\begin{subfigure}[b]{0.45\textwidth}
+	 	\includegraphics[width=\textwidth]{shadow/shadowacne_sketch_rtr}
+ 	\end{subfigure}
+}
+\\
+\subcaptionbox{Bias fixes above issue, but now the object seems to float. \label{fig:peterpanning}}{
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{shadow/peterpanning_rtr}
+   	\end{subfigure}
+   	~
+ 	\begin{subfigure}[b]{0.45\textwidth}
+	 	\includegraphics[width=\textwidth]{shadow/peterpanning_sketch_rtr}
+ 	\end{subfigure}
+}
+\caption{\cite[p.351]{bib:RealtimeRenderingBook} Shadow map samples surface, shown by blue arrows. The red line shows the distance that the shadow map saves.}
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+There are various extensions to shadow mapping that try to improve the sampling quality or simulate non-dimensionless light sources.
+Shadow mapping is very prone to artifacts like self-shadow aliasing, also known as shadow acne.
+Surfaces are sometimes incorrectly considered shadowing themselves since point samples from the shadow map are used to represent an area's depth, see \autoref{fig:shadowacne}.
+The problem can be overcome by adding a bias to the depth values.
+This however, effectively moves the surface from the light which again leads to another artifact known as "Peter Panning":
+For a too large bias, objects are disconnected from their shadows which leads to a floating appearance, see \autoref{fig:peterpanning}.
+\\
+To alleviate this issue, Holbert \cite{bib:normaloffsetshadowmapping} introduced a normal dependent offsetting approach:
+Positions are offset not just in direction of the shadow projection, but in the direction of the surface normal depending on the angle to the light direction.
+This allows much lower bias values without self-shadow aliasing.
+
+In our implementation we use shadow maps combined with normal offset mapping to determine the direct visibility of spot lights. \todo{if there were light types added, note here (and earlier to describe the type?)}
+
+\subsubsection{Deferred Rendering}
 
 
-\subsection{Shadow Mapping}
-Basics!
-
-\subsection{Deferred Rendering}
-
-
-\subsection{Deferred Rendering}
-Basics only!
 
 \section{Modern GPU Pipeline and Capabilities}
 OpenGL 4.5 pipeline picture?
 A lot of information about shaders and compute.
 
+\subsection{Rendering Pipeline Overview}
+
+\subsection{Compute Shader}
+Scheme, what can it do...
+Mention Occupancy!
+Shared mem in next chapter
+
+\subsection{Memory}
+transfer costs, type of access - ssbo, ubo, texture, image, shader: shared, register\\
+almost no restrictions (few exceptions like: cant bind texture as buffer, but vice versa)
+
+
+
 \section{Spherical Harmonics}\label{sec:preq:sh}
 Spherical Harmonics (SH) are a set of orthonormal basis functions, analogous to the Fourier transform's basis functions, but defined on the surface of a sphere.
 They are often used in computer graphics to approximate spherical functions like visibility, lighting or reflectance. Similarly, they will later be used in \autoref{sec:impl:diffuse} to describe the total irradiance for a given normal.
 
-More detailed explanations can be found for example in \cite{bib:grittysph, bib:stupidsph} on which this summary is based.
+More detailed explanations can be found for example in \cite{bib:grittysh, bib:stupidsh} on which this summary is based.
 
 \subsection{Definition} \label{chap:sh:def}
 \begin{figure}[h]
