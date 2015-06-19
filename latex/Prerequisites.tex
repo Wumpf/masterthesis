@@ -269,17 +269,68 @@ Overdraw occurs only during the G-buffer creation which makes expensive BRDF cal
 The main drawbacks of deferred shading include difficulties with multisampling-antialiasing and the need to handle transparent objects separately.
 
 \section{Modern GPU Pipeline and Capabilities}
-OpenGL 4.5 pipeline picture?
-A lot of information about shaders and compute.
+In this section several concepts of modern graphics hardware are introduced.
+These are not only necessary to understand implementation details, but also some of the decisions about on the design of the presented algorithm.
+As we rely on the open graphics API OpenGL 4.5, we make use of terms and names as they are defined in the OpenGL (core) specification \cite{bib:openglspec}.
+Note that these are sometimes different from those used by the hardware vendors and other APIs.
+
+%As of this writing, OpenGL 4.5 is the most recent
+%While we are aware that the API abstraction layer often does not reflect the underlying hardware, throughout this thesis we usually operate only on 
 
 \subsection{Rendering Pipeline Overview}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{opengl45pipeline}
+\caption{\cite{bib:openglspec} Official OpenGL 4.5 pipeline overview.}
+\label{fig:openglpipe}
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\autoref{fig:openglpipe} gives a coarse overview over the modern OpenGL pipeline.
+The four dashed boxes visualized different types of memory or rather ways to access memory.
+As memory accesses play a major role, \autoref{sec:preq:memory} goes into further detail.
+With the exception of compute shaders, all major programmable stages are on the arrow starting at "Vertex Specification" and ending at "Framebuffer".
+The underlying processing is what is usually called the rendering pipeline, which is traversed by the GPU on each issued draw call.
+Compute shader are outside of this pipeline and handled in the next section.
+Within the rendering pipeline there are several \emph{shader} stages: Vertex shader, two shaders for tessellation, geometry and fragment shader.
+Generally, shaders are small programs that issued in parallel that take data from the previous pipeline step and output data to the next, usually under the use of globally available resources.
+Shaders in OpenGL are written in a specific language called GLSL which is compiled by the graphics driver to run on the GPU.
+All shaders in the pipeline need to provide a specific set of outputs they and have access to several guaranteed inputs.
+However, it is possible to transfer almost arbitrary additional data between the stages.
+How these data is processed depends on the concrete stage and its configuration.
+
+\subsubsection{Vertex Processing}
+Vertex shader fetch data provided by previously specified vertex buffer.
+The shader is invoked for each vertex.
+An invocation has only access to the vertex it is assigned to.
+A vertex shader must at least output a position which is later used during the rasterization stage.
+This stage is mostly used for all sort of vertex transformations.
+
+Afterwards, the tessellation stage is executed optionally.
+It is skipped here, as we do not make use it in this thesis.
+The following, also optional, geometry shading stage is invoked per triangle.
+It is able to generate new geometry on-the-fly.
+Before the advance of compute shaders, their ability to stream vertex data back to the memory (Transform Feedback) was very important for many algorithms.
+Nowadays, their use is very limited as many of their former tasks can be more effectively performed by compute shaders.
+In this thesis we only need them to implement a realtime voxelization algorithm (see \autoref{sec:impl:voxelization}).
+
+
+%For several hardware implementation reasons, geometry generation proved to be rather slow on mot 
+
+\subsubsection{Pixel Processing}
+The rasterization stages generates pixels from the processed geometry and invokes the fragment shader for each of them.
+Depending on various multisampling parameters, the fragment shader might be invoked for fragments of pixels, thus the name.
+The task of the fragment is to output a color which will be written (or blended into) one or more framebuffers (also called render-target).
+As long as not configured otherwise, the fragment shader is provided with perspective correct interpolated output from the last active stage preceding the rasterizer.
+If a depth buffer is used, the rasterizer will perform depth tests to fulfill a previously defined condition, usually to assure that nearer triangles are not overdrawn by more distant ones.
 
 \subsection{Compute Shader}
+gpgpu stuff...
 Scheme, what can it do...
 Mention Occupancy!
 Shared mem in next chapter
 
-\subsection{Memory}
+\subsection{Memory} \label{sec:preq:memory}
 transfer costs, type of access - ssbo, ubo, texture, image, shader: shared, register\\
 almost no restrictions (few exceptions like: cant bind texture as buffer, but vice versa)
 

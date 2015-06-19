@@ -165,7 +165,7 @@ So far, indirect visibility was ignored.
 In most cases however, approximate shadows are extremely important to the overall image quality. \todo{"prove" with image}
 This chapter presents a voxel cone tracing based approach with several adjustments and new simplifications to fit in our framework.
 
-\subsubsection{Voxelization}
+\subsubsection{Voxelization}\label{sec:impl:voxelization}
 To estimate shadowing effectively, we trace cones in from the caches to virtual lights within a binary voxelization of the scene.
 The general approach very similar to the cone tracing step in \cite{bib:layeredrsm} Layered Reflective Shadow Maps from Sugihara et al. \cite{bib:layeredrsm}.
 Contrary to the original voxel cone tracing work of Crassin et al. \cite{bib:voxelconetracing} and similar to Sugihara et al., we only need to perform \emph{binary} voxelization and do not store any additional data per voxel.
