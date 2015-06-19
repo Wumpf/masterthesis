@@ -257,9 +257,16 @@ This allows much lower bias values without self-shadow aliasing.
 
 In our implementation we use shadow maps combined with normal offset mapping to determine the direct visibility of spot lights. \todo{if there were light types added, note here (and earlier to describe the type?)}
 
-\subsubsection{Deferred Rendering}
+\subsubsection{Deferred Shading}
+In classic "forward rendering" the rendering and shading of objects is coupled.
+To be able to use multiple lights (for direct lighting), shading procedures either involve loops over all light sources or rendering all objects multiple times using only one light each time (multipass lighting).
 
-
+Deferred shading decouples object rendering and pixel shading by saving all information needed for shading in the so called G-buffer. \todo{gbuffer image!}
+This buffer usually saves for each pixel a depth (which can be used to reconstruct the world position), normal and material properties.
+Afterwards used to compute dynamic illumination in a screen-space pass without re-rendering the scene geometry itself for these passes.
+The approach scales very well with many lights and can reduce the general complexity of a renderer considerably.
+Overdraw occurs only during the G-buffer creation which makes expensive BRDF calculations more viable.
+The main drawbacks of deferred shading include difficulties with multisampling-antialiasing and the need to handle transparent objects separately.
 
 \section{Modern GPU Pipeline and Capabilities}
 OpenGL 4.5 pipeline picture?
