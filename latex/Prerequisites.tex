@@ -269,10 +269,17 @@ Overdraw occurs only during the G-buffer creation which makes expensive BRDF cal
 The main drawbacks of deferred shading include difficulties with multisampling-antialiasing and the need to handle transparent objects separately.
 
 \section{Modern GPU Pipeline and Capabilities}
-In this section several concepts of modern graphics hardware are introduced.
+This section introduces several concepts of modern graphics hardware.
 These are not only necessary to understand implementation details, but also some of the decisions about on the design of the presented algorithm.
-As we rely on the open graphics API OpenGL 4.5, we make use of terms and names as they are defined in the OpenGL (core) specification \cite{bib:openglspec}.
+As we rely on the open graphics application programming interface (API) OpenGL 4.5, we make use of terms and names as they are defined in the OpenGL (core) specification \cite{bib:openglspec}.
 Note that these are sometimes different from those used by the hardware vendors and other APIs.
+
+Throughout this chapters we point out several properties of the underlying hardware processes which are not specified by OpenGL.
+Where not noted otherwise, we try to avoid stating contemporary facts about specific pieces of hardware.
+As of this writing, the mentioned properties are at least true for the recent GPUs of the three big GPU vendors Intel, AMD and Nvidia.
+There are several resources available on the inner workings of the hardware or at least on how to use it more efficient code \cite{bib:intelhardwaredoc, bib:amdhardwaredoc}.
+For Nvidia hardware, we recommend the CUDA programming guide \cite{bib:cudaprogguide} which maps surprisingly well to other APIs like OpenGL.
+While not entirely up to date, Giesen's article \emph{A trip through the Graphics Pipeline 2011} \cite{bib:tripthroughgraphicspipe} gives a great overview of the inner workings of todays graphic processors.
 
 %As of this writing, OpenGL 4.5 is the most recent
 %While we are aware that the API abstraction layer often does not reflect the underlying hardware, throughout this thesis we usually operate only on 
@@ -281,59 +288,104 @@ Note that these are sometimes different from those used by the hardware vendors 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{opengl45pipeline}
-\caption{\cite{bib:openglspec} Official OpenGL 4.5 pipeline overview.}
+\includegraphics[width=\textwidth]{opengl45pipelineblock}
+\caption{\cite{bib:openglspec} OpenGL 4.5 pipeline overview.}
 \label{fig:openglpipe}
 \end{figure}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \autoref{fig:openglpipe} gives a coarse overview over the modern OpenGL pipeline.
-The four dashed boxes visualized different types of memory or rather ways to access memory.
-As memory accesses play a major role, \autoref{sec:preq:memory} goes into further detail.
-With the exception of compute shaders, all major programmable stages are on the arrow starting at "Vertex Specification" and ending at "Framebuffer".
-The underlying processing is what is usually called the rendering pipeline, which is traversed by the GPU on each issued draw call.
-Compute shader are outside of this pipeline and handled in the next section.
-Within the rendering pipeline there are several \emph{shader} stages: Vertex shader, two shaders for tessellation, geometry and fragment shader.
-Generally, shaders are small programs that issued in parallel that take data from the previous pipeline step and output data to the next, usually under the use of globally available resources.
+The blue boxes visualize different types of memory, or rather ways to access memory.
+As memory accesses play an important role in GPU programming, \autoref{sec:preq:memory} goes into further detail.
+With the exception of compute shaders, all major programmable stages are on the vertical starting at "Vertex Puller" and ending at "Framebuffer".
+The underlying processing is, what is usually called the rendering pipeline which is traversed by the GPU on each issued draw call.
+Compute shader are outside of this pipeline and handled separately in \autoref{sec:preq:compute}.
+Within the rendering pipeline there are also several \emph{shader} stages: Vertex shader, two shaders for tessellation, geometry and fragment shader.
+Generally, shaders are small programs that are issued in parallel, take data from the previous pipeline step and output data to the next, usually under the use of globally available resources.
 Shaders in OpenGL are written in a specific language called GLSL which is compiled by the graphics driver to run on the GPU.
-All shaders in the pipeline need to provide a specific set of outputs they and have access to several guaranteed inputs.
+All shaders in the pipeline need to provide a specific set of outputs and have access to several guaranteed inputs.
 However, it is possible to transfer almost arbitrary additional data between the stages.
 How these data is processed depends on the concrete stage and its configuration.
 
 \subsubsection{Vertex Processing}
-Vertex shader fetch data provided by previously specified vertex buffer.
+A vertex shader fetches data provided by previously specified vertex buffers.
 The shader is invoked for each vertex.
-An invocation has only access to the vertex it is assigned to.
-A vertex shader must at least output a position which is later used during the rasterization stage.
-This stage is mostly used for all sort of vertex transformations.
+A single invocation has only access to the vertex it is assigned to.
+A vertex shader must output at least a position which is later used in the rasterization stage.
+The vertex shading stage is mostly used for all sort of vertex transformations.
 
-Afterwards, the tessellation stage is executed optionally.
-It is skipped here, as we do not make use it in this thesis.
+Afterwards, the optional tessellation stages are executed.
+These aer skipped here, as we do not make use the hardware tessellation feature in this thesis.
 The following, also optional, geometry shading stage is invoked per triangle.
 It is able to generate new geometry on-the-fly.
 Before the advance of compute shaders, their ability to stream vertex data back to the memory (Transform Feedback) was very important for many algorithms.
-Nowadays, their use is very limited as many of their former tasks can be more effectively performed by compute shaders.
-In this thesis we only need them to implement a realtime voxelization algorithm (see \autoref{sec:impl:voxelization}).
-
+Nowadays, their use is very limited as many of their former tasks can be more efficiently performed by compute shaders.
+In this thesis we geometry shader only to implement a realtime voxelization algorithm (see \autoref{sec:impl:voxelization}).
 
 %For several hardware implementation reasons, geometry generation proved to be rather slow on mot 
 
 \subsubsection{Pixel Processing}
 The rasterization stages generates pixels from the processed geometry and invokes the fragment shader for each of them.
 Depending on various multisampling parameters, the fragment shader might be invoked for fragments of pixels, thus the name.
-The task of the fragment is to output a color which will be written (or blended into) one or more framebuffers (also called render-target).
+The task of the fragment shader is to output one or more colors which will be written (or blended into) one or more framebuffers (also called render-targets).
 As long as not configured otherwise, the fragment shader is provided with perspective correct interpolated output from the last active stage preceding the rasterizer.
 If a depth buffer is used, the rasterizer will perform depth tests to fulfill a previously defined condition, usually to assure that nearer triangles are not overdrawn by more distant ones.
 
-\subsection{Compute Shader}
-gpgpu stuff...
-Scheme, what can it do...
-Mention Occupancy!
-Shared mem in next chapter
+\subsection{Memory Resources} \label{sec:preq:memory}
+In OpenGL there are basically only two types of graphics card resources: Textures and buffers.
+However, there are many ways in which these two can be accessed (see \autoref{fig:openglpipe}).
+Generally it is possible to access resources that were created as buffer like a texture but not the other way round.
+Conceptually a resource is bound to a certain usage type and can then be accessed by shaders or, depending on the usage, may be used to influence scheduling within the graphics pipeline.
+Textures are generally defined as a collection of images, which consist of image elements, called texels \cite[p.~29]{bib:openglspec}.
+Contrary, buffers have no such limitations an can contain virtually any data.
+Both types of resources lie in memory that is directly accessible by the graphics card.
+If those accesses are cached, how fast they are, how large underlying resources are allowed to be and where the memory actually lies physically, depends very much on a resource's current usage and the hardware itself.
+The different types of access merely tell the driver how a resource is intended to use and how it will be addressed.
+However, for all global resources a very high memory throughput coupled with very high latency can be expected.
+In praxis this means that for each memory access, there should be as many arithmetical instructions as possible to hide the latency.
 
-\subsection{Memory} \label{sec:preq:memory}
-transfer costs, type of access - ssbo, ubo, texture, image, shader: shared, register\\
-almost no restrictions (few exceptions like: cant bind texture as buffer, but vice versa)
 
+Most of the time, textures are accessed read-only through sampler objects ("Texture Fetch" box in \autoref{fig:openglpipe}).
+Sampler objects offer different filter functionality which are implemented in hardware and imply texture caching on hardware of all major vendors.
+A texture may also be used as rendertarget to update its contents with the results of a rendering process.
+Contrary, accesses via \emph{Image Load / Store} allow random access to a texture, but are rather slow.
+\\
+Similar, buffers can either be used as \emph{Uniform Block} (UBO) for read-only access or as \emph{Shader Storage} (SSBO) which allows random writes and even a limited set of atomic operations.
+Buffers can also be used to provide vertex input and even steer draw/dispatch calls via \emph{Draw/Dispatch Indirect Buffer} bindings.
+%Memory on the GPU is often layed out in blocks of 16 bytes (mostly four floats), which 
+\\
+Transfers from and to CPU accessible memory are usually slow and can induce huge stalls between CPU and GPU which normally work independently \cite{bib:openglinsightstransfer}.
+Therefore, practically oriented algorithm design usually tries to avoid memory transfers wherever possible
+
+\subsection{Compute Shader} \label{sec:preq:compute}
+The compute shader is the newest addition to the family of shaders in OpenGL.
+It provides an easy interface for general purpose computations on the GPU (GPGPU) which are not bound to a rendering process.
+GPGPU became increasingly popular with the advance of programming interfaces specifically designed to perform any parallel computation on the GPU such as CUDA and OpenCL.
+The main advantage of using compute shader within OpenGL over using other APIs is that all OpenGL resources are directly available.
+This makes compute shader an excellent choice for algorithms that are part of the rendering process, but do not fit into the classic concept of the rendering pipeline with their fixed function vertex fetching and rasterization.
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{opengl45compute}
+\caption{\cite{bib:openglquickref} (modified for better layout) OpenGL 4.5 compute shader programming model.}
+\label{fig:compute}
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\autoref{fig:compute} visualizes the basic programming model of compute shaders.
+All threads within a single dispatch call execute the same code.
+A dispatch is organized into a number of work groups. 
+The number of work groups can be determined at runtime. 
+Each work group consists of a given number of threads which is given by the shader code.
+All threads within a dispatch execute the same code and differ only in their unique thread ID.
+Threads within a single work group have can be synced (via a barrier) and have access to a piece of shared memory.
+The size of the shared memory is limited by hardware restrictions. 
+Accesses to shared memory are much faster than to global resources, but still slower than to a thread's registers.
+As with other memory (access) types, there are several hardware implementation specific properties that while not specified by OpenGL are important to keep in mind. \todo{Bank conflicts?}
+
+The number of threads which actually runs simultaneously on the hardware is called occupancy \cite{bib:cudaprogguide, bib:amdoccupancy}.
+Occupancy depends on the chosen group size, the number of registers and the amount of used shared memory.
+Low occupancy means that wide parts of the available computational resources remain unused.
+While issues with low occupancies may occur in any shader stage, the compute shader is more prone to such errors as the programmer has much more influence on the scheduling as in the normal rendering pipeline.
 
 
 \section{Spherical Harmonics}\label{sec:preq:sh}
