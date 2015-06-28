@@ -365,8 +365,25 @@ While global illumination as expressed by the rendering equation is currently ve
 In classic "forward rendering" the rendering and shading of objects is coupled.
 To be able to compute direct lighting for multiple lights, shading procedures either involve loops over all light sources or it is necessary to render all objects additively multiple times computing a fixed number of lights each time (multipass lighting).
 
-Deferred shading decouples object rendering and pixel shading by saving all information needed for shading in the so called \emph{G-buffer}. \todo{gbuffer image!}
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.24\textwidth}
+	\includegraphics[width=\textwidth]{gbuffer/diffuse}
+\end{subfigure}
+\begin{subfigure}[b]{0.24\textwidth}
+	\includegraphics[width=\textwidth]{gbuffer/depth}
+\end{subfigure}
+\begin{subfigure}[b]{0.24\textwidth}
+	\includegraphics[width=\textwidth]{gbuffer/normal}
+\end{subfigure}
+\begin{subfigure}[b]{0.24\textwidth}
+	\includegraphics[width=\textwidth]{gbuffer/specular}
+\end{subfigure}
+\caption{Example for a G-buffer with diffuse reflectance, depth, normals and specular BRDF properties.}
+\end{figure}
+Deferred shading decouples object rendering and pixel shading by saving all information needed for shading in the so called \emph{G-buffer}.
 This buffer saves for each screen pixel a depth (which can be used to reconstruct the world position), normal and material properties.
+\autoref{fig:gbuffer} gives an example for a possible configuration.
 Afterwards this information is used to compute dynamic illumination in one or more screen-space passes without re-rendering the scene geometry itself.
 The approach scales very well with many lights and can reduce the general complexity of a renderer considerably.
 Overdraw occurs only during the G-buffer creation which makes expensive BRDF calculations more viable.
