@@ -14,7 +14,7 @@
 \section{Introduction}
 Everything that human eyes can perceive is the result of light originating from a source, interacting with matter and finally reaching the retina.
 The way how light interacts with our environment is very complex and depends always on a global context:
-There is a variety of natural phenomenons like shadowing, light bleeding, glossy reflections, and scattering which are impossible to simulate by local lighting models.
+There is a variety of natural phenomenons like (indirect) shadowing, light bleeding, glossy reflections, and scattering which are impossible to simulate by local lighting models.
 The Photography in \autoref{fig:giphenomenons} demonstrates a few of them.
 Compared to the simulation of local light effects which only take an isolated surface point into consideration, the simulation of global illumination effects as they occur in nature are extremely challenging both in terms of computational and algorithmic complexity.
 \\
@@ -27,7 +27,7 @@ Generally, these applications can be divided in two categories: Interactive and 
 Where a non-interactive application like a movie or single images can easily have computation times of many days, interactive applications need to compute at least parts of the simulation just in time to provide the user with the expected feedback on his actions.
 A simulation is usually called interactive if images are rendered in less than 50ms (20 frames per second).
 However frame rates need to be much higher to be comfortable for the user.
-Fast paced games usually profit usually from high rendering times of 16ms (about 60 frames per second) \cite{bib:shooterfps} and the vendors of the upcoming virtual reality displays recommend even shorter rendering times of 11-8ms (90-120 frames per second) to reduce motion sickness \cite{bib:oculushighfps} \todo{another reference to another vender would be nice}.
+Fast paced games usually profit from better rendering times of 16ms (about 60 frames per second) \cite{bib:shooterfps} and the vendors of the upcoming virtual reality displays recommend even shorter rendering times of 11-8ms (90-120 frames per second) to reduce motion sickness \cite{bib:oculushighfps} \todo{another reference to another vender would be nice}.
 Naturally, real-time rendering that is performed on personal computers usually makes use of a different set of approaches and algorithms as offline rendering which runs often on larger computer clusters.
 In this work we concentrate exclusively on real-time rendering without any pre-computation.
 % resolutions rising?
@@ -41,35 +41,77 @@ In this work we concentrate exclusively on real-time rendering without any pre-c
 \end{figure}
 To be able to display the aforementioned light effects in real-time, interactive application make often use of various pre-computation steps under the assumption that specific parts of the scene do not change.
 In the extreme case this means that both scene and lighting conditions are assumed to be completely static which allows to compute a large variety of effects up-front.
-This is common practice in many games, as seen e.g. in Mirrors Edge in \autoref{fig:gameprecomputedgi} where only the characters and very few dynamic objects are lit at runtime.
+This has been common practice in many games for over a decade now, as seen e.g. in Mirrors Edge in \autoref{fig:gameprecomputedgi} where only the characters and very few dynamic objects are lit at runtime.
 \\
 Obviously such techniques imply many restrictions on the design of virtual worlds and may not be applicable at all.
 However, there are also solutions which less restrictions, for example precomputed light transport techniques that allow dynamic lights in a static scene or irradiance volumes which can apply precomputed lighting on dynamic objects (more on other techniques in \autoref{chap:prevwork}).
-Of course there are various trade-offs between different approaches and so far there is no technique that is close to simulate all global illumination effects in real-time at reasonable quality (which is also still an open problem for offline rendering).
+Of course there are various trade-offs between different approaches and so far there is no technique that is even close to simulate all global illumination effects in real-time in a reasonable quality (which is also still an open problem for offline rendering).
 \\
-TODO: stress how great it would be to have fully dynamic GI and lead over to what we actually want to achieve
-
+A fully dynamic lighting approach not only frees a simulation of many technical restrictions, but also lowers the scene authoring iteration times as it is no longer necessary to wait for pre-computation processes to see the final result.
+Currently there are relatively few approaches that allow global illumination effects within completely dynamic scenes and lighting conditions.
+Of those, many come with a prominent artifacts like temporal incoherency (flickering).
+This is why many applications for which pre-computations are not applicable fall back to comparatively simple direct lighting and drop almost all important effects of global illumination.
 
 \section{Goals}
-\begin{itemize}
-\item Realtime global illumination, first bounce
-\subitem Dynamic camera, scene and lights!
-\item No significant precomputation
-\subitem This is important, as it excludes LightSkin!
-\item Support both diffuse and glossy reflections
-\subitem Simple BRDFs are okay, but we want to parameterize them 
-\item Temporal consistency
-\item Preferable scalable with large scenes
-\item Adequate lighting quality
-\item Colored indirect shadows
-\subitem Obviously I need to make a heavy trade-off here
-\end{itemize}
+This work wants to explore the field of completely dynamic global illumination further and come up with a new solution which satisfies the conditions presented in this section.
 
-\section{Overview}
-todo: This paragraph is a compressed version of the main part
+We limit ourselves to what we think are the most important global illumination effects: Light bleeding (indirect diffuse lighting), indirect shadows and glossy reflections.
+Light can bounce many times in a scene before it reaches the viewer.
+In this thesis however, only the most important first bounce will be handled.
+% ability to parameterize BRDFs locally?
+\\
+As already mentioned, we strongly focus on avoiding per-computation entirely and demand that all computations can be performed every frame.
+It should be possible to manipulate both the scene's geometry and surface materials, lights and the camera freely at runtime.
+\\
+The solution should run entirely on the graphics hardware to free the CPU for different work and avoid expensive transfers.
 
+Our most important quality criterion is temporal coherency.
+Many dynamic global illumination approaches suffer from flickering when moving either light, objects or the camera.
+We believe that such artifacts are far more intolerable than physical inaccuracies of a lighting solution.
+Therefore, this work aims to avoid such artifacts as good as possible.
+\\
+%The criterion which is most obvious and easiest to measure is of course the time a single frame needs to render.
+The time that a single frame takes to render should be adequate to the computed detail at all times.
+This also means that we want to be able to trade quality for performance if necessary.
+We aim for real-time rendering performance on mid-range desktop hardware.
+\\
+The work aims for appealing and credible lighting, physical correctness is secondary.
+Though, it should be based on physical laws to be able to make statements about its theoretical correctness.
+\todo{avoid light bleeding? etc.?}
+%We want to be able to run the algorithm on weaker machines or in situations where a real-time solution can not be presented at the highest quality.
+\\
+Finally, the approach should be as invariant as possible to the chosen scene and its scale.
+That means that the technique should adapt well to various small and large scenes and still deliver convincing results \todo{if there will be an actual outdoor scene, we can stress this a bit ;)}
+
+%As the problem of real-time global illumination is known to be challenging
+
+
+%\begin{itemize}
+%\item Realtime global illumination, first bounce
+%\subitem Dynamic camera, scene and lights!
+%\item No significant precomputation
+%\subitem This is important, as it excludes LightSkin!
+%\item Support both diffuse and glossy reflections
+%\subitem Simple BRDFs are okay, but we want to parameterize them 
+%\item Temporal consistency
+%\item Preferable scalable with large scenes
+%\item Adequate lighting quality
+%\item Colored indirect shadows
+%\subitem Obviously I need to make a heavy trade-off here
+%\end{itemize}
+
+%\section{Overview}
+%todo: This paragraph is a compressed version of the main part
+
+\todo{Should there be an overview over the actual technique?}
 \section{Thesis Outline}
-todo
+The next chapter will elaborate several theoretical and practical topics which are important to understand this thesis. %the theoretical foundation of light transport, some basics about real-time rendering, a few adöslfajksdfölakjsdf understanding of how to program modern GPUs and mathematical basics.
+Experienced reader may only skip parts or even the entire chapter.
+Since we are not able to introduce all necessary basics within the scope of this thesis, this chapter also recommends literature where newcomers can look up all relevant details.
+\autoref{chap:prevwork} discusses various pieces of related work which solve either similar problems, are similar or are fundamental to this thesis.
+Our own contribution, the dynamic radiance caching algorithm will be described in \autoref{chap:basics}.
+Results are evaluated and discussed in \autoref{chap:eva}.
+Finally, \autoref{chap:concl} will summarize the thesis and give an outlook to possible future work.
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
