@@ -115,6 +115,13 @@ The resulting formula is known as photometric distance law.
 E = \frac{I \cdot \cos\theta}{d^2}
 \end{equation}
 
+A Lambert emitter is a hemispherical light source that appears equally bright from all directions.
+That means that the radiance is independent of the angle under which the emitter is seen.
+This results in a cosine falloff of the intensity of such an emitter:
+\begin{equation}
+I(\theta) = (\cos\theta)^+ \cdot I_0
+\end{equation}
+
 Another reoccurring type of light source is the spot light.
 Generally, a spot light is a point light with a limited region of intensities bigger than zero.
 In this thesis we define the intensity of a spot light with an opening angle of $\alpha$ that points in the direction $\mathrm{l}$ depending on as following:
@@ -122,44 +129,6 @@ In this thesis we define the intensity of a spot light with an opening angle of 
 I(\mathrm{d}) = \Big(\frac{(\mathrm{l} \cdot \mathrm{d}) - \cos\alpha }{1-\cos\alpha}\Big)^+ \cdot I_0
 \end{equation}
 \todo{how we define our spot lights is not really a basic, but it fits so nicely in here?}
-
-A Lambert emitter is that appears equally bright from every direction.
-That means that the radiance is independent of the angle under which the emitter is seen.
-This results in a cosine falloff of the intensity of such an emitter:
-\begin{equation}
-I(\theta) = (\cos\theta)^+ \cdot I_0
-\end{equation}
-
-\subsection{Rendering Equation}
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\begin{figure}[h]
-\centering
-\includepdftex{renderingequation}
-\caption{Schematic sketch of the rendering equation. The seen radiance $L_o(\mathrm{x}, \omega_o)$ depends on the incoming radiance $L_i(\mathrm{x}, \omega_o)$ for all directions on the hemisphere.}
-\label{fig:renderingeq}
-\end{figure}
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-The well-known rendering equation by Kajiya \cite{bib:renderingequation} is a general description of the radiance in a given point $\mathrm{x}$ in a direction $\omega_o$:
-\begin{equation}
-L_o(\mathrm{x}, \omega_o) = L_e(\mathrm{x}, \omega_o) + \int_{2\pi\,sr} f_r(\mathrm{x}, \omega_i, \omega_o) \cdot L_i(\mathrm{x}, \omega_i) \cdot \cos\theta_i \, \mathrm{d}\omega_i
-\end{equation}
-Where $L_e$ is the self-emission and $L_i$ the incoming radiance for a given direction.
-$f_r$ denotes the \emph{bidirectional reflection distribution function} (BRDF) that describes how the surface reflects light.
-It will be examined more closely in the next section.
-The integral sums for all directions $\omega_i$ on the hemisphere, how much light is reflected to a observer in the direction $\omega_o$.
-\autoref{fig:renderingeq} visualizes the concept.
-Note that the evaluation of a single $L_i$ again requires the evaluation of the entire equation.
-This means that in theory the radiance at any point in any direction depends on all other points.
-Approaches that try to solve or approximate this recursive property of the rendering equation are thus performing \emph{global illumination}, as opposed to \emph{local illumination} where $L_i$ only includes directly visible light sources.
-
-One of the easiest ways of solving the rendering equation is path tracing which was presented alongside the equation.
-It solves the integral via a Monte Carlo integration:
-For each radiance sample multiple rays are shot into the scene.
-At each intersection the emissivity of the surface is evaluated. 
-The ray is reflected accordingly to the local material, using the BRDF as probability density.
-
-There are several phenomenons which are ignored by this basic form of the rendering equation.
-For example it is assumed that light travels through vacuum, i.e. no scattering or absorption within participating media occurs.
 
 \subsection{Bidirectional Reflectance Distribution Function}\label{sec:preq:brdf}
 For a given surface position, the BRDF $f_r(\omega_i, \omega_o)$ determines the ratio between the differential outgoing radiance $\mathrm{d}L$ in the direction $\omega_o$ and the differential irradiance $\mathrm{d}E$ from $\omega_i$:
@@ -200,73 +169,39 @@ f_r(\hat{\mathbf{n}}, \hat{\mathbf{h}}) = \rho_s \cdot \frac{\gamma + 8}{8\pi} \
 Where $\rho_s$ is the specular reflectance (also called specular color) and $\gamma$ the specular exponent which steers the sharpness of the highlight.
 Both may vary with the position on a surface.
 
-\section{Realtime Rendering}
-This section gives an overview over a few important aspects of realtime rendering.
-However, it is assumed that the reader is already familiar with the most basic concepts like (camera-)transformations, (triangle) geometry setup, texture/normal mapping, filtering and mip-mapping.
-Informations about these topics can be found in the book \emph{Real-Time Rendering} by Akenine-M\"{o}ller et al. \cite{bib:RealtimeRenderingBook}. %, on which parts of this section are based.
-\todo{currently there is only a bit on lighting, nothing more. introduction and title does not fit!}
-
-\subsection{Realtime Direct Lighting}
-While global illumination as expressed by the rendering equation is currently very difficult to achieve, different local illumination approaches have been used successfully in productive real-time rendering for many years.
-
-\subsubsection{Shadow Mapping}
-Depending on the definition, direct lighting may already no longer dubbed as local illumination since it requires for to determine the direct visibility of all light sources. 
-Visibility checks in general are a "global problem" since it is necessary to take the entire scene between light emitter and receiver into account.
-Especially for non-dimensionless light sources like area or environment lights (light from the entire sky) direct visibility determination is already a difficult problem.
-
-The most popular technique for direct shadows from dimensionless light sources is \emph{shadow mapping} \cite{bib:shadowmapping} since it maps very well today's graphics hardware.
-A shadow map is a texture containing depth values rendered with the view of a corresponding light source.
-When shading an object, the distance to the light source is now compared with its depth value stored in the shadow map.
-If the stored value is smaller, the pixel lies in the shadow, otherwise not.
-
+\subsection{Rendering Equation}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
 \centering
-\subcaptionbox{Self-shadow aliasing caused by texels that are both bellow and above the surface. \label{fig:shadowacne}}{
-	\begin{subfigure}[b]{0.45\textwidth}
-		\includegraphics[width=\textwidth]{shadow/shadowacne_rtr}
-   	\end{subfigure}
-   	~
- 	\begin{subfigure}[b]{0.45\textwidth}
-	 	\includegraphics[width=\textwidth]{shadow/shadowacne_sketch_rtr}
- 	\end{subfigure}
-}
-\\
-\subcaptionbox{Bias fixes above issue, but now the object seems to float. \label{fig:peterpanning}}{
-	\begin{subfigure}[b]{0.45\textwidth}
-		\includegraphics[width=\textwidth]{shadow/peterpanning_rtr}
-   	\end{subfigure}
-   	~
- 	\begin{subfigure}[b]{0.45\textwidth}
-	 	\includegraphics[width=\textwidth]{shadow/peterpanning_sketch_rtr}
- 	\end{subfigure}
-}
-\caption{\cite[p.351]{bib:RealtimeRenderingBook} Shadow map samples surface, shown by blue arrows. The red line shows the distance that the shadow map saves.}
+\includepdftex{renderingequation}
+\caption{Schematic sketch of the rendering equation. The seen radiance $L_o(\mathrm{x}, \omega_o)$ depends on the incoming radiance $L_i(\mathrm{x}, \omega_o)$ for all directions on the hemisphere.}
+\label{fig:renderingeq}
 \end{figure}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-There are various extensions to shadow mapping that try to improve the sampling quality or simulate non-dimensionless light sources.
-Shadow mapping is very prone to artifacts like self-shadow aliasing, also known as shadow acne.
-Surfaces are sometimes incorrectly considered shadowing themselves since point samples from the shadow map are used to represent an area's depth, see \autoref{fig:shadowacne}.
-The problem can be overcome by adding a bias to the depth values.
-This however, effectively moves the surface from the light which again leads to another artifact known as "Peter Panning":
-For a too large bias, objects are disconnected from their shadows which leads to a floating appearance, see \autoref{fig:peterpanning}.
-\\
-To alleviate this issue, Holbert \cite{bib:normaloffsetshadowmapping} introduced a normal dependent offsetting approach:
-Positions are offset not just in direction of the shadow projection, but in the direction of the surface normal depending on the angle to the light direction.
-This allows much lower bias values without self-shadow aliasing.
+The well-known rendering equation by Kajiya \cite{bib:renderingequation} is a general description of the radiance in a given point $\mathrm{x}$ in a direction $\omega_o$:
+\begin{equation}
+L_o(\mathrm{x}, \omega_o) = L_e(\mathrm{x}, \omega_o) + \int_{2\pi\,sr} f_r(\mathrm{x}, \omega_i, \omega_o) \cdot L_i(\mathrm{x}, \omega_i) \cdot \cos\theta_i \, \mathrm{d}\omega_i
+\end{equation}
+Where $L_e$ is the self-emission and $L_i$ the incoming radiance for a given direction.
+$f_r$ denotes the \emph{bidirectional reflection distribution function} (BRDF) that describes how the surface reflects light as described in the previous section.
+The integral sums for all directions $\omega_i$ on the hemisphere, how much light is reflected to a observer in the direction $\omega_o$.
+\autoref{fig:renderingeq} visualizes the concept.
+Note that the evaluation of a single $L_i$ again requires the evaluation of the entire equation.
+This means that in theory the radiance at any point in any direction depends on all other points.
+Approaches that try to solve or approximate this recursive property of the rendering equation are thus performing \emph{global illumination}, as opposed to \emph{local illumination} where $L_i$ only includes directly visible light sources.
 
-In our implementation we use shadow maps combined with normal offset mapping to determine the direct visibility of spot lights. \todo{if there were light types added, note here (and earlier to describe the type?)}
+One of the easiest ways of solving the rendering equation is path tracing which was presented alongside the equation.
+It solves the integral via a Monte Carlo integration:
+For each radiance sample (= pixel), multiple rays are shot into the scene.
+At each intersection the emissivity of the surface is evaluated. 
+The ray is then reflected recursively, according to the local material using the BRDF as probability density.
+For surfaces with a overall reflectivity bellow one, there is a chance that the ray will be absorbed which ends the path.
+Depending on the scene, it might take extremely long until the image converges.
 
-\subsubsection{Deferred Shading}
-In classic "forward rendering" the rendering and shading of objects is coupled.
-To be able to use multiple lights (for direct lighting), shading procedures either involve loops over all light sources or rendering all objects multiple times using only one light each time (multipass lighting).
+There are several phenomenons which are ignored by this basic form of the rendering equation.
+For example it is assumed that light travels through vacuum, i.e. no scattering or absorption within participating media occurs.
 
-Deferred shading decouples object rendering and pixel shading by saving all information needed for shading in the so called G-buffer. \todo{gbuffer image!}
-This buffer usually saves for each pixel a depth (which can be used to reconstruct the world position), normal and material properties.
-Afterwards used to compute dynamic illumination in a screen-space pass without re-rendering the scene geometry itself for these passes.
-The approach scales very well with many lights and can reduce the general complexity of a renderer considerably.
-Overdraw occurs only during the G-buffer creation which makes expensive BRDF calculations more viable.
-The main drawbacks of deferred shading include difficulties with multisampling-antialiasing and the need to handle transparent objects separately.
+
 
 \section{Modern GPU Pipeline and Capabilities}
 This section introduces several concepts of modern graphics hardware.
@@ -386,6 +321,78 @@ The number of threads which actually runs simultaneously on the hardware is call
 Occupancy depends on the chosen group size, the number of registers and the amount of used shared memory.
 Low occupancy means that wide parts of the available computational resources remain unused.
 While issues with low occupancies may occur in any shader stage, the compute shader is more prone to such errors as the programmer has much more influence on the scheduling as in the normal rendering pipeline.
+
+
+
+
+\section{Realtime Rendering}
+This section gives an overview over a few important aspects of realtime rendering.
+However, it is assumed that the reader is already familiar with the most basic concepts like (camera-)transformations, (triangle) geometry setup, texture/normal mapping, filtering and mip-mapping.
+Informations about these topics can be found in the book \emph{Real-Time Rendering} by Akenine-M\"{o}ller et al. \cite{bib:RealtimeRenderingBook}. %, on which parts of this section are based.
+\todo{currently there is only a bit on lighting, nothing more. introduction and title does not fit!}
+
+\subsection{Realtime Direct Lighting}
+While global illumination as expressed by the rendering equation is currently very difficult to achieve, different local illumination approaches have been used successfully in productive real-time rendering for many years.
+
+\subsubsection{Deferred Shading}
+In classic "forward rendering" the rendering and shading of objects is coupled.
+To be able to use multiple lights (for direct lighting), shading procedures either involve loops over all light sources or rendering all objects multiple times using only one light each time (multipass lighting).
+
+Deferred shading decouples object rendering and pixel shading by saving all information needed for shading in the so called G-buffer. \todo{gbuffer image!}
+This buffer usually saves for each pixel a depth (which can be used to reconstruct the world position), normal and material properties.
+Afterwards used to compute dynamic illumination in a screen-space pass without re-rendering the scene geometry itself for these passes.
+The approach scales very well with many lights and can reduce the general complexity of a renderer considerably.
+Overdraw occurs only during the G-buffer creation which makes expensive BRDF calculations more viable.
+The main drawbacks of deferred shading include difficulties with multisampling-antialiasing and the need to handle transparent objects separately.
+
+
+\subsubsection{Shadow Mapping}
+Depending on the definition, direct lighting may already no longer dubbed as local illumination since it requires for to determine the direct visibility of all light sources. 
+Visibility checks in general are a "global problem" since it is necessary to take the entire scene between light emitter and receiver into account.
+Especially for non-dimensionless light sources like area or environment lights (light from the entire sky) direct visibility determination is already a difficult problem.
+
+The most popular technique for direct shadows from dimensionless light sources is \emph{shadow mapping} \cite{bib:shadowmapping} since it maps very well today's graphics hardware.
+A shadow map is a texture containing depth values rendered with the view of a corresponding light source.
+When shading an object, the distance to the light source is now compared with its depth value stored in the shadow map.
+If the stored value is smaller, the pixel lies in the shadow, otherwise not.
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\subcaptionbox{Self-shadow aliasing caused by texels that are both bellow and above the surface. \label{fig:shadowacne}}{
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{shadow/shadowacne_rtr}
+   	\end{subfigure}
+   	~
+ 	\begin{subfigure}[b]{0.45\textwidth}
+	 	\includegraphics[width=\textwidth]{shadow/shadowacne_sketch_rtr}
+ 	\end{subfigure}
+}
+\\
+\subcaptionbox{Bias fixes above issue, but now the object seems to float. \label{fig:peterpanning}}{
+	\begin{subfigure}[b]{0.45\textwidth}
+		\includegraphics[width=\textwidth]{shadow/peterpanning_rtr}
+   	\end{subfigure}
+   	~
+ 	\begin{subfigure}[b]{0.45\textwidth}
+	 	\includegraphics[width=\textwidth]{shadow/peterpanning_sketch_rtr}
+ 	\end{subfigure}
+}
+\caption{\cite[p.351]{bib:RealtimeRenderingBook} Shadow map samples surface, shown by blue arrows. The red line shows the distance that the shadow map saves.}
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+There are various extensions to shadow mapping that try to improve the sampling quality or simulate non-dimensionless light sources.
+Shadow mapping is very prone to artifacts like self-shadow aliasing, also known as shadow acne.
+Surfaces are sometimes incorrectly considered shadowing themselves since point samples from the shadow map are used to represent an area's depth, see \autoref{fig:shadowacne}.
+The problem can be overcome by adding a bias to the depth values.
+This however, effectively moves the surface from the light which again leads to another artifact known as "Peter Panning":
+For a too large bias, objects are disconnected from their shadows which leads to a floating appearance, see \autoref{fig:peterpanning}.
+\\
+To alleviate this issue, Holbert \cite{bib:normaloffsetshadowmapping} introduced a normal dependent offsetting approach:
+Positions are offset not just in direction of the shadow projection, but in the direction of the surface normal depending on the angle to the light direction.
+This allows much lower bias values without self-shadow aliasing.
+
+In our implementation we use shadow maps combined with normal offset mapping to determine the direct visibility of spot lights. \todo{if there were light types added, note here (and earlier to describe the type?)}
 
 
 \section{Spherical Harmonics}\label{sec:preq:sh}
