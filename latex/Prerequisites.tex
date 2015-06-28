@@ -3,8 +3,8 @@
 \begin{document}
 
 \chapter{Prerequisites}\label{chap:preq}
-The following sections explain some of the underlying principles that are required to understand the later chapters in this thesis.
-Readers that are familiar with the basic concepts of photorealistic and realtime rendering may skip parts of this chapter.
+This chapter explains some of the underlying principles that are required to understand the remaining chapters of this thesis.
+Readers that are familiar with the basic concepts may skip the respective parts.
 
 % What belongs here:
 % - Mathematics
@@ -14,32 +14,33 @@ Readers that are familiar with the basic concepts of photorealistic and realtime
 % - References to work that is directly related to the topic
 
 \section{Theoretical Foundation} \label{sec:preq:theo}
-This section explains some of the fundamentals of physically based rendering.
-We will only discuss a few basics which are helpful for a good understanding of this thesis.
+The following section explains some of the fundamentals of physically based rendering.
+Only a few basics which are helpful for a good understanding of this thesis will be discussed.
 For more detailed explanations the reader is referred to the book \emph{Physically Based Rendering, From Theory to Implementation} by Pharr and Humphreys \cite{bib:pbrt}.
 
 \subsection{Physical Foundation}
-Light is generally an electromagnetic wave which originates at a light source and is bounced of or absorbed by the surfaces it hits.
-As such, there are several complicated physical properties like diffraction,interference and quantization effects (due to the particle properties of electromagnetic waves) which are usually ignored for rendering, as they play most of the time a minor role.
-Each light particle (= photon) has a certain wavelength which is responsible for the perceived color.
-We are only interested in the visible part of the spectrum which ranges from about $380nm$ to $780nm$.
-The number of photons registered by the eye defines the brightness.
+Generally, light is an electromagnetic wave which originates at a light source and is reflected or absorbed by the surfaces it hits.
+From this result several physical phenomenons like diffraction, polarization and interference which are usually ignored for rendering, as they play most of the time a minor role for the appearance of a scene.
+%and quantization effects (due to the particle properties of electromagnetic waves)
+Electromagnetic waves can also be represented by particles (photons) which have a certain wavelength that is responsible for the perceived color.
+We are only interested in the visible part of the spectrum which ranges from about $380\,nm$ to $780\,nm$.
+The number of photons registered by the eye is responsible for the perceived brightness.
 \\
-As the human retina has only three receptors, each with a given range of wavelength-support, it is usually sufficient to perform all calculations using only the three basic color stimuli red, green and blue \cite{bib:colorscience}.
-However, as recently pointed out by Meng et al. \cite{bib:spectrumrendering} there are several problems that might lead to color shifts and violation of energy conservation. \todo{recheck when I heared that talk (upcoming EGSR)}
+As the human retina has only three receptors, each with a non-linear range of wavelength-support, it is usually sufficient to perform all calculations using only the three basic color stimuli red, green and blue \cite{bib:colorscience}.
+%However, as recently pointed out by Meng et al. \cite{bib:spectrumrendering} there are several problems that might lead to color shifts and violation of energy conservation. \todo{recheck when I heared that talk (upcoming EGSR)}
 
 \subsection{Radiometric Quantities}
 There are several basic quantities that describe the transport and perception of light.
-Several of them depends on a \emph{solid angle}, the 3D equivalent of a 2D arc length.
+Several of them depend on the \emph{solid angle}, the 3D equivalent of a 2D arc length.
 The solid angle subtended by an object is computed by the projected area on the unit sphere in a given point.
 Solid angles are measured in steradians $sr$.
 A solid angle representing the entire unit sphere, has $4\pi\,sr$.
-As common, we use the symbol $\omega$ both for the solid angle itself and the normalized directions of a differential solid angles when integrating over (a part of) a sphere.
+As common, we use the symbol $\omega$ both for the solid angle itself and the normalized directions of differential solid angles when integrating over (parts of) a sphere.
 For example, an integration of a direction dependent function $f(\mathbf{x})$ over all directions in a hemisphere is expressed as:
 \begin{equation}
 \int_{2\pi\,sr} f(\omega) \, \mathrm{d}\omega
 \end{equation} 
-$\mathrm{d}\omega$ denotes the differential steradian, while $\omega$ alone is a single direction on the unit hemisphere.
+$\mathrm{d}\omega$ denotes the differential steradian, while $\omega$ alone is a single direction on the unit hemisphere. \todo{recheck this expl}
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
@@ -77,26 +78,26 @@ $\mathrm{d}\omega$ denotes the differential steradian, while $\omega$ alone is a
 
 \emph{Radiant flux} $\phi$ describes the energetic output of a light source (see \autoref{fig:flux}).
 It measures how much energy a light source emits over time and is thus given in watts.
-\\
+
 \emph{Intensity} $I$ gives how much flux $\phi$ per solid angle $\omega$ is emitted in a certain direction (see \autoref{fig:intensity}).
 \begin{equation}
 I = \frac{\mathrm{d}\phi}{\mathrm{d}\omega}
 \end{equation}
 It is especially useful to describe in which direction light sources emit more or less light.
-\\
-Irradiance $E$ determines how much light (incoming flux $phi_{in}$) per area $A$ a surface receives (see \autoref{fig:irradiance}).
+
+Irradiance $E$ determines how much light (incoming flux $\phi_{in}$) per area $A$ a surface receives (see \autoref{fig:irradiance}).
 \begin{equation}
 E = \frac{\mathrm{d}\phi_{in}}{\mathrm{d}A}
 \end{equation}
-The opposite, how much light per area is leaving a surface, is also called radiant exitance of radiosity.
+The opposite, how much light per area is leaving a surface, is also called radiant exitance or radiosity.
 However, as in many other works, we will use the term for both incident and exitant light.
-\\
-The last and most important quantity is \emph{radiance} $L$ since it is the which is "visible" as it corresponds to the seen brightness (see \autoref{fig:radiance}).
+
+The last and most important quantity is \emph{radiance} $L$ since it is the only "visible" measure as it corresponds to the seen brightness (see \autoref{fig:radiance}).
 It is defined as emitted flux $\phi$ per solid angle $\omega$ per projected emitter area $A^\perp$ in respect to a certain detector.
 \begin{equation}
 L = \frac{\mathrm{d}\phi}{\mathrm{d}\omega \cdot \mathrm{d}A^\perp }
 \end{equation}
-The projected ("seen") differential area $\mathrm{d}A^\perp$ is depended of the angle $\theta$ between emitter surface and detector direction:
+The projected differential area $\mathrm{d}A^\perp$ depends on the angle $\theta$ between emitter surface and detector direction:
 \begin{equation}
 \mathrm{d}A^\perp = \mathrm{d}A \cdot \cos\theta
 \end{equation}
@@ -108,8 +109,8 @@ The projected ("seen") differential area $\mathrm{d}A^\perp$ is depended of the 
 
 \subsection{Basic Relations and Common Types of Light Sources}
 A point light is an emitter without any extent, radiating in all directions with the intensity $I$.
-The irradiance in respect to such a light source declines with the square of the distance $d$ as the area "seen" by the source declines quadratically.
-Additionally, the "seen" area is depended on the angle $theta$ between the light direction and the surface normal.
+The irradiance  $E$ in respect to such a light source declines with the square of the distance $d$ as the area "seen" by the source declines quadratically.
+Additionally, this area depends on the angle $theta$ between the light direction and the surface normal.
 The resulting formula is known as photometric distance law.
 \begin{equation}
 E = \frac{I \cdot \cos\theta}{d^2}
@@ -131,24 +132,24 @@ I(\mathrm{d}) = \Big(\frac{(\mathrm{l} \cdot \mathrm{d}) - \cos\alpha }{1-\cos\a
 \todo{how we define our spot lights is not really a basic, but it fits so nicely in here?}
 
 \subsection{Bidirectional Reflectance Distribution Function}\label{sec:preq:brdf}
-For a given surface position, the BRDF $f_r(\omega_i, \omega_o)$ determines the ratio between the differential outgoing radiance $\mathrm{d}L$ in the direction $\omega_o$ and the differential irradiance $\mathrm{d}E$ from $\omega_i$:
+The \emph{bidirectional reflectance distribution function} (BRDF) $f_r(\mathrm{x}, \omega_i, \omega_o)$ determines the ratio between the differential outgoing radiance $\mathrm{d}L$ in the direction $\omega_o$ and the differential irradiance $\mathrm{d}E$ from $\omega_i$ at the surface position $\mathrm{x}$,
 \begin{equation}
-f_r(\omega_i, \omega_o) = \frac{\mathrm{d}L}{\mathrm{d}E}
+f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\mathrm{d}L}{\mathrm{d}E}
 \end{equation}
-The values of the BRDF also depend on wavelength, but as mentioned earlier we use RGB vectors instead.
-Physically plausible BRDFs are always positive, are energy-preserving and give the same result if $\omega_i$ and $\omega_o$ are swapped (Helmholtz reciprocity).
+Generally, the values of the BRDF depend on the wavelength of the irradiance, but as mentioned earlier we use RGB vectors instead.
+Physically plausible BRDFs are always positive, are energy-preserving and give the same result if $\omega_i$ and $\omega_o$ are swapped (\emph{Helmholtz reciprocity}).
 The BRDF determines the color and reflectence properties of a surface.
 Thus, a given configuration is often also called \emph{material}.
 
-There are many different attempts to describe the BRDF by an analytical model.
+There are many different attempts to describe the BRDF by a analytical models.
 The most basic one is the Lambert BRDF, also simply called diffuse material.
 Diffuse surfaces behave like lambert emitters and distribute incoming radiance in all directions.
 It is defined as:
 \begin{equation}
-f_r(\omega_i, \omega_o) = \frac{\rho_d}{\pi}
+f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\rho_d}{\pi}
 \end{equation}
 Where $\rho_d$ is the diffuse \emph{reflectance}.
-Reflectance is defined as ratio between all outgoing and all incoming light:
+Reflectance $\rho$ is defined as ratio between all outgoing and all incoming light:
 \begin{equation}
 \rho = \frac{\phi_o}{\phi_i} = \frac{\int\limits_{2\pi\,sr} L_o(\omega_o)\cdot \cos\theta_o  \, \mathrm{d}\omega_o}{\int\limits_{2\pi\,sr} L_i(\omega_o)\cdot \cos\theta_i  \, \mathrm{d}\omega_i}
 \end{equation}
@@ -157,17 +158,17 @@ Note that it is possible to combine arbitrary BRDFs as long as the combined resu
 
 In this thesis we make mainly use of the \emph{Blinn-Phong} BRDF \cite{bib:blinnphongbrdf}.
 It is a very simple half-vector BRDF which delivers more plausible results than the more frequently used \emph{Phong} BRDF \cite[p.~251f]{bib:RealtimeRenderingBook}.
-The half-vector $\hat{\mathbf{h}}$ is the normalized sum of direction to the light $\hat{\mathbf{d}}$ and the direction to the viewer $\hat{\mathbf{v}}$:
+A half-vector $\hat{\mathbf{h}}$ is the normalized sum of a direction to the light $\hat{\mathbf{d}}$ and a direction to the viewer $\hat{\mathbf{v}}$:
 \begin{equation}
-\hat{\mathbf{h}}_i = \frac{\hat{\mathbf{d}} + \hat{\mathbf{v}}}{||\hat{\mathbf{d}} + \hat{\mathbf{v}}||}
+\hat{\mathbf{h}} = \frac{\hat{\mathbf{d}} + \hat{\mathbf{v}}}{||\hat{\mathbf{d}} + \hat{\mathbf{v}}||}
 \end{equation}
-Since the original formulation of this BRDF is not energy preserving, we use the normalization form derived by Sloan and Hoffman as described in \cite[p.~257]{bib:RealtimeRenderingBook}.
-For a given surface normal $\hat{\mathbf{n}}$ and the \emph{half-vector} $\hat{\mathbf{h}}$ it is defined as:
+Since the original formulation of this BRDF is not energy preserving, we use the normalizated form as derived by Sloan and Hoffman \cite[p.~257]{bib:RealtimeRenderingBook}.
+For a given surface normal $\hat{\mathbf{n}}$ and a half-vector $\hat{\mathbf{h}}$ it is defined as:
 \begin{equation}
 f_r(\hat{\mathbf{n}}, \hat{\mathbf{h}}) = \rho_s \cdot \frac{\gamma + 8}{8\pi} \cdot ((\hat{\mathbf{n}} \cdot \hat{\mathbf{h}})^+)^\gamma
 \end{equation}
 Where $\rho_s$ is the specular reflectance (also called specular color) and $\gamma$ the specular exponent which steers the sharpness of the highlight.
-Both may vary with the position on a surface.
+Both may vary across a surface.
 
 \subsection{Rendering Equation}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
@@ -183,8 +184,8 @@ The well-known rendering equation by Kajiya \cite{bib:renderingequation} is a ge
 L_o(\mathrm{x}, \omega_o) = L_e(\mathrm{x}, \omega_o) + \int_{2\pi\,sr} f_r(\mathrm{x}, \omega_i, \omega_o) \cdot L_i(\mathrm{x}, \omega_i) \cdot \cos\theta_i \, \mathrm{d}\omega_i
 \end{equation}
 Where $L_e$ is the self-emission and $L_i$ the incoming radiance for a given direction.
-$f_r$ denotes the \emph{bidirectional reflection distribution function} (BRDF) that describes how the surface reflects light as described in the previous section.
-The integral sums for all directions $\omega_i$ on the hemisphere, how much light is reflected to a observer in the direction $\omega_o$.
+$f_r$ denotes the BRDF as described in the previous section.
+For all directions $\omega_i$ on the hemisphere, the integral sums up how much light is reflected to a observer in the direction $\omega_o$.
 \autoref{fig:renderingeq} visualizes the concept.
 Note that the evaluation of a single $L_i$ again requires the evaluation of the entire equation.
 This means that in theory the radiance at any point in any direction depends on all other points.
@@ -195,8 +196,8 @@ It solves the integral via a Monte Carlo integration:
 For each radiance sample (= pixel), multiple rays are shot into the scene.
 At each intersection the emissivity of the surface is evaluated. 
 The ray is then reflected recursively, according to the local material using the BRDF as probability density.
-For surfaces with a overall reflectivity bellow one, there is a chance that the ray will be absorbed which ends the path.
-Depending on the scene, it might take extremely long until the image converges.
+For surfaces with an overall reflectivity bellow one (practically all surfaces in reality), there is a chance that the ray will be absorbed which ends the path.
+Depending on the scene, it might take extremely long until a rendering process using path tracing converges.
 
 There are several phenomenons which are ignored by this basic form of the rendering equation.
 For example it is assumed that light travels through vacuum, i.e. no scattering or absorption within participating media occurs.
