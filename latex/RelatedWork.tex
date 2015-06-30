@@ -168,31 +168,49 @@ Rasterized Voxel-based GI by Doghramachi \cite{bib:rasterizedvbgi} presents an a
 \todo{more discrete ordinate methods or rename section}
 
 \section{Caching Methods}
-
-
+Many recent real-time global illumination methods, including our own, compute indirect lighting only for special \emph{light caches} and interpolate the results of those across many pixels.
+Which quantities a light cache saves varies from technique to technique as well as the strategies that is responsible for creating light caches either at runtime or as a pre-computation step.
+Since our approach relies on dynamic cache placement, its implications and trade-offs will be discussed in \autoref{sec:impl:dyncacheplace}.
 
 \subsection{(Irr-)Radiance Caching}
-Irradiance Caching \cite{bib:irradiancecaching}.\\
+The basic idea of light caches was first introduced by Ward et al. \cite{bib:irradiancecaching} in the form of Irradiance Caching (IC) to speed up path-tracing.
+Each time a ray intersects a diffuse surface it first checks if there are nearby caches from which the irradiance can be interpolated, if not, the irradiance is computed and a new cache is created at this place.
+There are many extensions to this method, most notably Radiance Caching by Krivanek et al. \cite{bib:radiancecaching} (RC) which supports arbitrary glossy surfaces by saving incoming radiance encoded in a high order spherical harmonics representation.
 
-Radiance Caching \cite{bib:radiancecaching}.\\
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{preconvolvedradiancecaching}
+	\caption{\cite{bib:preconvoledradiancecaching} Storage and evaluation of pre-convolved RC in comparison with "classic" IC/RC.
+	IC store a single value,
+	RC store a series of SH components,
+	pre-convolved RC store mipmaps of incoming radiance.} \label{fig:preconvolvedradiancecaching}
+\end{figure}
+Pre-convoled Radiance Caching by Scherzer et al. \cite{bib:preconvoledradiancecaching} is able to perform radiance caching with a single indirect bounce at interactive frame-rates.
+As in the original radiance caching, caches lie on surface.
+Each cache renders a hemisphere of all incoming radiance values as depicted in \autoref{fig:preconvolvedradiancecaching}.
+The result is then pre-convolved using mipmapping to be able to evaluate quickly arbitrary specular exponents (the paper makes use of the Phong BRDF).
+Caches are placed statically and apply their results using splatting, i.e. rendering them directly to a deferred shading buffer.
+Clustured Pre-Convolved Radiance Caching, an extension to the previous method by Rehfeld et al., places the radiance caches according to screen-space clusters which makes the technique more scalable but less temporal coherent.
+Additionally it uses cone tracing (which will be explained in \autoref{sec:prev:voxelmethods}) in a prefiltered voxel instead of rasterization to render the cache's radiance hemispheres.
 
-Radiance Hints \cite{bib:radiancehints}.
+\subsection{Irradiance Volumes}
+
+Classic irradiance volumes ...
+
 
 Real/time radiance caching http://jcgt.org/published/0003/04/06/ \cite{bib:radiancecachechromaticcompression}
 
-(Clustered) Preconvoled Radiance Caching \cite{bib:clusteredpreconvoledradiancecaching}
-"Pre-convolved radiance caching (PCRC) [SNRS12] proposes to store incident radiance in a texture with one texel per direction and preconvolve it—in essence creating a mip-map-pyramid of the
-radiance texture with accumulated radiance in the higher
-levels. Additionally, a low-resolution mip-map level is cosine folded to store irradiance. Using these two textures, evaluating the RCs requires only two texture lookups instead of re-evaluating the reflection functions. Irradiance can also be gathered into screen-space caches from a photon map [WWZ09] to integrate caustics." (from \cite{bib:clusteredpreconvoledradiancecaching})\\
+
+\subsection{Other Real-Time Caching-Based Methods}
+
+Radiance Hints \cite{bib:radiancehints}.
+
 Improvements in the clustured algorithm: "Creation" via Voxel Cones, "Distribution" in ScreenSpace, "Evaluation" gathering instead of splatting. The "Distribution" works similar to clustured deferred shading - each cluster results in a radiance cache with an interesting way to extract the normal. Evaluation scheme is extremely simple, does not take cache normals into account. Of course no temporal coherence -.-
 
+LightSkin \cite{bib:LightskinPaper} of Lensing et. al.
 
 
-\subsection{Light Skin}
-There is this paper \cite{bib:LightskinPaper} of Lensing et. al.
-
-
-\section{Voxel-Based Methods}
+\section{Voxel-Based Methods} \label{sec:prev:voxelmethods}
 
 Voxel GI
 

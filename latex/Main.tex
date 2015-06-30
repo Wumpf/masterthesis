@@ -22,7 +22,7 @@ Where necessary, details of the respective algorithms will be elaborated to addr
 Since the goal of this work is a fully dynamic solution that works without any pre-computations, it is necessary to place all caches at runtime, as opposed to LightSkin~\cite{bib:LightskinPaper} where caches are placed in a computational intense preprocessing step.
 Before we introduce our solution, several general implications of such an approach are elaborated.
 
-\subsection{General Properties and Requirements of Dynamic Cache Placement}
+\subsection{General Properties and Requirements of Dynamic Cache Placement} \label{sec:impl:dyncacheplace}
 Compared to a precomputation based approach, there are several intrinsic advantages which can be expected of a dynamic light cache placement.
 Since we target for a single bounce of indirect light, caches are only used by locations that lie in the current view frustum (for multiple bounces however, it might be necessary to transfer lights between caches).
 Also it should be possible to decrease the number of caches for distant objects, thus keeping screen-space cache density within a given bound.
