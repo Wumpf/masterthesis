@@ -72,8 +72,7 @@ The inverse-squared distance between shading point and light source introduces a
 Therefore, the contribution of a VPL reaches infinity in such a point.
 The result are bright splotches, mostly visibility in creases, as seen left in \autoref{fig:rsmbias}.
 
-Typically these artifacts are avoided by clamping the geometry term to a user defined maximum.
-Obviously this introduces a bias.
+Typically these artifacts are avoided by clamping the geometry term to a user defined maximum which obviously introduces a bias.
 There are several bias compensation techniques:
 Kollig and Keller \cite{bib:biascomp:kk04} shoot rays to nearby surface and evaluate the lighting there to transport it back to the original surface.
 However, this technique may degenerate to path-tracing is thus not suitable for interactive applications.
@@ -98,39 +97,88 @@ We use this technique in our approach since it is extremely fast, easy to implem
 
 Bias compensation in participating media are considerably more complex but not handled in this thesis.
 
-\subsection{Shadows for Many Lights}
-Book about realtime shadows (2011)\cite{bib:realtimeshadowsbook}.\\
-Imperfect shadow maps Ritschel et. al. \cite{bib:imperfectshadowmaps}.\\
+\subsection{Shadows for Many-Lights}
+Computing visibility for a large number of virtual lights is a difficult problem for realtime renderer since classic shadow computations like shadow mapping are far to expensive for this task.
+There are a few methods that try to optimize shadow mapping for rendering large amount of lights:
+\\
+Imperfect shadow maps Ritschel et. al. \cite{bib:imperfectshadowmaps} leverages the fact that exact secondary visibility is not needed.
+First points are placed at random locations on the scene geometry.
+Shadow maps are then computed using these points instead of triangles which is much faster.
+Holes in the shadow maps are filled with a push-pull heuristic.
+The succeeding paper \cite{bib:imperfectshadowmaps:adapative} makes the technique (both VPL placement and shadowing) view adaptive and allows larger scenes.
+\\
+Olsson et al. \cite{bib:virtualshadowmaps} stores shadow maps on a large virtual texture and decides for each frame which lights actually need to compute shadow maps, how high their resolution should be and which objects act as occluders.
+All these operations are performed on the GPU.
 
-Virtual Shadows: Shadow Mapping using a Virtual Texturing. TODO Read, there is much more to this. \cite{bib:virtualshadowmaps}
+Other methods like Micro-rendering by Ritschel et al. \cite{bib:microrendering} or ManyLoDs by Holländer et al. \cite{bib:manylods} use hierarchical data structures to be able to render at the exactly needed detail.
+However, these techniques have also several other implications for example on how shading performed which is why they are often separately categorized as \emph{point-based GI}.
 
-\subsection{Shading}
-Multi-resolution splatting techniques ([All Nichols] Hierarchical
-image-space radiosity for interactive global illumination, Multiresolution splatting for indirect illumination, Interactive indirect illumination using adaptive multiresolution splatting) are not as efficient as "Tiled Deferred Shading" (according to \cite{bib:clusturedpreconvoledradiancecaching} (where it is just a side note!)) ... logically Tiled Deferred Shading is even better.
-Interleaved Sampling (Interleaved sampling. In
-Proc. of Eurographics Workshop on Rendering (2001)) also a good idea 
-
-Clustured Forward/Deferred Shading: Finding Unique clusturs is DIFFERENT in paper \cite{bib:clusturedshading} and practical implementation like "Pratical Clustured Shading" (SIGG2013, Humus). Paper uses (local) sorting and page tables. Humus uses Volume Texture. Ollson Siggra2013 presentation uses parallel prefix sum.
-
-
+%\subsection{Shading}
+%Multi-resolution splatting techniques ([All Nichols] Hierarchical
+%image-space radiosity for interactive global illumination, Multiresolution splatting for indirect illumination, Interactive indirect illumination using adaptive multiresolution splatting) are not as efficient as "Tiled Deferred Shading" (according to \cite{bib:clusturedpreconvoledradiancecaching} (where it is just a side note!)) ... logically Tiled Deferred Shading is even better.
+%Interleaved Sampling (Interleaved sampling. In
+%Proc. of Eurographics Workshop on Rendering (2001)) also a good idea 
+%
+%Clustured Forward/Deferred Shading: Finding Unique clusturs is DIFFERENT in paper \cite{bib:clusturedshading} and practical implementation like "Pratical Clustured Shading" (SIGG2013, Humus). Paper uses (local) sorting and page tables. Humus uses Volume Texture. Ollson Siggra2013 presentation uses parallel prefix sum.
+%
 
 \section{Discrete Ordinate Methods}
-GPU Radiosity (because its the king of discrete methods!).\\
-Light Propagation Volumes.\\
-Voxel Cone Tracing and Voxel Based GI.\\
-Radiance Hints \cite{bib:radiancehints}.
+Discrete ordinate methods compute light transport by exchanging energy between a cellular discretization of the scene.
+Usually it is possible to update the lighting iteratively across many frames.
+As long as there are no high frequency changes, slow adaption can exploit frame coherencies to benefit the overall performance drastically.
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.35\textwidth}
+\centering
+\includegraphics[width=\textwidth]{lpv/principle}
+\caption{Light propagation principle.}
+\label{fig:lpv:principle}
+\end{subfigure}
+\begin{subfigure}[b]{0.53\textwidth}
+\centering
+\includegraphics[width=\textwidth]{lpv/cascading}
+\caption{Cascading of multiple LPVs.}
+\label{fig:lpv:cascading}
+\end{subfigure}
+\\
+\begin{subfigure}[b]{\textwidth}
+\centering
+\includegraphics[width=\textwidth]{lpv/results}
+\caption{Left: Low frequency indirect lighting. Right: Lit participating media.}
+\label{fig:lpv:results}
+\end{subfigure}
+\caption{\cite{bib:lpt} Cascaded LPV, principles and results.}
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+A popular real-time representative of these methods is Cascaded Light Propagation Volumes by Kaplanyan and Dachsbacher \cite{bib:lpt}.
+Using a RSM, light is injected into a light propagation volume (LPV).
+The LPV is a regular grid where each cell contains a light intensity distribution represented by a few low order spherical harmonic coefficients.
+A second grid stores a volumetric representation used for fuzzy occlusion.
+Considering these blockers, the light is then propagated across the LPV in each frame (see \autoref{fig:lpv:principle}).
+For better scalability with larger scenes, multiple nested LPVs are used as visualized in \autoref{fig:lpv:cascading}.
+After the propagation, the LPVs can easily be used to light the scene.
+The approach does not rely on any pre-computation and is able to capture both diffuse and low frequency specular lighting in real-time (see \autoref{fig:lpv:results}).
+However, it is very prone to light bleeding artifacts (light "seeping" incorrectly through blockers) and depending on the LPV resolution light may only be transported for rather short distances.
+\\
+The original approach obtained the blocker volume from the already existing information in RMS and the camera view.
+Rasterized Voxel-based GI by Doghramachi \cite{bib:rasterizedvbgi} presents an alternative real-time voxelization approach alongside with several implementation improvements.
+
+\todo{more discrete ordinate methods or rename section}
+
+\section{Caching Methods}
 
 
-\subsection{Light Propagation Volumes}
-
-
-\section{Light Caching Methods}
 
 \subsection{(Irr-)Radiance Caching}
 Irradiance Caching \cite{bib:irradiancecaching}.\\
-Radiance Caching \cite{bib:radiancecaching}.\\
-GPU versions
 
+Radiance Caching \cite{bib:radiancecaching}.\\
+
+Radiance Hints \cite{bib:radiancehints}.
+
+Real/time radiance caching http://jcgt.org/published/0003/04/06/ \cite{bib:radiancecachechromaticcompression}
 
 (Clustered) Preconvoled Radiance Caching \cite{bib:clusteredpreconvoledradiancecaching}
 "Pre-convolved radiance caching (PCRC) [SNRS12] proposes to store incident radiance in a texture with one texel per direction and preconvolve it—in essence creating a mip-map-pyramid of the
@@ -138,11 +186,15 @@ radiance texture with accumulated radiance in the higher
 levels. Additionally, a low-resolution mip-map level is cosine folded to store irradiance. Using these two textures, evaluating the RCs requires only two texture lookups instead of re-evaluating the reflection functions. Irradiance can also be gathered into screen-space caches from a photon map [WWZ09] to integrate caustics." (from \cite{bib:clusteredpreconvoledradiancecaching})\\
 Improvements in the clustured algorithm: "Creation" via Voxel Cones, "Distribution" in ScreenSpace, "Evaluation" gathering instead of splatting. The "Distribution" works similar to clustured deferred shading - each cluster results in a radiance cache with an interesting way to extract the normal. Evaluation scheme is extremely simple, does not take cache normals into account. Of course no temporal coherence -.-
 
+
+
 \subsection{Light Skin}
 There is this paper \cite{bib:LightskinPaper} of Lensing et. al.
 
 
-\section{Voxel Cone Tracing and Extensions}
+\section{Voxel-Based Methods}
+
+Voxel GI
 
 \todo{original voxel cone tracing} Has been evaluated in game engines. "MITTRING M.: The Technology Behind the Unreal Engine 4 Elemental demo. SIGGRAPH 2012 Advances in RealTime Rendering in 3D Graphics and Games Course, 2012." 
 
@@ -158,6 +210,11 @@ Layers to avoid discontinuities, etc.
 Modern GPU in OpenGL Insights \cite{bib:openglinsightsvoxel}
 
 Maxwell GPUs per Hardware
+
+\section{Summary}
+Metabla\\
+RSM important\\
+Which methods fulfill goals of this thesis
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}

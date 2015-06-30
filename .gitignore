@@ -124,7 +124,11 @@ sympy-plots-for-*.tex/
 # WinEdt
 *.bak
 *.sav
+
+# Generated pdfs
 /latex/Introduction.pdf
 /latex/Main.pdf
 /latex/RelatedWork.pdf
 /latex/thesis.pdf
+/latex/Notation.pdf
+/latex/Prerequisites.pdf
