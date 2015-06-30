@@ -194,11 +194,22 @@ Clustured Pre-Convolved Radiance Caching, an extension to the previous method by
 Additionally it uses cone tracing (which will be explained in \autoref{sec:prev:voxelmethods}) in a prefiltered voxel instead of rasterization to render the cache's radiance hemispheres.
 
 \subsection{Irradiance Volumes}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{gregerirradiancevolume}
+	\caption{\cite{bib:irradiancevolume} Visualization of an irradiance volume. Each sphere visualizes a light cache colored by the local irradiance for each direction. } \label{fig:irradiancevolume}
+\end{figure}
+Irradiance volumes as proposed by Greger et al. \cite{bib:irradiancevolume} are very popular to light dynamic objects in otherwise static environments.
+An irradiance volume is a regular grid in which each grid cell saves a precomputed irradiance values over all directions.
+The original work uses hemispherical grid mappings to save irradiance values.
+However, other representation like spherical harmonics are common in praxis \todo{citation?}.
+Objects to be lit can then use their normal vectors to look-up the precomputed irradiance values to perform diffuse lighting.
+Note however that this method can does not handle light bounced off or occluded by dynamic objects.
 
-Classic irradiance volumes ...
-
+Njasure gpu real-time ... 
 
 Real/time radiance caching http://jcgt.org/published/0003/04/06/ \cite{bib:radiancecachechromaticcompression}
+Meep! This paper sees itself as extension to Radiance Hints!
 
 
 \subsection{Other Real-Time Caching-Based Methods}
