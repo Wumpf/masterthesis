@@ -25,16 +25,19 @@ Therefore, we will focus on newer methods and those which are either fundamental
 	\caption{\cite{bib:manylightssurvey2014} Two passes of many-light algorithms: Left distribution of virtual lights, right direct lighting using virtual lights.} \label{fig:manylights}
 \end{figure}
 Many-light methods reduce the global illumination to the smaller problem of calculating the direct lighting of many virtual light sources.
+The basic principle was first described in Keller's work on Instant Radiosity \cite{bib:instantradiosity} (IR).
 All many-light approaches perform two passes (see \autoref{fig:manylights}):
 First virtual light sources are distributed in the scene, second each virtual light source performs direct lighting.
 The main advantages of the many-light approach in general is its relatively easy unified framework and its good scalability in performance and quality.
-Global illumination using $M$ virtual point lights can generally be expressed as following:
+Global illumination using $M$ virtual lights can generally be expressed as following:
 \begin{equation}
 L_o(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot V(\mathrm{x}, \mathrm{x}_i) \cdot f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i
 \end{equation}
 Where $G(\mathrm{x}, \mathrm{x}_i)$ is the geometry term which describes the light transfer from the virtual light in $x_i$ to the surface in point $x$.
 It depends on the type of the virtual light source.
 $V(\mathrm{x}, \mathrm{x}_i)$ is the visibility of a virtual light and $\phi_i$ its incoming flux.
+The original IR distributes the light by tracing photon rays from the light source that are bounced inside the scene.
+As also many more recent techniques, IR used virtual point light sources (VPL).
 
 Dachsbacher et al. \cite{bib:manylightssurvey2014} did recently a detailed survey on many-lights for both offline and real-time rendering.
 We focus here on the most important real-time approaches.
@@ -43,12 +46,16 @@ We focus here on the most important real-time approaches.
 One of the most important real-time global illumination algorithms is reflective shadow mapping by Dachsbacher et al. \cite{bib:reflectiveshadowmaps} on which many other approaches, including the one presented in this thesis, rely.
 It handles the virtual light distribution with the rasterization of an extended shadow map, the reflective shadow map (RSM).
 The RSM does not only contain depth as normal shadow maps, but also the reflected flux and the normal of the surface in each texel.
-Each texel of this shadow map is then seen as virtual point light (VPL).
+Each texel of this shadow map is then seen as virtual point light.
 The original paper shades each pixel with a given number of sampled VPLs without taking indirect shadows into account.
-Also, the technique handles only a single indirect bounce of diffuse lighting which means that a VPL is strictly speaking a hemispherical lambert emitter.
-(However, as most literature we will use the term "VPL" interchangable)
+Also, the technique handles only a single indirect bounce of diffuse lighting which means that a VPL is strictly speaking a hemispherical Lambert emitter.
+(Like most literature we will use the term "VPL" interchangable)
 
-\todo{clustering stuff}
+While RSM offers an easy way to generate virtual lights in real-time generation of, it does basically not alter the way how those lights are applied and how their visibility is determined.
+There are a few techniques that try to reduce the number of virtual lights and create few virtual area lights (VAL) by clustering
+Both Dong et al. \cite{bib:clusturedvisiblity:dong} and Prutkin et al. \cite{bib:clusturedvisiblity:prutkin} suggest to cluster VPLs using k-means.
+The former performs the clustering in world-space, the later directly in image space of the RSM.
+Both approaches suffer from temporal coherence problems since the size and position of the clusters can change rapidly.
 
 \subsection{VPL Bias and Compensation}
 Using virtual point lights, the geometry term is defined as following:
@@ -78,7 +85,7 @@ Kollig and Keller \cite{bib:biascomp:kk04} shoot rays to nearby surface and eval
 However, this technique may degenerate to path-tracing is thus not suitable for interactive applications.
 Other techniques try to compensate the bias approximately.
 For example the bias compensation by Nov\'{a}k et al. \cite{bib:biascomp:novak11} stores the bounded transport in screen-space and computes then residual transport.
-Although it misses invisible surfaces, it is both efficient and plausible in its results. \todo{there are more. Note more?}
+Although it misses invisible surfaces, it is both efficient and plausible in its results.
 \\
 There are also several approaches that use different types of virtual light sources instead of VPLs.
 Ha{\v{s}}an et al. \cite{bib:biascomp:vsl} introduce a new light type, the virtual spherical light (VSL).
@@ -86,8 +93,8 @@ Instead of a point-to-point evaluation, this allows them to integrate over the s
 Their approach is biased but does not cause bright splotches and preserves the overall energy by redistributing.
 \\
 Lensing et al. \cite{bib:LightskinPaper} use approximate disc shaped lights.
-Since they use reflective shadow maps, the area of these virtual areal lights (VAL) $A_{VAL}$ can easily be estimated by the distance of the VAL to the light source and the solid angle a RSM texel subtends.
-They show that the geometry term has an analytical solution if all surfaces are assumed to be diffuse:
+Since they use reflective shadow maps, the area of these virtual areal lights $A_{VAL}$ can easily be estimated by the distance of the VAL to the light source and the solid angle a RSM texel subtends.
+They show that if all surfaces are assumed to be diffuse, the lighting can be solved analytically by a simple change in the geometry term:
 \begin{align}
 G(\mathrm{x}, \mathrm{x}_i)_{VAL} = \frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2 + A_{VAL}} \cdot (\hat{\mathbf{n}}_i \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+
 \end{align}
@@ -110,7 +117,8 @@ The succeeding paper \cite{bib:imperfectshadowmaps:adapative} makes the techniqu
 Olsson et al. \cite{bib:virtualshadowmaps} stores shadow maps on a large virtual texture and decides for each frame which lights actually need to compute shadow maps, how high their resolution should be and which objects act as occluders.
 All these operations are performed on the GPU.
 
-Other methods like Micro-rendering by Ritschel et al. \cite{bib:microrendering} or ManyLoDs by Holländer et al. \cite{bib:manylods} use hierarchical data structures to be able to render at the exactly needed detail.
+Other methods like Micro-rendering by Ritschel et al. \cite{bib:microrendering} or ManyLoDs by Holländer et al. \cite{bib:manylods} use hierarchical data structures to be able to render objects at the exactly needed detail.
+This allows very fast approximations of visibility.
 However, these techniques have also several other implications for example on how shading performed which is why they are often separately categorized as \emph{point-based GI}.
 
 %\subsection{Shading}
@@ -121,6 +129,62 @@ However, these techniques have also several other implications for example on ho
 %
 %Clustured Forward/Deferred Shading: Finding Unique clusturs is DIFFERENT in paper \cite{bib:clusturedshading} and practical implementation like "Pratical Clustured Shading" (SIGG2013, Humus). Paper uses (local) sorting and page tables. Humus uses Volume Texture. Ollson Siggra2013 presentation uses parallel prefix sum.
 %
+
+\section{Caching Methods}
+Many recent real-time global illumination methods, including our own, compute indirect lighting only for special \emph{light caches} and interpolate the results of those across many pixels.
+Which quantities a light cache saves varies from technique to technique as well as the strategies that is responsible for creating light caches either at runtime or as a pre-computation step.
+Since our approach relies on dynamic cache placement, its implications and trade-offs will be discussed in \autoref{sec:impl:dyncacheplace}.
+
+\subsection{(Irr-)Radiance Caching}
+The basic idea of light caches was first introduced by Ward et al. \cite{bib:irradiancecaching} in the form of Irradiance Caching (IC) to speed up path-tracing.
+Each time a ray intersects a diffuse surface it first checks if there are nearby caches from which the irradiance can be interpolated, if not, the irradiance is computed and a new cache is created at this place.
+There are many extensions to this method, most notably Radiance Caching by Krivanek et al. \cite{bib:radiancecaching} (RC) which supports arbitrary glossy surfaces by saving incoming radiance encoded in a high order spherical harmonics representation.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{preconvolvedradiancecaching}
+	\caption{\cite{bib:preconvoledradiancecaching} Storage and evaluation of pre-convolved RC in comparison with "classic" IC/RC.
+	IC store a single value,
+	RC store a series of SH components,
+	pre-convolved RC store mipmaps of incoming radiance.} \label{fig:preconvolvedradiancecaching}
+\end{figure}
+Pre-convoled Radiance Caching by Scherzer et al. \cite{bib:preconvoledradiancecaching} is able to perform radiance caching with a single indirect bounce at interactive frame-rates.
+As in the original radiance caching, caches lie on surface.
+Each cache renders a hemisphere of all incoming radiance values as depicted in \autoref{fig:preconvolvedradiancecaching}.
+The result is then pre-convolved using mipmapping to be able to evaluate quickly arbitrary specular exponents (the paper makes use of the Phong BRDF).
+Caches are placed statically and apply their results using splatting, i.e. rendering them directly to a deferred shading buffer.
+Clustured Pre-Convolved Radiance Caching, an extension to the previous method by Rehfeld et al. \cite{bib:clusteredpreconvoledradiancecaching}, places the radiance caches according to screen-space clusters which makes the technique more scalable but less temporal coherent.
+Additionally it uses cone tracing (which will be explained in \autoref{sec:prev:voxelmethods}) in a prefiltered voxel instead of rasterization to render the cache's radiance hemispheres.
+
+\subsection{(Irr-)Radiance Volumes}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{gregerirradiancevolume}
+	\caption{\cite{bib:irradiancevolume} Visualization of an irradiance volume. Each sphere visualizes a light cache colored by the local irradiance for each direction. } \label{fig:irradiancevolume}
+\end{figure}
+Irradiance volumes as proposed by Greger et al. \cite{bib:irradiancevolume} are very popular to light dynamic objects in otherwise static environments.
+An irradiance volume is a regular grid in which each grid cell saves precomputed irradiance values for all directions.
+The original work uses hemispherical grid mappings to save irradiance values.
+However, other representation like spherical harmonics are common in praxis.
+Objects to be lit can then use their normal vectors to look-up the precomputed irradiance values to perform diffuse lighting.
+Note however that this method can does not handle light bounced off or occluded by dynamic objects.
+
+The advantage of saving irradiance for all possible normals over saving incoming radiance for each direction, is that an irradiance signal has a much lower frequency than radiance.
+Only a single irradiance value is needed for diffuse lighting of a surface (i.e. a given normal) which is equivalent to a hemispherical integration over the incoming radiance.
+Nonetheless, if arbitrary BRDFs are to be supported, the total incoming irradiance for a given normal is not sufficient and integration over radiance is necessary.
+Note however, that for a spherical harmonics representations, integration over a lobe given in SH has the same costs as evaluating the SH coefficients for a certain direction (as earlier described in \autoref{sec:preq:shprojectrecon}).
+
+Njasure et al. \cite{bib:nijasure:rtirradiancevol} compute radiance volumes at runtime with interactive frame rates by rendering a cubemap at each grid point and compute a low number of spherical harmonics coefficients from each of them.
+
+\subsection{Other Real-Time Caching-Based Methods}\todo{awful section name}
+
+Radiance Hints \cite{bib:radiancehints}.
+
+Real/time radiance caching http://jcgt.org/published/0003/04/06/ \cite{bib:radiancecachechromaticcompression}
+Meep! This paper sees itself as extension to Radiance Hints!
+
+LightSkin \cite{bib:LightskinPaper} of Lensing et. al.
+
 
 \section{Discrete Ordinate Methods}
 Discrete ordinate methods compute light transport by exchanging energy between a cellular discretization of the scene.
@@ -167,63 +231,7 @@ Rasterized Voxel-based GI by Doghramachi \cite{bib:rasterizedvbgi} presents an a
 
 \todo{more discrete ordinate methods or rename section}
 
-\section{Caching Methods}
-Many recent real-time global illumination methods, including our own, compute indirect lighting only for special \emph{light caches} and interpolate the results of those across many pixels.
-Which quantities a light cache saves varies from technique to technique as well as the strategies that is responsible for creating light caches either at runtime or as a pre-computation step.
-Since our approach relies on dynamic cache placement, its implications and trade-offs will be discussed in \autoref{sec:impl:dyncacheplace}.
-
-\subsection{(Irr-)Radiance Caching}
-The basic idea of light caches was first introduced by Ward et al. \cite{bib:irradiancecaching} in the form of Irradiance Caching (IC) to speed up path-tracing.
-Each time a ray intersects a diffuse surface it first checks if there are nearby caches from which the irradiance can be interpolated, if not, the irradiance is computed and a new cache is created at this place.
-There are many extensions to this method, most notably Radiance Caching by Krivanek et al. \cite{bib:radiancecaching} (RC) which supports arbitrary glossy surfaces by saving incoming radiance encoded in a high order spherical harmonics representation.
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\textwidth]{preconvolvedradiancecaching}
-	\caption{\cite{bib:preconvoledradiancecaching} Storage and evaluation of pre-convolved RC in comparison with "classic" IC/RC.
-	IC store a single value,
-	RC store a series of SH components,
-	pre-convolved RC store mipmaps of incoming radiance.} \label{fig:preconvolvedradiancecaching}
-\end{figure}
-Pre-convoled Radiance Caching by Scherzer et al. \cite{bib:preconvoledradiancecaching} is able to perform radiance caching with a single indirect bounce at interactive frame-rates.
-As in the original radiance caching, caches lie on surface.
-Each cache renders a hemisphere of all incoming radiance values as depicted in \autoref{fig:preconvolvedradiancecaching}.
-The result is then pre-convolved using mipmapping to be able to evaluate quickly arbitrary specular exponents (the paper makes use of the Phong BRDF).
-Caches are placed statically and apply their results using splatting, i.e. rendering them directly to a deferred shading buffer.
-Clustured Pre-Convolved Radiance Caching, an extension to the previous method by Rehfeld et al., places the radiance caches according to screen-space clusters which makes the technique more scalable but less temporal coherent.
-Additionally it uses cone tracing (which will be explained in \autoref{sec:prev:voxelmethods}) in a prefiltered voxel instead of rasterization to render the cache's radiance hemispheres.
-
-\subsection{(Irr-)Radiance Volumes}
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.7\textwidth]{gregerirradiancevolume}
-	\caption{\cite{bib:irradiancevolume} Visualization of an irradiance volume. Each sphere visualizes a light cache colored by the local irradiance for each direction. } \label{fig:irradiancevolume}
-\end{figure}
-Irradiance volumes as proposed by Greger et al. \cite{bib:irradiancevolume} are very popular to light dynamic objects in otherwise static environments.
-An irradiance volume is a regular grid in which each grid cell saves precomputed irradiance values for all directions.
-The original work uses hemispherical grid mappings to save irradiance values.
-However, other representation like spherical harmonics are common in praxis.
-Objects to be lit can then use their normal vectors to look-up the precomputed irradiance values to perform diffuse lighting.
-Note however that this method can does not handle light bounced off or occluded by dynamic objects.
-
-The advantage of saving irradiance for all possible normals over saving incoming radiance for each direction, is that an irradiance signal has a much lower frequency than radiance.
-Only a single irradiance value is needed for diffuse lighting of a surface (i.e. a given normal) which is equivalent to a hemispherical integration over the incoming radiance.
-Nonetheless, if arbitrary BRDFs are to be supported, the total incoming irradiance for a given normal is not sufficient and integration over radiance is necessary.
-Note however, that for a spherical harmonics representations, integration over a lobe given in SH has the same costs as evaluating the SH coefficients for a certain direction (as earlier described in \autoref{sec:preq:shprojectrecon}).
-
-Njasure et al. \cite{bib:nijasure:rtirradiancevol} compute radiance volumes at runtime with interactive frame rates by rendering a cubemap at each grid point and compute a low number of spherical harmonics coefficients from each of them.
-
-\subsection{Other Real-Time Caching-Based Methods}\todo{awful section name}
-
-Radiance Hints \cite{bib:radiancehints}.
-
-Real/time radiance caching http://jcgt.org/published/0003/04/06/ \cite{bib:radiancecachechromaticcompression}
-Meep! This paper sees itself as extension to Radiance Hints!
-
-LightSkin \cite{bib:LightskinPaper} of Lensing et. al.
-
-
-\section{Voxel-Based Methods} \label{sec:prev:voxelmethods}
+\section{Voxel-Volume-Tracing Methods} \label{sec:prev:voxelmethods}
 
 Voxel GI
 
