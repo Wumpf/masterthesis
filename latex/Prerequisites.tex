@@ -38,7 +38,7 @@ A solid angle representing the entire unit sphere, has $4\pi\,sr$.
 As common, we use the symbol $\omega$ both for the solid angle itself and the normalized directions of differential solid angles when integrating over (parts of) a sphere.
 For example, an integration of a direction dependent function $f(\mathbf{x})$ over all directions in a hemisphere is expressed as:
 \begin{equation}
-\int_{2\pi\,sr} f(\omega) \, \mathrm{d}\omega
+\int\limits_{2\pi\,sr} f(\omega) \, \mathrm{d}\omega
 \end{equation} 
 $\mathrm{d}\omega$ denotes the differential steradian, while $\omega$ alone is a single direction on the unit hemisphere. \todo{recheck this expl}
 
@@ -181,7 +181,7 @@ Both may vary across a surface.
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 The well-known rendering equation by Kajiya \cite{bib:renderingequation} is a general description of the radiance in a given point $\mathrm{x}$ in a direction $\omega_o$:
 \begin{equation}
-L_o(\mathrm{x}, \omega_o) = L_e(\mathrm{x}, \omega_o) + \int_{2\pi\,sr} f_r(\mathrm{x}, \omega_i, \omega_o) \cdot L_i(\mathrm{x}, \omega_i) \cdot \cos\theta_i \, \mathrm{d}\omega_i
+L_o(\mathrm{x}, \omega_o) = L_e(\mathrm{x}, \omega_o) + \int\limits_{2\pi\,sr} f_r(\mathrm{x}, \omega_i, \omega_o) \cdot L_i(\mathrm{x}, \omega_i) \cdot \cos\theta_i \, \mathrm{d}\omega_i
 \end{equation}
 Where $L_e$ is the self-emission and $L_i$ the incoming radiance for a given direction.
 $f_r$ denotes the BRDF as described in the previous section.
@@ -358,10 +358,9 @@ However, it is assumed that the reader is already familiar with the most basic c
 Informations about these topics can be found in the book \emph{Real-Time Rendering} by Akenine-M\"{o}ller et al. \cite{bib:RealtimeRenderingBook}. %, on which parts of this section are based.
 \todo{currently there is only a bit on lighting, nothing more. introduction and title do not fit!}
 
-\subsection{Realtime Direct Lighting}
-While global illumination as expressed by the rendering equation is currently very difficult to achieve in real-time, different local illumination approaches have been used successfully in production for many years.
+%While global illumination as expressed by the rendering equation is currently very difficult to achieve in real-time, different local illumination approaches have been used successfully in production for many years.
 
-\subsubsection{Deferred Shading}
+\subsection{Deferred Shading}
 In classic "forward rendering" the rendering and shading of objects is coupled.
 To be able to compute direct lighting for multiple lights, shading procedures either involve loops over all light sources or it is necessary to render all objects additively multiple times computing a fixed number of lights each time (multipass lighting).
 
@@ -379,7 +378,7 @@ To be able to compute direct lighting for multiple lights, shading procedures ei
 \begin{subfigure}[b]{0.24\textwidth}
 	\includegraphics[width=\textwidth]{gbuffer/specular}
 \end{subfigure}
-\caption{Example for a G-buffer with diffuse reflectance, depth, normals and specular BRDF properties.}
+\caption{Example for a G-buffer with diffuse reflectance, depth, normals and specular BRDF properties.} \label{fig:gbuffer}
 \end{figure}
 Deferred shading decouples object rendering and pixel shading by saving all information needed for shading in the so called \emph{G-buffer}.
 This buffer saves for each screen pixel a depth (which can be used to reconstruct the world position), normal and material properties.
@@ -390,7 +389,7 @@ Overdraw occurs only during the G-buffer creation which makes expensive BRDF cal
 The main drawbacks of deferred shading include difficulties with multisampling-antialiasing and transparent objects which can not be handled by this technique at all.
 
 
-\subsubsection{Shadow Mapping}
+\subsection{Shadow Mapping}
 Depending on the definition, direct lighting may already no longer be classified as local illumination since it requires to determine the direct visibility of all light sources. 
 Visibility checks in general are a "global problem" since it is necessary to take the entire scene between light emitter and receiver into account.
 Especially for non-dimensionless light sources like area or environment lights (light from the entire sky) direct visibility determination can be a difficult problem.
@@ -400,25 +399,28 @@ A shadow map is a texture containing depth values rendered with the view of a co
 When shading an object, the distance to the light source is compared with its depth value stored in the shadow map.
 If the stored value is smaller, the pixel lies in the shadow, otherwise not.
 
+\subsection{HDR Rendering}
+\todo{Content!}
+
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
 \centering
 \subcaptionbox{Self-shadow aliasing caused by texels that are both bellow and above the surface. \label{fig:shadowacne}}{
-	\begin{subfigure}[b]{0.45\textwidth}
+	\begin{subfigure}[b]{0.32\textwidth}
 		\includegraphics[width=\textwidth]{shadow/shadowacne_rtr}
    	\end{subfigure}
    	~
- 	\begin{subfigure}[b]{0.45\textwidth}
+ 	\begin{subfigure}[b]{0.4\textwidth}
 	 	\includegraphics[width=\textwidth]{shadow/shadowacne_sketch_rtr}
  	\end{subfigure}
 }
 \\
 \subcaptionbox{Bias fixes above issue, but now the object seems to float. \label{fig:peterpanning}}{
-	\begin{subfigure}[b]{0.45\textwidth}
+	\begin{subfigure}[b]{0.32\textwidth}
 		\includegraphics[width=\textwidth]{shadow/peterpanning_rtr}
    	\end{subfigure}
    	~
- 	\begin{subfigure}[b]{0.45\textwidth}
+ 	\begin{subfigure}[b]{0.4\textwidth}
 	 	\includegraphics[width=\textwidth]{shadow/peterpanning_sketch_rtr}
  	\end{subfigure}
 }
@@ -436,7 +438,7 @@ To alleviate this issue, Holbert \cite{bib:normaloffsetshadowmapping} introduced
 Positions are offset not just in direction of the shadow projection, but in the direction of the surface normal depending on the angle to the light direction.
 This allows much lower bias values without self-shadow aliasing.
 
-In our implementation we use shadow maps combined with normal offset mapping to determine the direct visibility of spot lights. \todo{if there were light types added, note here (and earlier to describe the type?)}
+In our implementation we use shadow maps combined with normal offset mapping to determine the direct light visibility.
 
 
 \section{Spherical Harmonics}\label{sec:preq:sh}
@@ -449,7 +451,7 @@ More detailed explanations can be found for example in \cite{bib:grittysh, bib:s
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{sh}
-	\caption{\cite{bib:grittysph} The first three SH bands plotted as unsigned spherical functions by distance from the origin unit sphere. Green are positive values, red are negative ones.}
+	\caption{\cite{bib:grittysh} The first three SH bands plotted as unsigned spherical functions by distance from the origin unit sphere. Green are positive values, red are negative ones.}
 	\label{fig:shvisualization}
 \end{figure}
 \todo{Better image quality!}
