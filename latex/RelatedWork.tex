@@ -191,21 +191,21 @@ A dilated version of this volume can be used to determine the visibility of virt
 
 
 \section{LightSkin}
-LightSkin \cite{bib:LightskinPaper} by Lensing et al. uses precomputed light cache positions which are placed directly on surfaces.
+ % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{lightskin}
+\caption{\cite{bib:lightskinthesis} LightSkin indirect lighting approach.\\
+Left: Cache distribution. Right: Lighting results. } \label{fig:lightskin}
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+LightSkin \cite{bib:LightskinPaper} by Lensing et al. uses precomputed light cache positions which are placed directly on surfaces (see \autoref{fig:lightskin}).
 This has several advantages over radiance volume approaches.
 Each cache computes the lighting only for a single given normal and set of material properties.
 The technique exploits pre-computed neighbor-relation ships for an efficient real-time interpolation of both indirect diffuse and glossy reflections which is dependent on the current lighting situation.
 A smooth indirect shadow approximation is achieved by adding a precomputed size to the light caches which makes it possible to use them as coarse blocker.
 The combination of clever cache placement during the pre-computation and the sophisticated interpolation at runtime, makes it possible to achieve a relatively high lighting quality even for low amounts of caches, without any temporal artifacts.
 
- % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{lightskin}
-\caption{\cite{bib:lightskinthesis} LightSkin indirect lighting approach.\\
-Left: Cache distribution. Right: Lighting results. }
-\end{figure}
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 While an expensive pre-computation step is needed to place the light caches, compute their neighbors and determine their properties, the approach is not limited to static scenes as caches can be moved with animated objects.
 Depending on the number of caches only smooth lighting can be performed and the technique does not scale well with large scenes, since the number of caches for distant objects can not be reduced trivially.
 Neighborship-relations are either saved per vertex or on a texture. 
@@ -263,24 +263,52 @@ Rasterized Voxel-based GI by Doghramachi \cite{bib:rasterizedvbgi} presents an a
 
 \todo{more discrete ordinate methods or rename section}
 
-\section{Voxel-Volume-Tracing Methods} \label{sec:prev:voxelmethods}
-
-Voxel GI
-
-\todo{original voxel cone tracing} Has been evaluated in game engines. "MITTRING M.: The Technology Behind the Unreal Engine 4 Elemental demo. SIGGRAPH 2012 Advances in RealTime Rendering in 3D Graphics and Games Course, 2012." 
-
-Layered Reflective Shadow Maps for Voxel-based Indirect Illumination decouples occlusion from lighting data.
-Visibility determination is handled via Voxel Cone tracing while the actual lighting is performed by lookups in a pre-filtered Layered Reflective Shadow Map.
-Doing so avoids most of the memory and initialization/update overhead associated with the large voxel data structure, since each voxel encodes only binary visibility information.
-Layers to avoid discontinuities, etc.
+\section{Voxel-Volume Methods} \label{sec:prev:voxelmethods}
+Due to the ever increasing processing power of GPUs and the development of real-time voxelization algorithms, methods using ray or cone tracing within a voxelized scene representation have gained popularity in the last few years.
+Voxelized representations have several advantages over classic triangle-based scenes:
+The level of detail can be scaled, random access using world coordinates can easily achieved, intersections tests are simple to perform etc..
 
 \subsection{Voxelization}
-
 \cite{bib:GPUGems2}[Chapter 42] $http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter42.html$
 
 Modern GPU in OpenGL Insights \cite{bib:openglinsightsvoxel}
 
 Maxwell GPUs per Hardware
+
+\subsection{Voxel Cone/Ray Tracing}
+Voxel-Based GI by Thiedemann et al. \cite{bib:voxelgi} traces multiple rays at each seen world position through a binary voxelization.
+When the rays hit a surface or exceed a maximum stepping length, light is added to the ray starting point using a RSM if the hit point lit succeeds the shadow mapping test, i.e. is visible by the light source.
+Since tracing rays through the voxel-volume is a very costly operation, indirect lighting remains only local.
+
+ % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{voxelconetracing}
+\caption{\cite{bib:voxelconetracing} Illustration of Voxel Cone Tracing. } \label{fig:voxelconetracing}
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+Voxel Cone Tracing by Crassin et al. \cite{bib:voxelconetracing} overcomes this issue by tracing cones instead of rays through a mip-mapped voxel volume.
+Additionally to the occlusion value, each voxel also saves a normal and flux which was before injected by an RSM.
+\autopageref{fig:voxelconetracing} gives a short overview over the approach.
+For diffuse lighting a few cones covering the hemisphere are traced in each visible point.
+The step size during the tracing increases together with the sampled mipmap of the voxel volume, so that the entire cone is sampled approximately.
+This technique allows Voxel Cone Tracing to trace very long cones at relatively low costs.
+Since occlusion is fuzzy in all but the lowest mipmap-level, lighting is applied continuously with each sample  depending on its opacity.
+The tracing stops when the total until the cone is completely blocked using an emission-absorbed model.
+Additionally, each voxel saves its flux anisotropically for more accurate lighting even with higher mip-levels.
+Using an extra, thinner cone for the specular highlight the approach achieves relatively accurate reflections within the same framework.
+The main draw-back of Voxel Cone Tracing is its high memory footprint.
+Because of this the original work makes use of a sparse voxel octree.
+However, for practical considerations the technique was used in production with cascaded volumes instead. \todo{citation needed}
+
+Layered Reflective Shadow Maps by Sugihara et al. \cite{bib:layeredrsm} works very similar but decouples occlusion from lighting data again.
+Visibility determination is handled via cone tracing as before while the actual lighting is performed by lookups in a pre-filtered Layered Reflective Shadow Map.
+The RSM is split up into multiple layers to be able to create pre-filterable textures without large depth or normal discontinuities.
+Doing so avoids most of the memory and initialization/update overhead associated with the large voxel data structure, since each voxel encodes only binary visibility information.
+While the approach has a significantly lower memory footprint than the original Voxel Cone Tracing, it suffers from temporal coherency for highly gloss surfaces and does not scale well with the number of light sources.
+
+
+\section{Screen-Space Methods}
 
 \section{Summary}
 Metabla\\
