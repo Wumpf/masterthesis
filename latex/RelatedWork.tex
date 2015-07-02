@@ -134,6 +134,7 @@ However, these techniques have also several other implications for example on ho
 Many recent real-time global illumination methods, including our own, compute indirect lighting only for special \emph{light caches} and interpolate the results of those across many pixels.
 Which quantities a light cache saves varies from technique to technique as well as the strategies that is responsible for creating light caches either at runtime or as a pre-computation step.
 Since our approach relies on dynamic cache placement, its implications and trade-offs will be discussed in \autoref{sec:impl:dyncacheplace}.
+Since caches are mostly placed relatively sparse, most of the following techniques are prone to light bleeding artifacts, i.e. light "seeping" incorrectly through blockers.
 
 \subsection{(Irr-)Radiance Caching}
 The basic idea of light caches was first introduced by Ward et al. \cite{bib:irradiancecaching} in the form of Irradiance Caching (IC) to speed up path-tracing.
@@ -157,6 +158,7 @@ Clustured Pre-Convolved Radiance Caching, an extension to the previous method by
 Additionally it uses cone tracing (which will be explained in \autoref{sec:prev:voxelmethods}) in a prefiltered voxel instead of rasterization to render the cache's radiance hemispheres.
 
 \subsection{(Irr-)Radiance Volumes}
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{gregerirradiancevolume}
@@ -174,17 +176,42 @@ Only a single irradiance value is needed for diffuse lighting of a surface (i.e.
 Nonetheless, if arbitrary BRDFs are to be supported, the total incoming irradiance for a given normal is not sufficient and integration over radiance is necessary.
 Note however, that for a spherical harmonics representations, integration over a lobe given in SH has the same costs as evaluating the SH coefficients for a certain direction (as earlier described in \autoref{sec:preq:shprojectrecon}).
 
+\subsubsection{Real-Time}
 Njasure et al. \cite{bib:nijasure:rtirradiancevol} compute radiance volumes at runtime with interactive frame rates by rendering a cubemap at each grid point and compute a low number of spherical harmonics coefficients from each of them.
 
-\subsection{Other Real-Time Caching-Based Methods}\todo{awful section name}
+Radiance Hints by Papaioannou \cite{bib:radiancehints} retrieve radiance from a RSM and approximate multiple diffuse light-bounces between the light caches.
+Like the RSM algorithm on which the technique is based, occlusion of VPLs is not handled.
+For the secondary bounces however, visibility of the radiance hints (= light caches) is approximated by the minimum and maximum distance of the used RSM samples.
+\\
+Vardis et al. \cite{bib:radiancecachechromaticcompression} improve recently upon Radiance Hints by using chrominance compression and an optimized radiance cache positioning.
+Using less SH bands for the chroma part of the radiance allows higher order for the more importance luminance portion.
+Which radiance caches that contribute to the scene's surfaces is determined by down-sampling a real-time voxelization.
+Contrary to Radiance Hints, caches in mid-air will not be updated.
+A dilated version of this volume can be used to determine the visibility of virtual light sources.
 
-Radiance Hints \cite{bib:radiancehints}.
 
-Real/time radiance caching http://jcgt.org/published/0003/04/06/ \cite{bib:radiancecachechromaticcompression}
-Meep! This paper sees itself as extension to Radiance Hints!
+\section{LightSkin}
+LightSkin \cite{bib:LightskinPaper} by Lensing et al. uses precomputed light cache positions which are placed directly on surfaces.
+This has several advantages over radiance volume approaches.
+Each cache computes the lighting only for a single given normal and set of material properties.
+The technique exploits pre-computed neighbor-relation ships for an efficient real-time interpolation of both indirect diffuse and glossy reflections which is dependent on the current lighting situation.
+A smooth indirect shadow approximation is achieved by adding a precomputed size to the light caches which makes it possible to use them as coarse blocker.
+The combination of clever cache placement during the pre-computation and the sophisticated interpolation at runtime, makes it possible to achieve a relatively high lighting quality even for low amounts of caches, without any temporal artifacts.
 
-LightSkin \cite{bib:LightskinPaper} of Lensing et. al.
+ % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{lightskin}
+\caption{\cite{bib:lightskinthesis} LightSkin indirect lighting approach.\\
+Left: Cache distribution. Right: Lighting results. }
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+While an expensive pre-computation step is needed to place the light caches, compute their neighbors and determine their properties, the approach is not limited to static scenes as caches can be moved with animated objects.
+Depending on the number of caches only smooth lighting can be performed and the technique does not scale well with large scenes, since the number of caches for distant objects can not be reduced trivially.
+Neighborship-relations are either saved per vertex or on a texture. 
+Both methods can increase the memory footprint of a scene considerably.
 
+Furthermore, Lensing describes in his PhD thesis \cite{bib:lightskinthesis} how to use LightSkin for subsurface scattering effects and proposes how to use the method in mixed reality scenarios.
 
 \section{Discrete Ordinate Methods}
 Discrete ordinate methods compute light transport by exchanging energy between a cellular discretization of the scene.
@@ -229,7 +256,7 @@ Considering these blockers, the light is then propagated across the LPV in each 
 For better scalability with larger scenes, multiple nested LPVs are used as visualized in \autoref{fig:lpv:cascading}.
 After the propagation, the LPVs can easily be used to light the scene.
 The approach does not rely on any pre-computation and is able to capture both diffuse and low frequency specular lighting in real-time (see \autoref{fig:lpv:results}).
-However, it is very prone to light bleeding artifacts (light "seeping" incorrectly through blockers) and depending on the LPV resolution light may only be transported for rather short distances.
+However, it is very prone to light bleeding artifacts and depending on the LPV resolution light may only be transported for rather short distances.
 \\
 The original approach obtained the blocker volume from the already existing information in RMS and the camera view.
 Rasterized Voxel-based GI by Doghramachi \cite{bib:rasterizedvbgi} presents an alternative real-time voxelization approach alongside with several implementation improvements.
