@@ -53,11 +53,11 @@ Of those, many come with a prominent artifacts like temporal incoherency (flicke
 This is why many applications for which pre-computations are not applicable fall back to comparatively simple direct lighting and drop almost all important effects of global illumination.
 
 \section{Goals} \label{bib:goals}
-This work wants to explore the field of completely dynamic global illumination further and come up with a new solution which satisfies the conditions presented in this section.
+The primary goal of this work is to explore the field of completely dynamic global illumination further and come up with a new solution which satisfies the conditions presented in this section.
 
-We limit ourselves to what we think are the most important global illumination effects: Light bleeding (indirect diffuse lighting), indirect shadows and glossy reflections.
+We limit ourselves to what we think are the most important global illumination effects: Indirect diffuse lighting, indirect shadows and glossy reflections.
 Light can bounce many times in a scene before it reaches the viewer.
-In this thesis however, only the most important first bounce will be handled.
+In this thesis however, only the most important first indirect bounce will be handled.
 % ability to parameterize BRDFs locally?
 \\
 As already mentioned, we strongly focus on avoiding per-computation entirely and demand that all computations can be performed every frame.
@@ -75,13 +75,12 @@ The time that a single frame takes to render should be adequate to the computed 
 This also means that we want to be able to trade quality for performance if necessary.
 We aim for real-time rendering performance on mid-range desktop hardware.
 \\
-The work aims for appealing and credible lighting, physical correctness is secondary.
+The work tries to accomplish appealing and credible lighting, physical correctness is secondary.
 Though, it should be based on physical laws to be able to make statements about its theoretical correctness.
-\todo{avoid light bleeding? etc.?}
 %We want to be able to run the algorithm on weaker machines or in situations where a real-time solution can not be presented at the highest quality.
 \\
 Finally, the approach should be as invariant as possible to the chosen scene and its scale.
-That means that the technique should adapt well to various small and large scenes and still deliver convincing results \todo{if there will be an actual outdoor scene, we can stress this a bit ;)}
+That means that the technique should adapt well to various small and large scenes and still deliver convincing results
 
 %As the problem of real-time global illumination is known to be challenging
 
@@ -101,22 +100,26 @@ That means that the technique should adapt well to various small and large scene
 %\end{itemize}
 
 \section{Main Contribution}
-\begin{easylist}
-# New view space based light cache selection in cascaded radiance volumes
-# Accurate indirect shadowing for radiance caches
-# Hemispherical specular environment maps for glossy reflections
-\end{easylist}
+The main contribution of this thesis are:
+\begin{itemize}
+\item We introduce a new view space based light cache activation in cascaded radiance volumes. We provide implementation details on our shared memory cache that speeds up this process considerably.
+\item We present dynamic, scalable and comparatively accurate indirect shadowing for reflective shadow mapping caches using voxel cone tracing.
+\item We propose hemispherical specular environment maps for glossy reflections as an addition to classic spherical harmonic based radiance caches.
+\end{itemize}
 
-\todo{content}
+\todo{Surely there are more contributions?}
 \todo{Figure showing off some nice effect}
 
 \section{Thesis Outline}
 The next chapter will elaborate several theoretical and practical topics which are important to understand this thesis. %the theoretical foundation of light transport, some basics about real-time rendering, a few adöslfajksdfölakjsdf understanding of how to program modern GPUs and mathematical basics.
-Experienced reader may only skip parts or even the entire chapter.
+Experienced readers may skip parts of this chapter.
 Since we are not able to introduce all necessary basics within the scope of this thesis, this chapter also recommends literature where newcomers can look up all relevant details.
-\autoref{chap:prevwork} discusses various pieces of related work which solve either similar problems, are similar or are fundamental to this thesis.
+\\
+\autoref{chap:prevwork} discusses various pieces of related work which are either similar, inspirational or fundamental to this thesis or solve similar problems.
+\\
 Our own contribution, the dynamic radiance caching algorithm will be described in \autoref{chap:basics}.
 Results are evaluated and discussed in \autoref{chap:eva}.
+\\
 Finally, \autoref{chap:concl} will summarize the thesis and give an outlook to possible future work.
 
 \subfilebib % Makes bibliography available when compiling as subfile
