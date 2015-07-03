@@ -7,29 +7,29 @@
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{giphenomenons}
-\caption{\cite{bib:RealtimeGIOverview} Photography of a scene with global illumination: Diffuse and specular bounces, caustics and scattering.}
+\caption{\cite{bib:RealtimeGIOverview} Photography of a scene with various global illumination effects: Diffuse and specular bounces, caustics and scattering.}
 \label{fig:giphenomenons}
 \end{figure}
 
 \section{Introduction}
-Everything that human eyes can perceive is the result of light originating from a source, interacting with matter and finally reaching the retina.
-The way how light interacts with our environment is very complex and depends always on a global context:
-There is a variety of natural phenomenons like (indirect) shadowing, light bleeding, glossy reflections, and scattering which are impossible to simulate by local lighting models.
-The Photography in \autoref{fig:giphenomenons} demonstrates a few of them.
-Compared to the simulation of local light effects which only take an isolated surface point into consideration, the simulation of global illumination effects as they occur in nature are extremely challenging both in terms of computational and algorithmic complexity.
+Everything that human eyes can perceive is the result of light reaching the retina after interacting interacting with matter.
+The way how light interacts with our environment is very complex and depends always on a global context.
+There is a variety of natural phenomenons like indirect light, (indirect) shadowing, (glossy) reflections, and scattering which are impossible to simulate by local lighting models.
+The photography in \autoref{fig:giphenomenons} demonstrates a few of them.
+Compared to the simulation of local light effects which only take an isolated surface point into consideration, the simulation of global illumination effects as they occur in nature is extremely challenging both in terms of computational and algorithmic complexity.
 \\
-Simulated scenes which lack these global effects look synthetic and are often missing important cues which are needed to understand interrelations of objects.
+Images which lack these global effects look synthetic and are often missing important cues which are needed to understand the interrelations of the depicted objects.
 Wherever 3D-scenes need to be displayed in a either believable or aesthetic manner, the simulation of global illumination becomes important.
-Some of these applications are namely visual effects in (or even entire) movies, architectural visualizations video games and professional training simulations.
-While the demands of these applications vary greatly, the underlying principles are the same as they are governed by the physical laws of light to which our visual system is used to.
+Some of these applications are namely movies, architectural visualizations, video games and professional training simulations.
+While the concrete demands of these applications vary greatly, the underlying principles are the same as they are governed by the physical laws of light which are familiar to our visual system.
 \\
 Generally, these applications can be divided in two categories: Interactive and non-interactive.
-Where a non-interactive application like a movie or single images can easily have computation times of many days, interactive applications need to compute at least parts of the simulation just in time to provide the user with the expected feedback on his actions.
+Where a non-interactive application like a movie or single images can afford computation times of several days, interactive applications need to compute at least parts of the simulation just-in-time to provide the user with the expected feedback on his actions.
 A simulation is usually called interactive if images are rendered in less than 50ms (20 frames per second).
-However frame rates need to be much higher to be comfortable for the user.
-Fast paced games usually profit from better rendering times of 16ms (about 60 frames per second) \cite{bib:shooterfps} and the vendors of the upcoming virtual reality displays recommend even shorter rendering times of 11-8ms (90-120 frames per second) to reduce motion sickness \cite{bib:oculushighfps} \todo{another reference to another vender would be nice}.
-Naturally, real-time rendering that is performed on personal computers usually makes use of a different set of approaches and algorithms as offline rendering which runs often on larger computer clusters.
-In this work we concentrate exclusively on real-time rendering without any pre-computation.
+However, frame rates need to be much higher to be comfortable for the user.
+Fast paced games usually profit from much better rendering times of more than 16ms (about 60 frames per second) \cite{bib:shooterfps} and the vendors of the upcoming virtual reality displays recommend even shorter rendering times of about 11-8ms (90-120 frames per second) to reduce motion sickness \cite{bib:oculushighfps}.
+Naturally, real-time rendering that is performed on personal computers usually makes use of a different set of approaches and algorithms as offline rendering which runs often on large computer clusters.
+In this work we want to introduce a new global illumination approach that is aimed for real-time rendering and does not need any pre-computation.
 % resolutions rising?
 
 \section{Motivation}
@@ -44,15 +44,15 @@ In the extreme case this means that both scene and lighting conditions are assum
 This has been common practice in many games for over a decade now, as seen e.g. in Mirrors Edge in \autoref{fig:gameprecomputedgi} where only the characters and very few dynamic objects are lit at runtime.
 \\
 Obviously such techniques imply many restrictions on the design of virtual worlds and may not be applicable at all.
-However, there are also solutions which less restrictions, for example precomputed light transport techniques that allow dynamic lights in a static scene or irradiance volumes which can apply precomputed lighting on dynamic objects (more on other techniques in \autoref{chap:prevwork}).
-Of course there are various trade-offs between different approaches and so far there is no technique that is even close to simulate all global illumination effects in real-time in a reasonable quality (which is also still an open problem for offline rendering).
+However, there are also solutions which less restrictions, for example to allow dynamic lights in a static scene or apply precomputed lighting on dynamic objects (more on other techniques in \autoref{chap:prevwork}).
+Of course there are various trade-offs between different approaches and so far there is no technique that is even close to simulate all global illumination effects in real-time in a reasonable quality (which can be considered to be an open problem for offline rendering as well).
 \\
-A fully dynamic lighting approach not only frees a simulation of many technical restrictions, but also lowers the scene authoring iteration times as it is no longer necessary to wait for pre-computation processes to see the final result.
+A fully dynamic lighting approach not only frees a simulation of many technical restrictions, but also lowers the scene authoring iteration times as it is no longer necessary to wait for pre-computation processes to display the final result.
 Currently there are relatively few approaches that allow global illumination effects within completely dynamic scenes and lighting conditions.
 Of those, many come with a prominent artifacts like temporal incoherency (flickering).
 This is why many applications for which pre-computations are not applicable fall back to comparatively simple direct lighting and drop almost all important effects of global illumination.
 
-\section{Goals}
+\section{Goals} \label{bib:goals}
 This work wants to explore the field of completely dynamic global illumination further and come up with a new solution which satisfies the conditions presented in this section.
 
 We limit ourselves to what we think are the most important global illumination effects: Light bleeding (indirect diffuse lighting), indirect shadows and glossy reflections.
@@ -101,6 +101,12 @@ That means that the technique should adapt well to various small and large scene
 %\end{itemize}
 
 \section{Main Contribution}
+\begin{easylist}
+# New view space based light cache selection in cascaded radiance volumes
+# Accurate indirect shadowing for radiance caches
+# Hemispherical specular environment maps for glossy reflections
+\end{easylist}
+
 \todo{content}
 \todo{Figure showing off some nice effect}
 
