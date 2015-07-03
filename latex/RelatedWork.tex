@@ -264,16 +264,48 @@ Rasterized Voxel-based GI by Doghramachi \cite{bib:rasterizedvbgi} presents an a
 \todo{more discrete ordinate methods or rename section}
 
 \section{Voxel-Volume Methods} \label{sec:prev:voxelmethods}
-Due to the ever increasing processing power of GPUs and the development of real-time voxelization algorithms, methods using ray or cone tracing within a voxelized scene representation have gained popularity in the last few years.
+Due to the increasing processing power of GPUs and the development of real-time voxelization algorithms, methods using ray or cone tracing within a voxelized scene representation have gained popularity in the last few years.
 Voxelized representations have several advantages over classic triangle-based scenes:
 The level of detail can be scaled, random access using world coordinates can easily achieved, intersections tests are simple to perform etc..
+The simplest data structures contain only a single binary value per voxel, weather it is solid or not (binary voxelization).
+However, it is easy to encode other informations like flux, normals or continuous opacity as well.
 
-\subsection{Voxelization}
-\cite{bib:GPUGems2}[Chapter 42] $http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter42.html$
+\subsection{Voxelization via Rasterization}
+The GPUs rasterization capabilities can be used for extremly fast voxelization.
+There are boundary voxelizations that encode only the surfaces of an object and solid voxelizations which also capture the interiors of a model as well.
+Solid voxelization is generally more difficult to achieve since more writes are needed.
+Also the interior of an object might not always be clearly defined.
 
-Modern GPU in OpenGL Insights \cite{bib:openglinsightsvoxel}
+A general problem with GPU rasterization is the lack of conservativity. 
+For voxelization it is usually needed that all voxels that are touched by a triangle are marked.
+This is already not the case for standard 2D rasterization.
+\cite{bib:GPUGems2}[Chapter 42] by Hasselgren et al. propose to enlarge triangles and and remove potentially unused pixels again discarded in the fragment shader to overcome this issue.
+Very recent GPUs expose new rasterization modes to accomplish conservative rasterization more quickly in hardware \cite{bib:nvconservativeraster}.
 
-Maxwell GPUs per Hardware
+%Since GPU rasterization rules are There are various algorithms with different 
+
+One of the first algorithms using the GPUs rasterization pipeline was invented by Fang and Chen \cite{bib:fangvoxelization} which needed to draw the entire scene once per volume slice.
+A later approach by Dong et al. \cite{bib:dong:voxelization} Eisemann and D{\'e}coret \cite{bib:eisemann:boundaryvox} achieve binary voxelization in a single pass.
+Since it writes to one or more 2D targets it achieves a limited bit depth and can not write directly to a volume texture.
+The algorithm was later extended to support solid geometry as well \cite{bib:eisemann:solidvox}. 
+\cite{bib:dong:voxelization} presented a similar approach that handles geometry that lies parallel to the viewing direction better. 
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{voxelizationpipe}
+\caption{\cite{bib:openglinsightsvoxel} Illustration of single pass voxelization pipeline. }
+\label{fig:voxelization}
+\end{figure}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+Many of the previous methods relied on graphics hardware which was not able to perform random write accesses.
+Newer methods leverage these possibilities and are able to perform high quality boundary voxelization in a single pass.
+In this thesis we rely on a conservative single pass voxelization technique by Crassin and Green \cite{bib:openglinsightsvoxel}.
+\autoref{fig:voxelization} illustrates how it works.
+The geometry shader decides for each triangle its dominant direction and uses it as projection axis to maximize the output of the rasterization stage.
+Conservative rasterization, is achieved with the earlier mentioned technique by Hasselgren et al. \cite{bib:GPUGems2}[Chapter 42]. 
+Each pixel writes up to three values along the projection axis into the volume texture to mark all voxels that are touched by the source triangle.
+If necessary additional attributes can be computed in the fragment shader.
 
 \subsection{Voxel Cone/Ray Tracing}
 Voxel-Based GI by Thiedemann et al. \cite{bib:voxelgi} traces multiple rays at each seen world position through a binary voxelization.
@@ -289,7 +321,7 @@ Since tracing rays through the voxel-volume is a very costly operation, indirect
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 Voxel Cone Tracing by Crassin et al. \cite{bib:voxelconetracing} overcomes this issue by tracing cones instead of rays through a mip-mapped voxel volume.
 Additionally to the occlusion value, each voxel also saves a normal and flux which was before injected by an RSM.
-\autopageref{fig:voxelconetracing} gives a short overview over the approach.
+\autoref{fig:voxelconetracing} gives a short overview over the approach.
 For diffuse lighting a few cones covering the hemisphere are traced in each visible point.
 The step size during the tracing increases together with the sampled mipmap of the voxel volume, so that the entire cone is sampled approximately.
 This technique allows Voxel Cone Tracing to trace very long cones at relatively low costs.
@@ -299,7 +331,7 @@ Additionally, each voxel saves its flux anisotropically for more accurate lighti
 Using an extra, thinner cone for the specular highlight the approach achieves relatively accurate reflections within the same framework.
 The main draw-back of Voxel Cone Tracing is its high memory footprint.
 Because of this the original work makes use of a sparse voxel octree.
-However, for practical considerations the technique was used in production with cascaded volumes instead. \todo{citation needed}
+However, for practical considerations the technique has been used in production with cascaded volumes instead. \todo{citation needed}
 
 Layered Reflective Shadow Maps by Sugihara et al. \cite{bib:layeredrsm} works very similar but decouples occlusion from lighting data again.
 Visibility determination is handled via cone tracing as before while the actual lighting is performed by lookups in a pre-filtered Layered Reflective Shadow Map.
@@ -307,13 +339,22 @@ The RSM is split up into multiple layers to be able to create pre-filterable tex
 Doing so avoids most of the memory and initialization/update overhead associated with the large voxel data structure, since each voxel encodes only binary visibility information.
 While the approach has a significantly lower memory footprint than the original Voxel Cone Tracing, it suffers from temporal coherency for highly gloss surfaces and does not scale well with the number of light sources.
 
+\section{Summary} \todo{better title? more like "setting into context"?}
+There are only few techniques that fulfill the goals of this thesis (\autoref{bib:goals}).
+Most notably Voxel Cone Tracing \cite{bib:voxelgi} (VCT) and Cascaded Light Propagation Volumes \cite{bib:lpt} (LPV) are able to perform global illumination without any pre-computations.
+Both have already been used in production environements. \todo{citation needed}
+VCT achieves very high quality rendering however due to the price of large complicated memory structures (sparse voxel octree on GPU) and compared to LPV at lower framerates.
+LPV on the other hand is often not able to catch indirect lighting over longer distances and is very prone to light bleeding artifacts.
 
-\section{Screen-Space Methods}
+Both methods rely on reflective shadow mapping which is fundamental to many real-time lighting approaches.
+On the other hand, direct usage of RSMs often suffers from temporal artifacts as seen in many previous works.
+Caching light at specific locations leverages the low frequency of most indirect lighting situations and can reduce shading costs tremendously.
+Voxelized scene representations are used in many recent works since real-time voxelization is by now cheaply available.
 
-\section{Summary}
-Metabla\\
-RSM important\\
-Which methods fulfill goals of this thesis
+This thesis is mostly inspired by LightSkin \cite{bib:LightskinPaper} which is able to robustly compute both diffuse and indirect lighting at a relatively high quality.
+The final algorithm presented in the next chapter is similar to the recent radiance volume method of Vardis et al. \cite{bib:radiancecachechromaticcompression} of which we were not aware until shortly before the end of our project.
+However, there are several key differences that will be elaborated in \autoref{sec:eva:comparisiontoother}.
+
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
