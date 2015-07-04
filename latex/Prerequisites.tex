@@ -14,24 +14,24 @@ Readers that are familiar with the basic concepts may skip the respective parts.
 % - References to work that is directly related to the topic
 
 \section{Theoretical Foundation} \label{sec:preq:theo}
-The following section explains some of the fundamentals of physically based rendering.
+The following section explains several the fundamentals of physically based rendering.
 Only a few basics which are helpful for a good understanding of this thesis will be discussed.
 For more detailed explanations the reader is referred to the book \emph{Physically Based Rendering, From Theory to Implementation} by Pharr and Humphreys \cite{bib:pbrt}.
 
 \subsection{Physical Foundation}
 Generally, light is an electromagnetic wave which originates at a light source and is reflected or absorbed by the surfaces it hits.
-From this result several physical phenomenons like diffraction, polarization and interference which are usually ignored for rendering, as they play most of the time a minor role for the appearance of a scene.
+From this result several physical phenomenons like diffraction, polarization and interference which are usually ignored for rendering, as they often play a minor role for the appearance of a scene.
 %and quantization effects (due to the particle properties of electromagnetic waves)
 Electromagnetic waves can also be represented by particles (photons) which have a certain wavelength that is responsible for the perceived color.
 We are only interested in the visible part of the spectrum which ranges from about $380\,nm$ to $780\,nm$.
 The number of photons registered by the eye is responsible for the perceived brightness.
 \\
-As the human retina has only three receptors, each with a non-linear range of wavelength-support, it is usually sufficient to perform all calculations using only the three basic color stimuli red, green and blue \cite{bib:colorscience}.
+As the human retina has only three receptors, each with a non-linear range of wavelength-support, it is usually sufficient to perform all calculations using only the three basic color stimuli red, green and blue \cite{bib:colorscience} (RGB).
 %However, as recently pointed out by Meng et al. \cite{bib:spectrumrendering} there are several problems that might lead to color shifts and violation of energy conservation. \todo{recheck when I heared that talk (upcoming EGSR)}
 
 \subsection{Radiometric Quantities}
 There are several basic quantities that describe the transport and perception of light.
-Several of them depend on the \emph{solid angle}, the 3D equivalent of a 2D arc length.
+Several of them are measures over a \emph{solid angle}, the 3D equivalent of a 2D arc length.
 The solid angle subtended by an object is computed by the projected area on the unit sphere in a given point.
 Solid angles are measured in steradians $sr$.
 A solid angle representing the entire unit sphere, has $4\pi\,sr$.
@@ -111,7 +111,7 @@ The projected differential area $\mathrm{d}A^\perp$ depends on the angle $\theta
 A point light is an emitter without any extent, radiating in all directions with the intensity $I$.
 The irradiance  $E$ in respect to such a light source declines with the square of the distance $d$ as the area "seen" by the source declines quadratically.
 Additionally, this area depends on the angle $theta$ between the light direction and the surface normal.
-The resulting formula is known as photometric distance law.
+The resulting formula is known as photometric distance law:
 \begin{equation}
 E = \frac{I \cdot \cos\theta}{d^2}
 \end{equation}
@@ -129,6 +129,7 @@ In this thesis we define the intensity of a spot light with an opening angle of 
 \begin{equation}
 I(\mathrm{d}) = \Big(\frac{(\mathrm{l} \cdot \mathrm{d}) - \cos\alpha }{1-\cos\alpha}\Big)^+ \cdot I_0
 \end{equation}
+Note however, that arbitrary intensity distributions are possible.
 \todo{how we define our spot lights is not really a basic, but it fits so nicely in here?}
 
 \subsection{Bidirectional Reflectance Distribution Function}\label{sec:preq:brdf}
@@ -136,20 +137,20 @@ The \emph{bidirectional reflectance distribution function} (BRDF) $f_r(\mathrm{x
 \begin{equation}
 f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\mathrm{d}L}{\mathrm{d}E}
 \end{equation}
-Generally, the values of the BRDF depend on the wavelength of the irradiance, but as mentioned earlier we use RGB vectors instead.
-Physically plausible BRDFs are always positive, are energy-preserving and give the same result if $\omega_i$ and $\omega_o$ are swapped (\emph{Helmholtz reciprocity}).
+Generally, the values of the BRDF depend on the wavelength of the irradiance, but as mentioned earlier we use only RGB vectors instead.
+Physically plausible BRDFs are always positive, are energy-preserving and have an equal value if $\omega_i$ and $\omega_o$ are swapped (\emph{Helmholtz reciprocity}).
 The BRDF determines the color and reflectence properties of a surface.
 Thus, a given configuration is often also called \emph{material}.
 
 There are many different attempts to describe the BRDF by a analytical models.
-The most basic one is the Lambert BRDF, also simply called diffuse material.
+The most basic one is the Lambert BRDF, also simply called \emph{diffuse} material.
 Diffuse surfaces behave like lambert emitters and distribute incoming radiance in all directions.
 It is defined as:
 \begin{equation}
 f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\rho_d}{\pi}
 \end{equation}
 Where $\rho_d$ is the diffuse \emph{reflectance}.
-Reflectance $\rho$ is defined as ratio between all outgoing and all incoming light:
+Reflectance $\rho$ is generally defined as ratio between all outgoing and all incoming light:
 \begin{equation}
 \rho = \frac{\phi_o}{\phi_i} = \frac{\int\limits_{2\pi\,sr} L_o(\omega_o)\cdot \cos\theta_o  \, \mathrm{d}\omega_o}{\int\limits_{2\pi\,sr} L_i(\omega_o)\cdot \cos\theta_i  \, \mathrm{d}\omega_i}
 \end{equation}
@@ -191,13 +192,13 @@ Note that the evaluation of a single $L_i$ again requires the evaluation of the 
 This means that in theory the radiance at any point in any direction depends on all other points.
 Approaches that try to solve or approximate this recursive property of the rendering equation are thus performing \emph{global illumination}, as opposed to \emph{local illumination} where $L_i$ only includes directly visible light sources.
 
-One of the easiest ways of solving the rendering equation is path tracing which was presented alongside the equation.
+One of the easiest ways of solving the rendering equation is path tracing which was presented in the same work as the equation.
 It solves the integral via a Monte Carlo integration:
-For each radiance sample (= pixel), multiple rays are shot into the scene.
+For each radiance sample (= screen pixel), multiple rays are shot into the scene.
 At each intersection the emissivity of the surface is evaluated. 
-The ray is then reflected recursively, according to the local material using the BRDF as probability density.
+The ray is then reflected recursively, according to the BRDF of the hit surface.
 For surfaces with an overall reflectivity bellow one (practically all surfaces in reality), there is a chance that the ray will be absorbed which ends the path.
-Depending on the scene, it might take extremely long until a rendering process using path tracing converges.
+Depending on the scene, it might take very long until a rendering process using path tracing converges.
 
 There are several phenomenons which are ignored by this basic form of the rendering equation.
 For example it is assumed that light travels through vacuum, i.e. no scattering or absorption within participating media occurs.
@@ -211,11 +212,12 @@ Since we rely on the open graphics application programming interface (API) OpenG
 Note that these are sometimes different from those used by the hardware vendors and other APIs.
 
 Throughout this section we point out several properties of the underlying hardware processes which are not specified by OpenGL.
-Where not noted otherwise, we try to avoid stating contemporary facts about specific pieces of hardware.
+%Where not noted otherwise,
+We try to avoid stating contemporary facts about specific pieces of hardware.
 As of this writing, the mentioned properties are at least true for the recent desktop GPUs of the three big GPU vendors Intel, AMD and Nvidia.
 There are several resources available on the inner workings of the hardware or at least on how to use it more efficient \cite{bib:intelhardwaredoc, bib:amdhardwaredoc}.
-For Nvidia hardware, we recommend the CUDA programming guide \cite{bib:cudaprogguide} which maps surprisingly well to other APIs like OpenGL.
-While not entirely up to date, Giesen's article \emph{A trip through the Graphics Pipeline 2011} \cite{bib:tripthroughgraphicspipe} gives a great overview of the inner workings of todays graphic processors.
+For Nvidia hardware, we recommend the CUDA programming guide \cite{bib:cudaprogguide} which maps in many cases surprisingly well to other APIs like OpenGL.
+While not entirely up to date, Giesen's article \emph{A trip through the Graphics Pipeline 2011} \cite{bib:tripthroughgraphicspipe} gives an excellent overview of the inner workings of todays graphic processors.
 
 %As of this writing, OpenGL 4.5 is the most recent
 %While we are aware that the API abstraction layer often does not reflect the underlying hardware, throughout this thesis we usually operate only on 
@@ -231,10 +233,10 @@ While not entirely up to date, Giesen's article \emph{A trip through the Graphic
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \autoref{fig:openglpipe} gives a coarse overview over the modern OpenGL pipeline.
 The blue boxes represent different types of memory, or rather ways to access memory.
-As memory accesses play an important role in GPU programming, \autoref{sec:preq:memory} goes into detail.
-With the exception of compute shaders, all major programmable stages in the figure are depicted on the vertical starting at "Vertex Puller" and ending at "Framebuffer".
+As memory accesses play an important role in GPU programming, \autoref{sec:preq:memory} will go into more detail.
+With the exception of compute shaders, all major programmable stages in the figure are depicted on the vertical starting with "Vertex Puller" and ending at "Framebuffer".
 The underlying processing is, what is usually called the rendering pipeline which is traversed by the GPU on each draw call the CPU issues.
-Compute shader are outside of this pipeline and handled separately in \autoref{sec:preq:compute}.
+Compute shader are outside of this pipeline and explained separately in \autoref{sec:preq:compute}.
 Within the rendering pipeline there are also several \emph{shader} stages: Vertex shader, two shaders for tessellation, geometry and fragment shader.
 Generally, shaders are small programs that are issued in parallel.
 They take data from the previous pipeline step and output data to the next, usually under the use of globally available resources.
@@ -251,8 +253,8 @@ Each invocation must output at least a position which is later used in the raste
 The vertex shading stage is mostly used for all sort of vertex transformations.
 
 Afterwards, the optional tessellation stages are executed.
-These are skipped here, as we do not make use the hardware tessellation feature in this thesis.
-The following, also optional, geometry shading stage is invoked per triangle.
+These are skipped here, as we do not make use the hardware tessellation features in this thesis.
+The following also optional geometry shading stage is invoked per primitive (= triangles, lines or points).
 It is able to generate new geometry on-the-fly.
 Before the advance of compute shaders, their ability to stream vertex data back to the memory (Transform Feedback) was very important for many algorithms.
 Nowadays, their use is very limited as many of their former tasks can be performed more efficiently by compute shaders.
@@ -262,7 +264,7 @@ In this thesis we use geometry shader only to implement a realtime voxelization 
 
 \subsubsection{Pixel Processing}
 The rasterization stages generates pixels from the processed geometry and invokes the fragment shader for each of them.
-Depending on various multisampling parameters, the fragment shader might be invoked for fragments of pixels, thus its name.
+Depending on various multisampling parameters, this shader might be invoked for fragments of pixels, thus its name.
 The task of the fragment shader is to output one or more colors which will be written (or blended into) one or more framebuffers (also called render-targets).
 As long as not configured otherwise, the fragment shader is provided with perspective correct interpolated output from the last active stage preceding the rasterizer.
 If a depth buffer is used, the rasterizer will perform depth tests to fulfill a previously defined condition, usually to assure that nearer triangles are not overdrawn by more distant ones.
@@ -273,7 +275,7 @@ In OpenGL there are basically only two types of graphics card resources: Texture
 However, there are many ways in which these two can be accessed (see \autoref{fig:openglpipe}).
 In general it is possible to access a resource that was created as a buffer like a texture but not the other way round.
 Conceptually, a resource is bound to a certain usage type and can then be accessed by shaders or, depending on the usage, may be used to influence scheduling within the graphics pipeline.
-Textures are generally defined as a collection of images, which consist of image elements, called texels \cite[p.~29]{bib:openglspec}.
+Textures are generally defined as a collection of images, which consist of image elements, called texels. % \cite[p.~29]{bib:openglspec}.
 Contrary, buffers have no such limitations an can contain virtually any data.
 Both types of resources lie in memory that is directly accessible by the graphics card.
 Weather those accesses are cached, how fast they are, how large underlying resources are allowed to be and where the memory lies physically depends very much on a resource's current usage and the hardware itself.
@@ -281,7 +283,7 @@ The different types of access merely tell the driver how a resource is intended 
 However, for all global resources a very high memory throughput coupled with rather high latencies can be expected.
 In praxis this means that for each memory access, there should be as many arithmetical instructions as possible to hide the latency.
 
-Transfers from and to CPU accessible memory are usually slow and can introduce huge stalls between CPU and GPU which normally work independently \cite{bib:openglinsightstransfer}.
+Transfers from and to CPU accessible memory are usually slow and can introduce huge stalls between CPU and GPU which can normally work independently \cite{bib:openglinsightstransfer}.
 Therefore, practically oriented algorithm design usually tries to avoid memory transfers wherever possible.
 
 \subsubsection{Textures}
@@ -290,16 +292,16 @@ Sampler objects offer different filter functionalities which are implemented in 
 Contrary, \emph{Image Load / Store} allows random read/write access to specific texels and enables atomic operations.
 However, these accesses might be uncached and rather slow in comparison.
 
-There is wide range of different formats in which texels can be be stored.
+There is wide range of different data formats which can be represented by texels can be stored.
 This includes various compressed, integer, floating point and fixed point formats.
-As a general limitation, all formats have between one and four channels.
+As a general limitation, all formats have between one and four color channels (though a texel may not necessarily store color).
 
-There are three distinct kinds of textures: 2D textures, 3D (volume) textures and cube maps.
-3D and cube map textures are composed of multiple layers.
-Cube maps have a layer for each side of a cube and may be addressed using a direction.
+There are three distinct kinds of textures: 2D textures, 3D (volume) textures and cube-maps.
+3D and cube-map textures are composed of multiple layers.
+Cube-maps have a layer for each side of a cube and may be addressed using a direction.
 Volume textures are composed of depth layers, but accesses may perform filtering in all three dimensions.
 Generally, it is possible to use a layer of an arbitrary texture type as rendertarget to update its contents with the results of a rendering process.
-However, there are a few texture formats that might not be supported to be used as render target.
+However, there are a few texture formats that might not be supported to be used as render-target.
 
 All texture types support so called \emph{mipmaps}.
 Mipmapping denotes the process of repeatedly creating prefiltered, half-sized versions of the original texture which are called mipmaps.
@@ -316,12 +318,12 @@ Another important use of buffer resources is to provide vertex input in the form
 Element array buffers determine how vertices form basic primitives like triangles. 
 They are also known as index buffers.
 \\
-Using \emph{Draw/Dispatch Indirect Buffer} bindings it is possible to specify the parameters for draw/dispatch calls via a GPU resource (which might have been used before as SSBO).
+Using \emph{Draw/Dispatch Indirect Buffer} bindings it is possible to specify the parameters for draw/dispatch calls via a GPU resource (which might have been used as a SSBO earlier).
 %Memory on the GPU is often layed out in blocks of 16 bytes (mostly four floats), which 
 
 \subsection{Compute Shader} \label{sec:preq:compute}
 The compute shader is the newest addition to the family of shaders in OpenGL.
-It provides an easy interface for general purpose computations on the GPU (GPGPU) which are not bound to a rendering process.
+It provides an easy interface for general purpose computations on the GPU (GPGPU), i.e. operations which are not bound to a rendering process.
 GPGPU became increasingly popular with the advance of programming interfaces specifically designed to perform any parallel computation on the GPU such as CUDA and OpenCL.
 The main advantage of using compute shader within OpenGL, over using other APIs, is that all OpenGL resources are directly available.
 This makes compute shader an excellent choice for algorithms that are part of the rendering process, but do not fit into the classic concept of the rendering pipeline with their fixed function vertex fetching and rasterization.
@@ -330,38 +332,36 @@ This makes compute shader an excellent choice for algorithms that are part of th
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{opengl45compute}
-\caption{\cite{bib:openglquickref} (modified for better layout) OpenGL 4.5 compute shader programming model.}
+\caption{\cite{bib:openglquickref} OpenGL 4.5 compute shader programming model scheme.}
 \label{fig:compute}
 \end{figure}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \autoref{fig:compute} visualizes the basic programming model of compute shaders.
 %All threads within a single dispatch execute the same code, potentially in parallel.
-A dispatch is organized into a number of work groups. 
+A \emph{dispatch} is organized into a number of \emph{work groups}. 
 The number of work groups can be determined at runtime. 
 Each work group consists of a fixed number of threads which is given by the shader at its compilation time.
 All threads within a dispatch execute the same code and differ only in their unique thread IDs.
-Threads within a single work group can be synced (via a barrier) and have access to a certain amount of shared memory.
+Threads within a single work group can be synced to each other (via a barrier) and have access to a certain amount of shared memory.
 The size of the shared memory is limited by hardware restrictions. 
 Accesses to shared memory are much faster than to global resources, but still slower than to a thread's registers.
 As with other memory (access) types, there are several properties that, while partially hardware specific and not specified by OpenGL, are important to keep in mind for efficient use.
 
-The number of threads which actually runs simultaneously on the hardware is called occupancy \cite{bib:cudaprogguide, bib:amdoccupancy}.
+The ratio between the maximum number of threads the hardware can execute in parallel and the number of threads actually running simultaneously is called occupancy \cite{bib:cudaprogguide, bib:amdoccupancy}.
 Occupancy depends on the chosen group size, the number of needed registers and the amount of used shared memory.
 Low occupancy means that wide parts of the available computational resources remain unused.
 While issues with low occupancies may occur in any shader stage, the compute shader is more prone to such errors as the programmer has much more influence on the scheduling as in the shaders of the rendering pipeline.
-
 
 
 \section{Realtime Rendering}
 This section gives an overview over a few important aspects of realtime rendering.
 However, it is assumed that the reader is already familiar with the most basic concepts like (camera-)transformations, (triangle) geometry setup and normal mapping.
 Informations about these topics can be found in the book \emph{Real-Time Rendering} by Akenine-M\"{o}ller et al. \cite{bib:RealtimeRenderingBook}. %, on which parts of this section are based.
-\todo{currently there is only a bit on lighting, nothing more. introduction and title do not fit!}
 
 %While global illumination as expressed by the rendering equation is currently very difficult to achieve in real-time, different local illumination approaches have been used successfully in production for many years.
 
 \subsection{Deferred Shading}
-In classic "forward rendering" the rendering and shading of objects is coupled.
+In classic \emph{forward rendering} the rendering and shading of objects is coupled.
 To be able to compute direct lighting for multiple lights, shading procedures either involve loops over all light sources or it is necessary to render all objects additively multiple times computing a fixed number of lights each time (multipass lighting).
 
 \begin{figure}[h]
@@ -399,8 +399,6 @@ A shadow map is a texture containing depth values rendered with the view of a co
 When shading an object, the distance to the light source is compared with its depth value stored in the shadow map.
 If the stored value is smaller, the pixel lies in the shadow, otherwise not.
 
-\subsection{HDR Rendering}
-\todo{Content!}
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
@@ -428,7 +426,7 @@ If the stored value is smaller, the pixel lies in the shadow, otherwise not.
 \end{figure}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 There are various extensions to shadow mapping that try to improve the sampling quality or simulate non-dimensionless light sources.
-Shadow mapping is prone to artifacts like self-shadow aliasing, also known as shadow acne.
+Shadow mapping is prone to artifacts like self-shadow aliasing, also known as "shadow acne".
 Surfaces are sometimes incorrectly considered shadowing themselves since point samples from the shadow map are used to represent an area's depth, see \autoref{fig:shadowacne}.
 The problem can be overcome by adding a bias to the depth values.
 This effectively moves the surface away from the light which again leads to another artifact known as "Peter Panning":
@@ -436,10 +434,12 @@ For a too large bias, objects are disconnected from their shadows which leads to
 \\
 To alleviate this issue, Holbert \cite{bib:normaloffsetshadowmapping} introduced a normal dependent offsetting approach:
 Positions are offset not just in direction of the shadow projection, but in the direction of the surface normal depending on the angle to the light direction.
-This allows much lower bias values without self-shadow aliasing.
+This allows much lower depth bias values without self-shadow aliasing.
 
 In our implementation we use shadow maps combined with normal offset mapping to determine the direct light visibility.
 
+\subsection{HDR Rendering}
+\todo{Content!}
 
 \section{Spherical Harmonics}\label{sec:preq:sh}
 Spherical Harmonics (SH) are a set of orthonormal basis functions, analogous to the Fourier transform's basis functions, but defined on the surface of a sphere.
@@ -529,7 +529,6 @@ The resulting, rotated Spherical Harmonics coefficients are obtained as:
 \begin{equation} \label{eq:zonalrotate}
 	c_l^m = \sqrt{\frac{4\pi}{2l+1}} z_l y_l^m(d)
 \end{equation}
-\todo{Image of Zonal Harmonics}
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
