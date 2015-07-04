@@ -27,8 +27,10 @@ Therefore, we will focus on newer methods and those which are either fundamental
 Many-light methods reduce the global illumination to the smaller problem of calculating the direct lighting of many virtual light sources.
 The basic principle was first described in Keller's work on Instant Radiosity \cite{bib:instantradiosity} (IR).
 All many-light approaches perform two passes (see \autoref{fig:manylights}):
-First virtual light sources are distributed in the scene, second each virtual light source performs direct lighting.
-The main advantages of the many-light approach in general is its relatively easy unified framework and its good scalability in performance and quality.
+First, virtual light sources are distributed in the scene.
+Second, second each virtual light source performs direct lighting.
+\\
+The main advantages of the many-light approach in general, is its relatively easy unified framework and its good scalability in performance and quality.
 Global illumination using $M$ virtual lights can generally be expressed as following:
 \begin{equation}
 L_o(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot V(\mathrm{x}, \mathrm{x}_i) \cdot f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i
@@ -37,22 +39,22 @@ Where $G(\mathrm{x}, \mathrm{x}_i)$ is the geometry term which describes the lig
 It depends on the type of the virtual light source.
 $V(\mathrm{x}, \mathrm{x}_i)$ is the visibility of a virtual light and $\phi_i$ its incoming flux.
 The original IR distributes the light by tracing photon rays from the light source that are bounced inside the scene.
-As also many more recent techniques, IR used virtual point light sources (VPL).
+Like more recent techniques, IR uses virtual point light sources (VPL).
 
 Dachsbacher et al. \cite{bib:manylightssurvey2014} did recently a detailed survey on many-lights for both offline and real-time rendering.
-We focus here on the most important real-time approaches.
+We focus here on the mainly on important real-time approaches.
 
 \subsection{Reflective Shadow Mapping}
 One of the most important real-time global illumination algorithms is reflective shadow mapping by Dachsbacher et al. \cite{bib:reflectiveshadowmaps} on which many other approaches, including the one presented in this thesis, rely.
 It handles the virtual light distribution with the rasterization of an extended shadow map, the reflective shadow map (RSM).
 The RSM does not only contain depth as normal shadow maps, but also the reflected flux and the normal of the surface in each texel.
-Each texel of this shadow map is then seen as virtual point light.
+Each texel of this shadow map is then used as virtual point light.
 The original paper shades each pixel with a given number of sampled VPLs without taking indirect shadows into account.
-Also, the technique handles only a single indirect bounce of diffuse lighting which means that a VPL is strictly speaking a hemispherical Lambert emitter.
-(Like most literature we will use the term "VPL" interchangable)
+Also, the technique handles only a single indirect bounce of diffuse lighting since the VPLs are strictly speaking hemispherical Lambert emitter.
+%(Like most literature we will use the term "VPL" interchangable)
 
 While RSM offers an easy way to generate virtual lights in real-time generation of, it does basically not alter the way how those lights are applied and how their visibility is determined.
-There are a few techniques that try to reduce the number of virtual lights and create few virtual area lights (VAL) by clustering
+There are a few techniques that try to reduce the number of virtual lights and create few virtual area lights (VAL) by clustering.
 Both Dong et al. \cite{bib:clusturedvisiblity:dong} and Prutkin et al. \cite{bib:clusturedvisiblity:prutkin} suggest to cluster VPLs using k-means.
 The former performs the clustering in world-space, the later directly in image space of the RSM.
 Both approaches suffer from temporal coherence problems since the size and position of the clusters can change rapidly.
@@ -62,8 +64,8 @@ Using virtual point lights, the geometry term is defined as following:
 \begin{align}
 G(\mathrm{x}, \mathrm{x}_i) = \frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2} \cdot (\hat{\mathbf{n}}_i \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+
 \end{align}
-Where $\mathbf{n}$ and $\mathbf{n}_i$ are the surface normals in point $\mathrm{x}$ and $\mathrm{x}_i$ respectively.
-Note that the geometry term is a combination of the photometric distance law (fraction of cosine of angle to light source and squared distance to light source) and the definition of intensity for Lambert emitter (cosine of angle to receiver) as described earlier in \autoref{sec:preq:theo:relation}.
+Where $\hat{\mathbf{n}}$ and $\hat{\mathbf{n}}_i$ are the surface normals in point $\mathrm{x}$ and $\mathrm{x}_i$ respectively.
+Note that the geometry term is a combination of the photometric distance law and the definition of intensity for Lambert emitter as described earlier in \autoref{sec:preq:theo:relation}. % since VPLs are dimension-less Lambert emitters.
 \\
 \begin{figure}[h]
 \centering
@@ -75,21 +77,22 @@ Note that the geometry term is a combination of the photometric distance law (fr
 \end{subfigure}
 \caption{Left: Small bright splotches due to inverse squared distance in geometry term. Right: Using virtual area lights as proposed in \cite{bib:LightskinPaper}.}\label{fig:rsmbias}
 \end{figure}
-The inverse-squared distance between shading point and light source introduces a singularity, as this distance is zero in the limit.
-Therefore, the contribution of a VPL reaches infinity in such a point.
+\todo{images with more content}
+The inverse-squared distance between shading point and light source introduces a singularity, as it reaches zero in the limit.
+Therefore, the contribution of a VPL converges to infinity at its position.
 The result are bright splotches, mostly visibility in creases, as seen left in \autoref{fig:rsmbias}.
 
 Typically these artifacts are avoided by clamping the geometry term to a user defined maximum which obviously introduces a bias.
 There are several bias compensation techniques:
 Kollig and Keller \cite{bib:biascomp:kk04} shoot rays to nearby surface and evaluate the lighting there to transport it back to the original surface.
-However, this technique may degenerate to path-tracing is thus not suitable for interactive applications.
+However, this technique may degenerate to path-tracing and is thus not suitable for interactive applications.
 Other techniques try to compensate the bias approximately.
-For example the bias compensation by Nov\'{a}k et al. \cite{bib:biascomp:novak11} stores the bounded transport in screen-space and computes then residual transport.
+E.g. the bias compensation by Nov\'{a}k et al. \cite{bib:biascomp:novak11} stores the bounded transport in screen-space and computes then residual transport.
 Although it misses invisible surfaces, it is both efficient and plausible in its results.
 \\
 There are also several approaches that use different types of virtual light sources instead of VPLs.
 Ha{\v{s}}an et al. \cite{bib:biascomp:vsl} introduce a new light type, the virtual spherical light (VSL).
-Instead of a point-to-point evaluation, this allows them to integrate over the solid angle subtended by the spherical light sources.
+Instead of a performing point-to-point evaluations, this type of light is evaluated by an integration over the solid angle subtended by the light source.
 Their approach is biased but does not cause bright splotches and preserves the overall energy by redistributing.
 \\
 Lensing et al. \cite{bib:LightskinPaper} use approximate disc shaped lights.
@@ -105,11 +108,11 @@ We use this technique in our approach since it is extremely fast, easy to implem
 Bias compensation in participating media are considerably more complex but not handled in this thesis.
 
 \subsection{Shadows for Many-Lights}
-Computing visibility for a large number of virtual lights is a difficult problem for realtime renderer since classic shadow computations like shadow mapping are far to expensive for this task.
+Computing visibility for a large number of virtual lights is a difficult problem for realtime renderers since classic shadow computations like shadow mapping are far to expensive for this task.
 There are a few methods that try to optimize shadow mapping for rendering large amount of lights:
 \\
 Imperfect shadow maps Ritschel et. al. \cite{bib:imperfectshadowmaps} leverages the fact that exact secondary visibility is not needed.
-First points are placed at random locations on the scene geometry.
+First, points are placed at random locations on the scene geometry.
 Shadow maps are then computed using these points instead of triangles which is much faster.
 Holes in the shadow maps are filled with a push-pull heuristic.
 The succeeding paper \cite{bib:imperfectshadowmaps:adapative} makes the technique (both VPL placement and shadowing) view adaptive and allows larger scenes.
@@ -119,7 +122,7 @@ All these operations are performed on the GPU.
 
 Other methods like Micro-rendering by Ritschel et al. \cite{bib:microrendering} or ManyLoDs by Holländer et al. \cite{bib:manylods} use hierarchical data structures to be able to render objects at the exactly needed detail.
 This allows very fast approximations of visibility.
-However, these techniques have also several other implications for example on how shading performed which is why they are often separately categorized as \emph{point-based GI}.
+These techniques have also several other implications for example on how shading performed which is why they are often separately categorized as \emph{point-based GI}.
 
 %\subsection{Shading}
 %Multi-resolution splatting techniques ([All Nichols] Hierarchical
@@ -132,9 +135,9 @@ However, these techniques have also several other implications for example on ho
 
 \section{Caching Methods}
 Many recent real-time global illumination methods, including our own, compute indirect lighting only for special \emph{light caches} and interpolate the results of those across many pixels.
-Which quantities a light cache saves varies from technique to technique as well as the strategies that is responsible for creating light caches either at runtime or as a pre-computation step.
+Which quantities a light cache saves varies from technique to technique as well as the strategy that is responsible for creating light caches either at runtime or as a pre-computation step.
 Since our approach relies on dynamic cache placement, its implications and trade-offs will be discussed in \autoref{sec:impl:dyncacheplace}.
-Since caches are mostly placed relatively sparse, most of the following techniques are prone to light bleeding artifacts, i.e. light "seeping" incorrectly through blockers.
+Because caches are often placed relatively sparse, most of the following techniques are prone to light bleeding artifacts, i.e. light "seeping" incorrectly through blockers.
 
 \subsection{(Irr-)Radiance Caching}
 The basic idea of light caches was first introduced by Ward et al. \cite{bib:irradiancecaching} in the form of Irradiance Caching (IC) to speed up path-tracing.
@@ -345,6 +348,7 @@ Most notably Voxel Cone Tracing \cite{bib:voxelgi} (VCT) and Cascaded Light Prop
 Both have already been used in production environements. \todo{citation needed}
 VCT achieves very high quality rendering however due to the price of large complicated memory structures (sparse voxel octree on GPU) and compared to LPV at lower framerates.
 LPV on the other hand is often not able to catch indirect lighting over longer distances and is very prone to light bleeding artifacts.
+\todo{more techniques}
 
 Both methods rely on reflective shadow mapping which is fundamental to many real-time lighting approaches.
 On the other hand, direct usage of RSMs often suffers from temporal artifacts as seen in many previous works.
