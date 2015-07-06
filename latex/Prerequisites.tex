@@ -438,8 +438,22 @@ This allows much lower depth bias values without self-shadow aliasing.
 
 In our implementation we use shadow maps combined with normal offset mapping to determine the direct light visibility.
 
-\subsection{HDR Rendering}
-\todo{Content!}
+\subsection{Gamma Correction \& HDR Rendering}
+Displays can generally not output arbitrary radiance intensities.
+In which range possible values are depends on the hardware and its configuration.
+The input format of most displays is eight bit per channel which offers only a \emph{low dynamic range} (LDR).
+However, the LDR contents are not directly interpreted as a radiance but gamma corrected using a transfer function.
+Typically the inputs are assumed to be encoded in the \emph{sRGB} color space.
+
+All this has several implications on how rendering needs to be performed.
+While input textures are typically encoded in sRGB as well, all rendering operations have to be performed in linear color space.
+Note however, that it is not possible to convert a 24bit sRGB value to a linear RGB value without either information loss or more memory per color.
+Therefore all operation result have to be saved in \emph{high dynamic range} (HDR) formats.
+Most common for this task are floating point render-targets.
+The final HDR result needs to be converted back to sRGB which can be done automatically by modern GPUs.
+Additionally, tone mapping may be applied to map a wide range of illumination levels onto the limited color space.
+\\
+All images in this thesis were correctly computed in linear space and then scaled and gamma corrected. No additional tone mapping operators were used.
 
 \section{Spherical Harmonics}\label{sec:preq:sh}
 Spherical Harmonics (SH) are a set of orthonormal basis functions, analogous to the Fourier transform's basis functions, but defined on the surface of a sphere.
