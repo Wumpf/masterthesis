@@ -254,31 +254,28 @@ As long as there are no high frequency changes, slow adaption can exploit frame 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 A popular real-time representative of these methods is Cascaded Light Propagation Volumes by Kaplanyan and Dachsbacher \cite{bib:lpt}.
 Using a RSM, light is injected into a light propagation volume (LPV).
-The LPV is a regular grid where each cell contains a light intensity distribution represented by a few low order spherical harmonic coefficients.
+The LPV is a regular grid wherein each cell contains a light intensity distribution, represented by a few low order spherical harmonic coefficients.
 A second grid stores a volumetric representation used for fuzzy occlusion.
 Considering these blockers, the light is then propagated across the LPV in each frame (see \autoref{fig:lpv:principle}).
-For better scalability with larger scenes, multiple nested LPVs are used as visualized in \autoref{fig:lpv:cascading}.
-After the propagation, the LPVs can easily be used to light the scene.
+For better scalability with larger scenes, multiple nested LPVs are used, as visualized in \autoref{fig:lpv:cascading}.
+After the propagation, the LPVs can easily be looked-up to light the scene.
 The approach does not rely on any pre-computation and is able to capture both diffuse and low frequency specular lighting in real-time (see \autoref{fig:lpv:results}).
-However, it is very prone to light bleeding artifacts and depending on the LPV resolution light may only be transported for rather short distances.
+However, it is very prone to light bleeding artifacts and, depending on the LPV resolution, light may only be transported for rather short distances.
 \\
-The original approach obtained the blocker volume from the already existing information in RMS and the camera view.
+The original approach obtained an approximate blocker volume from the already existing information in the RMS and the camera view.
 Rasterized Voxel-based GI by Doghramachi \cite{bib:rasterizedvbgi} presents an alternative real-time voxelization approach alongside with several implementation improvements.
-
-\todo{more discrete ordinate methods or rename section}
 
 \section{Voxel-Volume Methods} \label{sec:prev:voxelmethods}
 Due to the increasing processing power of GPUs and the development of real-time voxelization algorithms, methods using ray or cone tracing within a voxelized scene representation have gained popularity in the last few years.
 Voxelized representations have several advantages over classic triangle-based scenes:
-The level of detail can be scaled, random access using world coordinates can easily achieved, intersections tests are simple to perform etc..
-The simplest data structures contain only a single binary value per voxel, weather it is solid or not (binary voxelization).
-However, it is easy to encode other informations like flux, normals or continuous opacity as well.
+The level of detail can be controlled trivially, random access using world coordinates can easily achieved, intersections tests are simple to perform etc..
+The simplest data structures contain only a single binary value per voxel which determines weather the cell is solid or not (binary voxelization).
+However, other informations like flux, normals or continuous opacity are sometimes encoded as well.
 
 \subsection{Voxelization via Rasterization}
 The GPUs rasterization capabilities can be used for extremly fast voxelization.
 There are boundary voxelizations that encode only the surfaces of an object and solid voxelizations which also capture the interiors of a model as well.
-Solid voxelization is generally more difficult to achieve since more writes are needed.
-Also the interior of an object might not always be clearly defined.
+Solid voxelization is generally more difficult to achieve since more writes are needed and the interior of an object might not always be clearly defined.
 
 A general problem with GPU rasterization is the lack of conservativity. 
 For voxelization it is usually needed that all voxels that are touched by a triangle are marked.
@@ -289,8 +286,8 @@ Very recent GPUs expose new rasterization modes to accomplish conservative raste
 %Since GPU rasterization rules are There are various algorithms with different 
 
 One of the first algorithms using the GPUs rasterization pipeline was invented by Fang and Chen \cite{bib:fangvoxelization} which needed to draw the entire scene once per volume slice.
-A later approach by Dong et al. \cite{bib:dong:voxelization} Eisemann and D{\'e}coret \cite{bib:eisemann:boundaryvox} achieve binary voxelization in a single pass.
-Since it writes to one or more 2D targets it achieves a limited bit depth and can not write directly to a volume texture.
+A later approach by Eisemann and D{\'e}coret \cite{bib:eisemann:boundaryvox} achieve binary voxelization in a single pass.
+Since it writes to one or more 2D targets, it achieves a limited bit depth and can not write directly to a volume texture.
 The algorithm was later extended to support solid geometry as well \cite{bib:eisemann:solidvox}. 
 \cite{bib:dong:voxelization} presented a similar approach that handles geometry that lies parallel to the viewing direction better. 
 
@@ -302,8 +299,8 @@ The algorithm was later extended to support solid geometry as well \cite{bib:eis
 \label{fig:voxelization}
 \end{figure}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-Many of the previous methods relied on graphics hardware which was not able to perform random write accesses.
-Newer methods leverage these possibilities and are able to perform high quality boundary voxelization in a single pass.
+Many of older methods relied on graphics hardware which was not able to perform random write accesses.
+Newer methods can leverage these possibilities and are able to perform high quality boundary voxelization in a single pass.
 In this thesis we rely on a conservative single pass voxelization technique by Crassin and Green \cite{bib:openglinsightsvoxel}.
 \autoref{fig:voxelization} illustrates how it works.
 The geometry shader decides for each triangle its dominant direction and uses it as projection axis to maximize the output of the rasterization stage.
@@ -313,8 +310,8 @@ If necessary additional attributes can be computed in the fragment shader.
 
 \subsection{Voxel Cone/Ray Tracing}
 Voxel-Based GI by Thiedemann et al. \cite{bib:voxelgi} traces multiple rays at each seen world position through a binary voxelization.
-When the rays hit a surface or exceed a maximum stepping length, light is added to the ray starting point using a RSM if the hit point lit succeeds the shadow mapping test, i.e. is visible by the light source.
-Since tracing rays through the voxel-volume is a very costly operation, indirect lighting remains only local.
+When a ray hits a surface or exceeds a maximum stepping length, light is added using the projected RSM properties in this point if it succeeds the shadow mapping test, i.e. it is visible by the light source.
+Since tracing rays through the voxel-volume is a very costly operation, indirect lighting is only possible over short distances.
 
  % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
@@ -324,34 +321,35 @@ Since tracing rays through the voxel-volume is a very costly operation, indirect
 \end{figure}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 Voxel Cone Tracing by Crassin et al. \cite{bib:voxelconetracing} overcomes this issue by tracing cones instead of rays through a mip-mapped voxel volume.
-Additionally to the occlusion value, each voxel also saves a normal and flux which was before injected by an RSM.
+Additionally to the occlusion value, each voxel also saves flux which was before injected by an RSM and a normal.
 \autoref{fig:voxelconetracing} gives a short overview over the approach.
-For diffuse lighting a few cones covering the hemisphere are traced in each visible point.
-The step size during the tracing increases together with the sampled mipmap of the voxel volume, so that the entire cone is sampled approximately.
+In each visible point a few cones covering the local hemisphere are traced to achieve diffuse lighting.
+During the tracing of a cone, the step size and the sampled volume-mipmap-level increases, so that the samples cover approximately the entire cone.
 This technique allows Voxel Cone Tracing to trace very long cones at relatively low costs.
-Since occlusion is fuzzy in all but the lowest mipmap-level, lighting is applied continuously with each sample  depending on its opacity.
-The tracing stops when the total until the cone is completely blocked using an emission-absorbed model.
-Additionally, each voxel saves its flux anisotropically for more accurate lighting even with higher mip-levels.
+Since occlusion is fuzzy in all but the lowest mipmap-level, lighting is applied continuously with each sample depending on its opacity.
+The tracing stops when the cone is completely blocked using an emission-absorbed model.
+Additionally, each voxel saves its flux anisotropically for more accurate lighting in higher mip-levels.
 Using an extra, thinner cone for the specular highlight the approach achieves relatively accurate reflections within the same framework.
 The main draw-back of Voxel Cone Tracing is its high memory footprint.
 Because of this the original work makes use of a sparse voxel octree.
 However, for practical considerations the technique has been used in production with cascaded volumes instead. \todo{citation needed}
 
-Layered Reflective Shadow Maps by Sugihara et al. \cite{bib:layeredrsm} works very similar but decouples occlusion from lighting data again.
+Layered Reflective Shadow Maps by Sugihara et al. \cite{bib:layeredrsm} works very similar but decouples occlusion from lighting data.
 Visibility determination is handled via cone tracing as before while the actual lighting is performed by lookups in a pre-filtered Layered Reflective Shadow Map.
 The RSM is split up into multiple layers to be able to create pre-filterable textures without large depth or normal discontinuities.
 Doing so avoids most of the memory and initialization/update overhead associated with the large voxel data structure, since each voxel encodes only binary visibility information.
-While the approach has a significantly lower memory footprint than the original Voxel Cone Tracing, it suffers from temporal coherency for highly gloss surfaces and does not scale well with the number of light sources.
+While the approach has a significantly lower memory footprint than the original Voxel Cone Tracing, it suffers from temporal coherency issues for highly gloss surfaces and does not scale well with the number of light sources.
 
 \section{Summary} \todo{better title? more like "setting into context"?}
 There are only few techniques that fulfill the goals of this thesis (\autoref{bib:goals}).
 Most notably Voxel Cone Tracing \cite{bib:voxelgi} (VCT) and Cascaded Light Propagation Volumes \cite{bib:lpt} (LPV) are able to perform global illumination without any pre-computations.
 Both have already been used in production environements. \todo{citation needed}
-VCT achieves very high quality rendering however due to the price of large complicated memory structures (sparse voxel octree on GPU) and compared to LPV at lower framerates.
+VCT achieves very high quality rendering however with to the price of large complicated memory structures (sparse voxel octree on GPU) and, compared to LPV, at much lower framerates.
 LPV on the other hand is often not able to catch indirect lighting over longer distances and is very prone to light bleeding artifacts.
-\todo{more techniques}
+Another completely dynamic technique is the radiance volume by Vardis et al. \cite{bib:radiancecachechromaticcompression}.
+Like LPV it is able to capture low frequency diffuse lighting but has less limitations in light transport distance.
 
-Both methods rely on reflective shadow mapping which is fundamental to many real-time lighting approaches.
+All three techniques rely on reflective shadow mapping which is fundamental to many real-time lighting approaches.
 On the other hand, direct usage of RSMs often suffers from temporal artifacts as seen in many previous works.
 Caching light at specific locations leverages the low frequency of most indirect lighting situations and can reduce shading costs tremendously.
 Voxelized scene representations are used in many recent works since real-time voxelization is by now cheaply available.
