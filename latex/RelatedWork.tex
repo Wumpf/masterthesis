@@ -137,11 +137,12 @@ These techniques have also several other implications for example on how shading
 Many recent real-time global illumination methods, including our own, compute indirect lighting only for special \emph{light caches} and interpolate the results of those across many pixels.
 Which quantities a light cache saves varies from technique to technique as well as the strategy that is responsible for creating light caches either at runtime or as a pre-computation step.
 Since our approach relies on dynamic cache placement, its implications and trade-offs will be discussed in \autoref{sec:impl:dyncacheplace}.
-Because caches are often placed relatively sparse, most of the following techniques are prone to light bleeding artifacts, i.e. light "seeping" incorrectly through blockers.
+Because caches are often placed sparsely, most of the following techniques are prone to light bleeding artifacts, i.e. light "seeping" incorrectly through blockers.
 
 \subsection{(Irr-)Radiance Caching}
-The basic idea of light caches was first introduced by Ward et al. \cite{bib:irradiancecaching} in the form of Irradiance Caching (IC) to speed up path-tracing.
-Each time a ray intersects a diffuse surface it first checks if there are nearby caches from which the irradiance can be interpolated, if not, the irradiance is computed and a new cache is created at this place.
+The basic idea of light caching was first introduced by Ward et al. \cite{bib:irradiancecaching} in the form of Irradiance Caching (IC) to speed up path-tracing.
+Each time a ray intersects a diffuse surface it first checks if there are nearby caches from which the irradiance can be interpolated.
+If not, the irradiance is computed and a new cache is created at this place.
 There are many extensions to this method, most notably Radiance Caching by Krivanek et al. \cite{bib:radiancecaching} (RC) which supports arbitrary glossy surfaces by saving incoming radiance encoded in a high order spherical harmonics representation.
 
 \begin{figure}[h]
@@ -154,11 +155,11 @@ There are many extensions to this method, most notably Radiance Caching by Kriva
 \end{figure}
 Pre-convoled Radiance Caching by Scherzer et al. \cite{bib:preconvoledradiancecaching} is able to perform radiance caching with a single indirect bounce at interactive frame-rates.
 As in the original radiance caching, caches lie on surface.
-Each cache renders a hemisphere of all incoming radiance values as depicted in \autoref{fig:preconvolvedradiancecaching}.
-The result is then pre-convolved using mipmapping to be able to evaluate quickly arbitrary specular exponents (the paper makes use of the Phong BRDF).
+For each cache a hemisphere of all incoming radiance values is rendered, as depicted in \autoref{fig:preconvolvedradiancecaching}.
+To be able to evaluate quickly arbitrary specular exponents (the paper makes use of the Phong BRDF), the result is pre-convolved using mipmapping.
 Caches are placed statically and apply their results using splatting, i.e. rendering them directly to a deferred shading buffer.
 Clustured Pre-Convolved Radiance Caching, an extension to the previous method by Rehfeld et al. \cite{bib:clusteredpreconvoledradiancecaching}, places the radiance caches according to screen-space clusters which makes the technique more scalable but less temporal coherent.
-Additionally it uses cone tracing (which will be explained in \autoref{sec:prev:voxelmethods}) in a prefiltered voxel instead of rasterization to render the cache's radiance hemispheres.
+Additionally it uses cone tracing (which will be explained in \autoref{sec:prev:voxelmethods}) in a prefiltered voxel grid instead of rasterization to apply the indirect radiance.
 
 \subsection{(Irr-)Radiance Volumes}
 
@@ -168,11 +169,11 @@ Additionally it uses cone tracing (which will be explained in \autoref{sec:prev:
 	\caption{\cite{bib:irradiancevolume} Visualization of an irradiance volume. Each sphere visualizes a light cache colored by the local irradiance for each direction. } \label{fig:irradiancevolume}
 \end{figure}
 Irradiance volumes as proposed by Greger et al. \cite{bib:irradiancevolume} are very popular to light dynamic objects in otherwise static environments.
-An irradiance volume is a regular grid in which each grid cell saves precomputed irradiance values for all directions.
-The original work uses hemispherical grid mappings to save irradiance values.
-However, other representation like spherical harmonics are common in praxis.
-Objects to be lit can then use their normal vectors to look-up the precomputed irradiance values to perform diffuse lighting.
-Note however that this method can does not handle light bounced off or occluded by dynamic objects.
+An irradiance volume is a regular grid in which each grid cell saves precomputed irradiance values for all possible surface normals.
+The original work uses hemispherical grid mappings for this task.
+However, other representations like spherical harmonics are more common in praxis.
+Each surface can now look-up and interpolate precomputed irradiance values from the nearest grid cells to perform diffuse lighting. 
+Note however that this method can not handle light bounced off or occluded by dynamic objects.
 
 The advantage of saving irradiance for all possible normals over saving incoming radiance for each direction, is that an irradiance signal has a much lower frequency than radiance.
 Only a single irradiance value is needed for diffuse lighting of a surface (i.e. a given normal) which is equivalent to a hemispherical integration over the incoming radiance.
@@ -186,11 +187,11 @@ Radiance Hints by Papaioannou \cite{bib:radiancehints} retrieve radiance from a 
 Like the RSM algorithm on which the technique is based, occlusion of VPLs is not handled.
 For the secondary bounces however, visibility of the radiance hints (= light caches) is approximated by the minimum and maximum distance of the used RSM samples.
 \\
-Vardis et al. \cite{bib:radiancecachechromaticcompression} improve recently upon Radiance Hints by using chrominance compression and an optimized radiance cache positioning.
-Using less SH bands for the chroma part of the radiance allows higher order for the more importance luminance portion.
-Which radiance caches that contribute to the scene's surfaces is determined by down-sampling a real-time voxelization.
+The recent approach of Vardis et al. \cite{bib:radiancecachechromaticcompression} improves upon Radiance Hints by using chrominance compression and a occupancy grid to reduce cache updates.
+They use less SH bands for the chroma part of the radiance to allow higher order bands for the more importance luminance portion.
+Which radiance caches contribute to the scene's surfaces is determined by down-sampling a real-time binary voxelization.
 Contrary to Radiance Hints, caches in mid-air will not be updated.
-A dilated version of this volume can be used to determine the visibility of virtual light sources.
+The visibility of virtual light sources is determined by sparse sampling in the binary voxelization along the connecting rays.
 
 
 \section{LightSkin}
@@ -204,17 +205,17 @@ Left: Cache distribution. Right: Lighting results. } \label{fig:lightskin}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 LightSkin \cite{bib:LightskinPaper} by Lensing et al. uses precomputed light cache positions which are placed directly on surfaces (see \autoref{fig:lightskin}).
 This has several advantages over radiance volume approaches.
-Each cache computes the lighting only for a single given normal and set of material properties.
-The technique exploits pre-computed neighbor-relation ships for an efficient real-time interpolation of both indirect diffuse and glossy reflections which is dependent on the current lighting situation.
-A smooth indirect shadow approximation is achieved by adding a precomputed size to the light caches which makes it possible to use them as coarse blocker.
+Each cache needs to evaluate the lighting only for a single given normal and set of material properties.
+The technique exploits pre-computed neighbor-relation ships for an efficient real-time interpolation of both indirect diffuse and glossy reflections.
+A smooth indirect shadow approximation is achieved pre-computing a size measure for the light caches which makes it possible to use them as coarse blocker.
 The combination of clever cache placement during the pre-computation and the sophisticated interpolation at runtime, makes it possible to achieve a relatively high lighting quality even for low amounts of caches, without any temporal artifacts.
 
 While an expensive pre-computation step is needed to place the light caches, compute their neighbors and determine their properties, the approach is not limited to static scenes as caches can be moved with animated objects.
-Depending on the number of caches only smooth lighting can be performed and the technique does not scale well with large scenes, since the number of caches for distant objects can not be reduced trivially.
+Depending on the number of caches, only smooth lighting can be performed and the technique does not scale well with large scenes since the number of caches for distant objects can not be reduced trivially.
 Neighborship-relations are either saved per vertex or on a texture. 
 Both methods can increase the memory footprint of a scene considerably.
 
-Furthermore, Lensing describes in his PhD thesis \cite{bib:lightskinthesis} how to use LightSkin for subsurface scattering effects and proposes how to use the method in mixed reality scenarios.
+Furthermore, Lensing describes in his PhD thesis \cite{bib:lightskinthesis} how to use LightSkin for subsurface scattering effects and proposes applications in mixed reality scenarios.
 
 \section{Discrete Ordinate Methods}
 Discrete ordinate methods compute light transport by exchanging energy between a cellular discretization of the scene.
