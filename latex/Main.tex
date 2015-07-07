@@ -96,47 +96,54 @@ A high detailed setup consists of four cascades, each with a resolution of $64^3
 With four byte address in each cell, this makes 4MB for all CAV cascades together.
 
 \section{Indirect Lighting}
-The indirect lighting of the caches relies on reflective shadow maps (see \todo{citation needed}).
-In principle each cache iterates on the entire RSM to retrieve the encoded lighting informations.
+The indirect lighting of the caches relies on reflective shadow maps (see \autoref{sec:prev:rsm}).
+In principle each cache iterates over the entire RSM to retrieve the encoded lighting informations.
 The following chapters explain how this information is processed and how the results are saved for later interpolation.
 
+\subsection{RSM Preparation}
+We render the RSM in a high resolution (usually $1024^2$) and sample it down for the upcoming indirect lighting steps (usually from $16^2$ up to $128^2$).
+For the downsampling depth and normal are averaged, while flux values are summed to preserve energy.
+For geometry with many depth discontinuities, this improves the temporal coherence under movement of either objects or lights.
+This may result in incorrect virtual lights, floating in mid air with normals vectors that are not present in the original RSM samples.
+However, we have not encountered any visible artifacts resulting to this filtering technique in our tests.
+\\
+The direct lighting process uses the original depth from the RSM as shadow map.
+
 \subsection{Diffuse Lighting} \label{sec:impl:diffuse}
-We make use of the common separation of diffuse and specular lighting, making the later an optional feature that may be deactivated to save resources if necessary. \todo{principle should be in the basics chapter}
-Diffuse lighting is comparatively easy to compute and represent since, for a given position and reflectivity, it is a low frequency function over a surface normal, independently of the view direction.
+We separate diffuse and specular lighting, making the later an optional feature that may be deactivated to save resources if necessary.
+Diffuse lighting is comparatively easy to compute and represent since - for a given position and reflectivity - it is a low frequency function over a surface normal, independently of the view direction.
 
-Recall the rendering equation for pure diffuse surfaces:
+%The rendering equation for pure diffuse surfaces is defined as follows (compare \autoref{sec:preq:brdf} and \autoref{sec:preq:renderingeq}):
+%\begin{equation}
+%L_d (\mathrm{x}) = \frac{\rho_d}{\pi}\int\limits_{2\pi\,sr} L_i(x,\omega_i) \cdot \cos\theta_i \,\mathrm{d}\omega_i
+%\end{equation}
+
+Recall the definition for lighting with $M$ virtual lights (see \autoref{sec:prev:manylights}):
 \begin{equation}
-L_d (\mathrm{x}) = \frac{\rho_d}{\pi}\int\limits_{2\pi sr} L_i(x,\omega_i) \cdot \cos\theta \,\mathrm{d}\omega_i
+L_o(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot \hat{V}(\mathrm{x}, \mathrm{x}_i) \cdot f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i
 \end{equation}
-Using the reflective shadow map, an approximation of the integral can be expressed as a sum over $n$ virtual area lights:
-\begin{align}
-L_d (\mathrm{x})
-&=\frac{\rho_d}{\pi}\sum\limits_{i=0}^{n} L_i \cdot (\hat{\mathbf{n}} \cdot \hat{\mathbf{d}}_i)^+ = \\
-&=\frac{\rho_d}{\pi}\sum\limits_{i=0}^{n} \frac{I_i }{||\mathrm{x} - \mathrm{x}_i||^2 +  A_i} \cdot (\hat{\mathbf{n}} \cdot \hat{\mathbf{d}}_i)^+ \\
-&=\frac{\rho_d}{\pi}\sum\limits_{i=0}^{n} \frac{\frac{\phi_i}{\pi} (\hat{\mathbf{n}}_i \cdot (-\hat{\mathbf{d}}_i) )^+}{||\mathrm{x} - \mathrm{x}_i||^2 +  A_i} \cdot (\hat{\mathbf{n}} \cdot \hat{\mathbf{d}}_i)^+
-\end{align}
-\todo{Where do we explain the disc light thing? Need to derive this formular much slower!}
-%Each RSM pixel is interpreted as a disc-shaped light as described by Lensing (see \todo{either explain here or earlier}).
+We use the geometry term for disc shaped area lights by Lensing et al. \cite{bib:LightskinPaper} as mentioned in \autoref{sec:fig:rsmbias}.
+The visibility function $\hat{V}$ is ignored for now.
+From this results the final expression for diffuse indirect lighting:
+\begin{equation}
+L_d (\mathrm{x}) = \frac{\rho}{\pi} \sum\limits_{i=1}^{M} \frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2 + A_i} \cdot (\hat{\mathbf{n}}_i \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+ \cdot \frac{\rho_i}{\pi} \phi_i
+\end{equation}
+The diffuse reflectivity $\rho$ at the point $\mathrm{x}$ is factored out - it can be applied easily during the cache interpolation stage.
+Like the position of a virtual area light, its area $A_i$ can be computed from the depth values saved in the RSM.
+Lensing et al. \cite{bib:LightskinPaper} use the following surface independent estimation for a light $i$ at distance $z_i$:
+\begin{equation}
+A_i = z_i^2 \cdot \frac{s_{near}^2}{z_{near}^2 M}
+\end{equation}
+We assume a quadratic RSM with a total of $M$ pixels with a near plane size of $s_n$ at a distance of $z_near$.
 
-The diffuse reflectivity $\rho_d$ is usually given by a texture and varies per pixel.
-However, since it is not part of the sum over all RSM pixels, it can be applied easily during the cache interpolation stage.\\
-As caches are not placed on surfaces, there is no known normal vector $\hat{\mathbf{n}}$.
-The only other quantity that does not depend on the RSM is the position, which is known for each cache.
-Accordingly, each cache saves irradiance as a function over the normal vector.
-We chose a low-order spherical harmonics representation to to approximate this function since it allows iterative computation and easy evaluation at runtime.\\ 
-The irradiance contribution of a single light to the spherical harmonics coefficients can be derived analytically. \todo{put the meat of all this in prerequisites}
-For a single light, the irradiance is symmetric to its direction.
-Using this property, rotated Zonal Harmonic coefficients can provide an much easier way of deriving the irradiance contribution than directly using Spherical Harmonics.
-First, Zonal Harmonic coefficients $z_l$ are computed for a fixed light direction, pointing to $(0,0,1)$.
-\begin{align}
-z_l =&\int\limits_{2 \pi sr} L_i \cdot (\omega \cdot (0,0,1))^+ \cdot y^0_l(\omega) \,\mathrm{d}\omega\\
-=&\int\limits_{2 \pi sr} L_i \cdot \cos\theta \cdot y^0_l(\omega) \,\mathrm{d}\omega
-\end{align}
-Note that by integrating only over the upper hemisphere, the cosine does not need to be explicitly clamped.
-Due to the rotation invariance of Spherical Harmonics, the resulting Zonal Harmonics coefficients can be rotated to the light direction (see \autoref{sec:preq:zonalharmonics}).
-The resulting expressions for the first three SH bands can be found in \autoref{chap:shcosinelobe}.
+Our cache grid effectively quantifies the range of position $\mathrm{x}$ in which the sum over all virtual lights is evaluated.
+Since caches are not placed on surfaces, the normal vector $\hat{\mathbf{n}}$ is not known in advance.
+Therefore, we save radiance as a function over the surface normal in each cache.
+As in many other previous works, we choose a low-order spherical harmonics representation to approximate this function since it can be computed iteratively and for allows easy evaluation.
 
-To perform the diffuse cache lighting, the coefficients for all virtual lights are accumulated and saved into the cache buffer for later evaluation. \todo{add a note on how many bandy are required}
+To perform the diffuse cache lighting, the SH coefficients for all virtual lights are accumulated and saved into the cache buffer for later evaluation.
+%Depending on the demanded accuracy we use the first two or three SH bands.
+The impact on performance and quality of varying number of SH bands will be discussed in \autoref{} \todo{ref to eva needed}.
 
 \subsection{Specular Lighting} \label{sec:impl:specenvmap}
 As mentioned in \autoref{sec:preq:brdf} we make use of a normalized version of the Blinn-Phong BRDF.
@@ -262,9 +269,21 @@ The sampling stops if either the light group position is reached or the visibili
 
 \section{Cache Interpolation}
 After all caches have been populated with lighting data, their information needs to be interpolated across the screen.
-
 As in the cache allocation pass, each pixel uses its world position to compute its eight nearest caches.
-For the diffuse lighting, the irradiance Spherical Harmonic is evaluated with the per-pixel normal in each cache.
+ 
+For the diffuse lighting, the irradiance is evaluated with the per-pixel normal in each cache.
+To do so, the radiance SH needs to be integrated over the cosine weighted hemisphere.
+This requires to express the cosine lobe in a SH representation and perform the dot product with the irradiance SH coefficients.
+Since this weight function is radially symmetric to the normal vector, rotated Zonal Harmonic coefficients can be used to derive the expression easily.
+First, Zonal Harmonic coefficients $z_l$ are computed for a fixed normal direction, pointing to $(0,0,1)$.
+\begin{align}
+z_l =&\int\limits_{2 \pi sr} L_i \cdot (\omega \cdot (0,0,1))^+ \cdot y^0_l(\omega) \,\mathrm{d}\omega\\
+=&\int\limits_{2 \pi sr} L_i \cdot \cos\theta \cdot y^0_l(\omega) \,\mathrm{d}\omega
+\end{align}
+Note that by integrating only over the upper hemisphere, the cosine does not need to be explicitly clamped.
+Due to the rotation invariance of Spherical Harmonics, the resulting Zonal Harmonics coefficients can be rotated to the normal direction (see \autoref{sec:preq:zonalharmonics}).
+The resulting expressions for the first three SH bands can be found in \autoref{chap:shcosinelobe}.
+
 The result is bilinear interpolated depending on the relative position of the pixel to its eight nearest caches.
 To retrieve the final visible radiance, the interpolated radiance value is then multiplied with the diffuse BRDF.
 
@@ -283,16 +302,17 @@ As before with the diffuse lighting, the results of all caches are bilinear inte
 Pixels in transition areas (see \autoref{sec:impl:cavcascading}) compute two radiance values, one for both CAV cascade.
 The results are interpolated linearly.
 
-\section{Implementation}
+\section{Implementation Details}
 \emph{As many as possible details should be delayed into this chapter. If it gets large or starts to mirror the main part, make it a chapter!}
 
 This is the right place for describing how to use Compute, OpenGL etc. for achieving the rather abstract formulated goals of the sections before.
 
+\subsection{General}
+Physically based pipeline.
+Blinn-Phong.
+
 Deferred Renderer, 32bits per Layer RGB(A) srgb - Diffuse, RG 16snorm - Normals with angles, extra infos todo, R32F Depth Buffer (swapped near/far)\\
 (This detail belongs more or less to Eva...)
-
-\subsection{Direct Lighting}
-Uses also Blinn-Phong.
 
 \subsection{Cache Allocation} \label{sec:impl:cachealloc}
 cacheList via shared memory etc.
@@ -302,7 +322,7 @@ cacheList via shared memory etc.
 
 Traverse in Morton Order.
 
-\subsubsection{Voxelization}
+\subsection{Voxelization}
 This can be done very fast using the GPU.
 We use the conservative voxelization algorithm described by Crassin and Green in "OpenGL Insights" \cite{bib:openglinsightsvoxel}.
 On more recent hardware conservative voxelization is supported directly
