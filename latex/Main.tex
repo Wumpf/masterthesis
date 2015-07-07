@@ -4,11 +4,17 @@
 \chapter{Main}\label{chap:basics}
 
 \section{Overview}
-Inspired by Lensing's LightSkin approach~\cite{bib:LightskinPaper}, we want to compute indirect lighting only at specific locations and interpolate the results over multiple pixels, as opposed to techniques like Reflective Shadow Maps or Voxel Cone Tracing \todo{ref related work sections}.
-\todo{Advantages/disadvantages}
-As in many previous works, we call these locations \emph{Light Caches}.
+Inspired by Lensing's LightSkin approach~\cite{bib:LightskinPaper}, we want to compute indirect lighting only at specific locations and interpolate the results over multiple pixels, as opposed to techniques like Reflective Shadow Maps or Voxel Cone Tracing.
+Like other previous works, we call these locations \emph{Light Caches}.
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{renderingpipeline_draft}
+	\caption{Overview over our basic rendering pipeline.}
+	\label{fig:pipelineoverview}
+\end{figure} \todo{Add Images?}
 Our technique consists of three basic steps which are executed in every frame: Cache allocation, indirect lighting and cache interpolation.
+\autoref{fig:pipelineoverview} gives an overview of the pipeline steps and their dependencies.
 The cache allocation pass assigns cells on a regular grid to cache memory, thus creating the caches that are about to be used in this frame.
 Using a reflective shadow map, indirect lighting is then computed for all caches.
 Finally each pixel interpolates an indirect lighting value using all neighboring caches within the grid.
@@ -20,68 +26,74 @@ Where necessary, details of the respective algorithms will be elaborated to addr
 
 \section{Cache Allocation}
 Since the goal of this work is a fully dynamic solution that works without any pre-computations, it is necessary to place all caches at runtime, as opposed to LightSkin~\cite{bib:LightskinPaper} where caches are placed in a computational intense preprocessing step.
-Before we introduce our solution, several general implications of such an approach are elaborated.
+Instead, we use a grid based approach similar to Vardis et al. \cite{bib:radiancecachechromaticcompression}.
+Before we discuss the details of our solution, several general implications of such an approach are elaborated.
 
-\subsection{General Properties and Requirements of Dynamic Cache Placement} \label{sec:impl:dyncacheplace}
+\subsection{General Properties of Dynamic Cache Placement} \label{sec:impl:dyncacheplace}
 Compared to a precomputation based approach, there are several intrinsic advantages which can be expected of a dynamic light cache placement.
-Since we target for a single bounce of indirect light, caches are only used by locations that lie in the current view frustum (for multiple bounces however, it might be necessary to transfer lights between caches).
-Also it should be possible to decrease the number of caches for distant objects, thus keeping screen-space cache density within a given bound.
-Both properties result in a much lower memory footprint especially for large scenes.
-
-While it can be very beneficial to place caches dependent on the current view, this also may introduce several temporal artifacts if caches disappear or move, i.e. strong changes in indirect lighting from one frame to the next.
+Since we try to achieve only a single bounce of indirect light, caches are only used by locations that lie in the current view frustum. % (for multiple bounces however, it might be necessary to transfer lights between caches).
+It should be possible to decrease the number of caches for distant objects, thus keeping screen-space cache density within a given bound.
+%Both properties result in a much lower memory footprint especially for large scenes.
+\\
+While it can be very beneficial to place caches entirely dependent on view space informations, this also may introduce several temporal artifacts if caches disappear or move, i.e. strong changes in indirect lighting from one frame to the next.
 Additionally, it is necessary to guarantee that target pixels have easy access to a certain number of caches to be able to interpolate them.
 Note that the interpolation pass can have temporal coherence problems on its own, as the assignment of a cache to its surrounding world positions needs to be stable, no matter how densely they are sampled, i.e. how many pixels a given world space area covers.
 
-So far, the data requirements of each cache have not been defined yet.
-Precomputed caches can naturally hold almost arbitrary data (as long as a given memory bound is not exceeded).
-Dynamic caches on the other hand need to acquire their data every frame, which is not only costly performance-wise but may also cancel out certain types of data as it may not be accessible. For example LightSkin~\cite{bib:LightskinPaper} needs to a rather complex area metric for each cache that can not be computed in real-time.
+%So far, the data requirements of each cache have not been defined yet.
+Precomputed caches can naturally hold almost arbitrary data. % (as long as a given memory bound is not exceeded).
+Dynamic caches on the other hand need to acquire their data every frame, which is not only costly performance-wise but may also cancel out certain types of data as it may not be accessible.
+For example LightSkin~\cite{bib:LightskinPaper} needs to a rather complex area metric for each cache that can not be computed in real-time.
 Naturally, such constraints also affect the following lighting and interpolation stages tremendously.
 
 We evaluated several approaches before we came up with our final algorithm.
 If you are interested you can read the summary of these attempts in \autoref{chap:abandoned}.
 
 \subsection{Cache Address Volume}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{cachevis}
+	\caption{Visualization of active caches for a view hinted by the white lines. Note that there is a "shadow" behind the object in the middle where no caches are active since the camera can not see behind it.} \label{fig:cachevis}
+\end{figure}
 To cancel out temporal artifacts entirely, we decided to place caches only at the nodes of a regular world space grid.
 The main disadvantage of this method is, that caches are not placed on surfaces and thus can not have a specific orientation.\\
-Since only a small fraction of all grid cells contains any caches, they are stored in a separate buffer and only their addresses are saved within the grid.
+Since only a small fraction of all grid cells contains any caches, they are stored in a separate buffer and only their addresses are saved in the grid.
 Accordingly, we call this grid the \emph{Cache Address Volume (CAV)}.
-This approach reduces not only the memory consumption drastically, it makes it also much easier to perform the lighting for each cache, as they lie now consecutive in memory instead of being scattered within a volume.
+This approach reduces not only the memory consumption drastically, it makes it also much easier to perform the lighting for each cache, as they lie now consecutive in memory instead of being scattered within a volume as in Vardis et al. \cite{bib:radiancecachechromaticcompression}.
 
 During the cache allocation pass the CAV is cleared and then refilled depending on the current view.
-This is done by a full-screen pass, using the per-pixel world-positions from the previously rendered scene (which can be acquired using the depth buffer).
+This is done by a full-screen pass, using the per-pixel world-positions from the previously rendered scene. % (which can be acquired using the depth buffer).
 Each pixel allocates caches at the eight nearest CAV cells.
 If an affected cell already contains a valid cache address, it is skipped as pixels do not introduce any data besides the cache allocation itself.
 Since neighboring pixels often access the same grid cells, there is room for some optimizations using shared memory which are explained in \autoref{sec:impl:cachealloc}.
-\todo{Add image here that demonstrates that only visibe caches are lit. Nice would be "view space inflicted shadow"}
+\autoref{fig:cachevis} shows a resulting cache distribution.
 
 \subsubsection{Cascading} \label{sec:impl:cavcascading}
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{cascades}
-	\caption{Visualization of CAV cascades. The white lines to the right show the active view frustum. The brightness differences within a cascade (single colored area) hint the cache size.} \label{fig:cavcascades}
+	\caption{Visualization of CAV cascades. Again, the white lines to the right show the active view frustum. The brightness differences within a cascade (single colored area) hint the cache size.} \label{fig:cavcascades}
 \end{figure}
-
 Similar to Cascaded Light Propagation Volumes \cite{bib:lpt} a set of nested CAV cascades are centered around the camera.
 \autoref{fig:cavcascades} visualizes the cascading system.
 This introduces a distance dependent level of detail and keeps the number of caches constant, even for large scenes.
-The cascade positions are snapped to multiples of their grid size to ensure consistent lighting results. \todo{elaborate the snapping-whys further?}
-For simplicity, all CAV cascades are cubes of the same resolution with their grid size doubling for each consecutive cascade.
+The cascade positions are snapped to multiples of their grid size to ensure consistent lighting results. %\todo{elaborate the snapping-whys further?}
+For simplicity, all CAV cascades are cubic and have the same resolution, while their grid size is doubled for each consecutive cascade.
 
-Caches are only allocated using the smallest CAV cascade which encloses a given pixel world-position.
-Since a pixel needs to be able to access eight different neighboring cells, separate "decision boundaries" are used.
-These boundaries are smaller than the actual extent of the cascade.
-As the snapped movement introduces temporal incoherency, we move the decision boundaries smoothly with the camera and shrink them further by another grid cell size to ensure that they are fully enclosed by their respective cascades.\\
+Caches are only allocated in the smallest CAV cascade which encloses a given pixel world-position.
+To be able to allocate all eight nearest CAV cells in a single cascade, special "decision boundaries" which are smaller than the actual cascade are used for cascade selection.
+As the snapped movement introduce temporal incoherency, we move the decision boundaries smoothly with the camera and shrink them further by another grid cell size to ensure that they are fully enclosed by their respective cascades.
+\\
 Additionally, there are transition areas between two successive cascades.
-Within these areas, caches are allocated in both cascades to make it possible to avoid hard edges during the interpolation stage late on.
+Within these areas, caches are allocated in both cascades to be able to avoid hard edges during the interpolation stage late on.
 The size of the transition areas can be chosen freely.
-Where not noted otherwise, we use transition areas that are as wide as two times the grid cell size of the smaller involved cascade.
-This delivers sufficiently smooth transitions for reasonable performance costs and in our scenes.
+For our demos we use transition areas as wide as twice the cell size of the smaller involved cascade.
+This delivers sufficiently smooth transitions for reasonable performance costs in our scenes.
 
 Contrary to Light Propagation Volumes, the cascades are not displaced with the view direction, but strictly centered around the camera position as this helps to keep the level of detail stable against view rotations.\\
 While this means that a very large portion of each cascade is never used at all, the costs are still rather low since there are no computations involved for empty cells.
 Also, the memory footprint is still rather small: %nevertheless
 A high detailed setup consists of four cascades, each with a resolution of $64^3$.
-With four byte address in each cell, this results in 4MB for all CAV cascades.
+With four byte address in each cell, this makes 4MB for all CAV cascades together.
 
 \section{Indirect Lighting}
 The indirect lighting of the caches relies on reflective shadow maps (see \todo{citation needed}).
@@ -278,17 +290,6 @@ This is the right place for describing how to use Compute, OpenGL etc. for achie
 
 Deferred Renderer, 32bits per Layer RGB(A) srgb - Diffuse, RG 16snorm - Normals with angles, extra infos todo, R32F Depth Buffer (swapped near/far)\\
 (This detail belongs more or less to Eva...)
-
-\subsection{Pipeline Overview}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\textwidth]{renderingpipeline_draft}
-\end{figure}
-
-\todo{same with image}
-
-\todo{explanation}
 
 \subsection{Direct Lighting}
 Uses also Blinn-Phong.
