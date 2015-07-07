@@ -452,8 +452,11 @@ Therefore all operation result have to be saved in \emph{high dynamic range} (HD
 Most common for this task are floating point render-targets.
 The final HDR result needs to be converted back to sRGB which can be done automatically by modern GPUs.
 Additionally, tone mapping may be applied to map a wide range of illumination levels onto the limited color space.
-\\
-All images in this thesis were correctly computed in linear space and then scaled and gamma corrected. No additional tone mapping operators were used.
+
+All images in this thesis were correctly computed in linear space.
+Since indirect lighting is usually much dimmer than direct light, there is a wide range of intensities we want to display.
+To account for this, we apply the logarithmic global Drago tonemapping operator \cite{bib:tonemapdrago} before gamma correction where not noted otherwise.
+Contrary to many other works we do not scale indirect lighting separately at any point.
 
 \section{Spherical Harmonics}\label{sec:preq:sh}
 Spherical Harmonics (SH) are a set of orthonormal basis functions, analogous to the Fourier transform's basis functions, but defined on the surface of a sphere.
