@@ -120,15 +120,17 @@ Diffuse lighting is comparatively easy to compute and represent since - for a gi
 
 Recall the definition for lighting with $M$ virtual lights (see \autoref{sec:prev:manylights}):
 \begin{equation}
-L_o(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot \hat{V}(\mathrm{x}, \mathrm{x}_i) \cdot f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i
+L(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot \hat{V}(\mathrm{x}, \mathrm{x}_i) \cdot f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i
 \end{equation}
 We use the geometry term for disc shaped area lights by Lensing et al. \cite{bib:LightskinPaper} as mentioned in \autoref{sec:fig:rsmbias}.
 The visibility function $\hat{V}$ is ignored for now.
 From this results the final expression for diffuse indirect lighting:
 \begin{equation}
-L_d (\mathrm{x}) = \frac{\rho}{\pi} \sum\limits_{i=1}^{M} \frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2 + A_i} \cdot (\hat{\mathbf{n}}_i \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+ \cdot \frac{\rho_i}{\pi} \phi_i
+L_d (\mathrm{x}) = \frac{\rho_d}{\pi} \sum\limits_{i=1}^{M} 
+(\hat{\mathbf{n}}_i\cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+ \cdot
+\underbrace{\frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2 + A_i} \cdot  \frac{\rho_i}{\pi} \phi_i}_{L_i}
 \end{equation}
-The diffuse reflectivity $\rho$ at the point $\mathrm{x}$ is factored out - it can be applied easily during the cache interpolation stage.
+The diffuse reflectivity $\rho_d$ at the point $\mathrm{x}$ is factored out - it can be applied easily during the cache interpolation stage.
 Like the position of a virtual area light, its area $A_i$ can be computed from the depth values saved in the RSM.
 Lensing et al. \cite{bib:LightskinPaper} use the following surface independent estimation for a light $i$ at distance $z_i$:
 \begin{equation}
@@ -138,7 +140,7 @@ We assume a quadratic RSM with a total of $M$ pixels with a near plane size of $
 
 Our cache grid effectively quantifies the range of position $\mathrm{x}$ in which the sum over all virtual lights is evaluated.
 Since caches are not placed on surfaces, the normal vector $\hat{\mathbf{n}}$ is not known in advance.
-Therefore, we save radiance as a function over the surface normal in each cache.
+Therefore, we save incoming radiance $L_i$ as a function over the surface normal $\hat{\mathbf{n}}$ in each cache.
 As in many other previous works, we choose a low-order spherical harmonics representation to approximate this function since it can be computed iteratively and for allows easy evaluation.
 
 To perform the diffuse cache lighting, the SH coefficients for all virtual lights are accumulated and saved into the cache buffer for later evaluation.
@@ -149,35 +151,58 @@ The impact on performance and quality of varying number of SH bands will be disc
 As mentioned in \autoref{sec:preq:brdf} we make use of a normalized version of the Blinn-Phong BRDF.
 Using virtual point lights from the Reflective Shadow Map, we define the specular part of the visible radiance is defined as following:
 \begin{equation}
-L_s (\mathrm{x}) = \rho_s \cdot \frac{\gamma + 8}{8\pi} \cdot \sum\limits_{i=0}^{n} ((\hat{\mathbf{n}} \cdot \hat{\mathbf{h}}_i)^+)^\gamma \cdot L_i \cdot (\hat{\mathbf{n}} \cdot \hat{\mathbf{d}}_i)^+
+L_s (\mathrm{x}) = \rho_s \cdot \frac{\gamma + 8}{8\pi} \cdot \sum\limits_{i=1}^{M}
+(\hat{\mathbf{n}}_i\cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+ \cdot L_i \cdot ((\hat{\mathbf{n}} \cdot \hat{\mathbf{h}}_i)^+)^\gamma
 \end{equation}
-%Since the view direction is fixed for a given frame, 
-It would be possible to approximate the specular lighting via multiple sets of Spherical Harmonics coefficients similar as done previously for the diffuse lighting.
-However, for moderately high $\gamma$ the outgoing specular radiance is, contrary to irradiance, a high frequency function and would thus require to evaluate much higher Spherical Harmonics bands which are more difficult to compute. Instead, an image based lighting approach is used.
+Where $\hat{\mathbf{h}}_i$ is the half vector to the $i$th light and $\gamma$ the specular exponent.
+\\
+For moderately high $\gamma$ the outgoing specular radiance is, contrary to outgoing diffuse radiance, a high frequency function over $\hat{\mathbf{n}}$.
+Using the same representation as in the previous section on diffuse lighting would require to evaluate much more SH bands which are difficult to compute and prone to banding artifacts.
+Instead, an image based approach is used.
 
 If it is assumed that a cache lies directly on a \textbf{visible} surface, than the space of possible normal vectors is limited to the hemisphere pointing towards the viewer.
-We need to record outgoing radiance (postponing the $\rho_s$ factor) for every direction on multiple hemispheres for all possible $\gamma$.
+We need to record outgoing radiance (again postponing the factors outside of the sum) for every direction on multiple hemispheres for all possible $\gamma$.
 As the outgoing radiance for lower exponents can be estimated by integrating results for higher $\gamma$ values, only an upper bound $\gamma_{max}$ is handled for now.
 For very large $\gamma_{max}$, the $((\hat{\mathbf{n}} \cdot \hat{\mathbf{h}}_i)^+)^{\gamma_{max}}$ term would only be bigger than zero if $\hat{\mathbf{n}} \cong \hat{\mathbf{h}}_i$.
-This means that each given virtual point light contributes only to a single hemisphere direction.
-For the specular lighting, the hemisphere is discretized into a limited number of directions.
-Using the large $\gamma_{max}$ assumption, each light is only applied to the nearest data point.\\
-%
-Similar to the work of McGuire et al. \cite{bib:envmipmap} on plausible Blinn-Phong cubemaps, we require that the solid angle of the Blinn-Phong lobe does not exceed the angle between two data points.
+This means that in the limit each given virtual point light contributes only to a single hemisphere direction.
+The hemisphere is now discretized into a limited number of directions.
+Using the large $\gamma_{max}$ assumption, we apply light only to the nearest data point.
+\\
+Similar to the work of McGuire et al. \cite{bib:envmipmap} on plausible Blinn-Phong cubemaps, we require that the solid angle of given Blinn-Phong lobe does not exceed the angle between two data points.
 This allows to compute a plausible value for $\gamma_{max}$, given a number of $D$ uniformly distributed directions.
 \begin{align}
 \int\limits_{2\pi sr} (\cos\theta)^{\gamma_{max}}  \,\mathrm{d}\omega = \frac{2\pi}{D}\\
 \gamma_{max} = D-1
 \end{align}
 %
-To be able to efficiently address values per direction, the hemisphere is projected onto a square.
-First, all directions are expressed in the local view space, which is an arbitrary transformation that maps the direction to the camera to $(0,0,1)$.
+To be able to efficiently address values per direction on a texture, the hemisphere is projected onto a square.
+First, all directions are expressed in the local view space, which is a transformation that maps the direction to the camera to $(0,0,1)$ .
 For the projection itself it is important that it introduces as little distortion as possible since otherwise the directions are no longer distributed equally.
-For this purpose we use uniform concentric maps by Shirly and Chiu \cite{bib:concentricmaps}.\\ \todo{describe how maps work?}
+For this purpose we use uniform concentric maps by Shirly and Chiu \cite{bib:concentricmaps}.
 We call the resulting maps \emph{Specular Environment Maps} and store them on a large texture atlas.
+The atlas can easily be addressed by the cache address which was already used for the cache buffer.
 Depending on the quality setting, each cache uses typically a resolution between 8x8 and 32x32 pixels on this atlas.
 After all caches are lit, MipMaps of the Specular Environment Map atlas are created.
 Similar to classical reflection maps \cite[p.~308]{bib:RealtimeRenderingBook} they will later be used to estimate the specular lighting for Blinn-Phong exponents bellow $\gamma_{max}$.
+\\
+\autoref{fig:specularenvmap} shows visualizations of the Specular Environement Map.
+We found that the method has several severe drawbacks that will be later discussed in \autoref{}. \todo{section ref needed}
+\begin{figure}[h!]
+\centering
+\subcaptionbox{Cache visualization displaying Specular Environement Map.}{
+	\begin{subfigure}[b]{1.0\textwidth}
+		\includegraphics[width=\textwidth]{specularenvmap/caches}
+   	\end{subfigure}
+}
+\\
+\subcaptionbox{Cut-out of the texture atlas.}{
+	\begin{subfigure}[b]{0.8\textwidth}
+		\includegraphics[width=\textwidth]{specularenvmap/atlas}
+   	\end{subfigure}
+}
+\caption{Visualizations of the Specular Environement Map, using 16x16 pixels per cache.}
+\label{fig:specularenvmap}
+\end{figure}
 
 \subsection{Indirect Shadows}
 So far, indirect visibility was ignored.
