@@ -18,7 +18,7 @@ This chapter gives an overview of related realtime global illumination technique
 Ritschel et al. \cite{bib:RealtimeGIOverview} already gave a great overview over this field for all approaches before 2012.
 Therefore, we will focus on newer methods and those which are either fundamental, similar or inspirational to this thesis instead of trying to cover the whole field.
 
-\section {Many-Lights Methods}
+\section {Many-Lights Methods} \label{sec:prev:manylights}
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{manylights}
@@ -33,21 +33,21 @@ Second, second each virtual light source performs direct lighting.
 The main advantages of the many-light approach in general, is its relatively easy unified framework and its good scalability in performance and quality.
 Global illumination using $M$ virtual lights can generally be expressed as following:
 \begin{equation}
-L_o(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot V(\mathrm{x}, \mathrm{x}_i) \cdot f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i
+L_o(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot \hat{V}(\mathrm{x}, \mathrm{x}_i) \cdot f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i
 \end{equation}
 Where $G(\mathrm{x}, \mathrm{x}_i)$ is the geometry term which describes the light transfer from the virtual light in $x_i$ to the surface in point $x$.
 It depends on the type of the virtual light source.
-$V(\mathrm{x}, \mathrm{x}_i)$ is the visibility of a virtual light and $\phi_i$ its incoming flux.
+$hat{V}(\mathrm{x}, \mathrm{x}_i)$ is the visibility of a virtual light and $\phi_i$ its incoming flux.
 The original IR distributes the light by tracing photon rays from the light source that are bounced inside the scene.
 Like more recent techniques, IR uses virtual point light sources (VPL).
 
 Dachsbacher et al. \cite{bib:manylightssurvey2014} did recently a detailed survey on many-lights for both offline and real-time rendering.
 We focus here on the mainly on important real-time approaches.
 
-\subsection{Reflective Shadow Mapping}
+\subsection{Reflective Shadow Mapping} \label{sec:prev:rsm}
 One of the most important real-time global illumination algorithms is reflective shadow mapping by Dachsbacher et al. \cite{bib:reflectiveshadowmaps} on which many other approaches, including the one presented in this thesis, rely.
 It handles the virtual light distribution with the rasterization of an extended shadow map, the reflective shadow map (RSM).
-The RSM does not only contain depth as normal shadow maps, but also the reflected flux and the normal of the surface in each texel.
+The RSM does not only contain depth as normal shadow maps, but also the reflected (diffuse) flux and the normal of the surface in each texel.
 Each texel of this shadow map is then used as virtual point light.
 The original paper shades each pixel with a given number of sampled VPLs without taking indirect shadows into account.
 Also, the technique handles only a single indirect bounce of diffuse lighting since the VPLs are strictly speaking hemispherical Lambert emitter.
@@ -59,13 +59,13 @@ Both Dong et al. \cite{bib:clusturedvisiblity:dong} and Prutkin et al. \cite{bib
 The former performs the clustering in world-space, the later directly in image space of the RSM.
 Both approaches suffer from temporal coherence problems since the size and position of the clusters can change rapidly.
 
-\subsection{VPL Bias and Compensation}
+\subsection{VPL Bias and Compensation} \label{sec:fig:rsmbias}
 Using virtual point lights, the geometry term is defined as following:
 \begin{align}
 G(\mathrm{x}, \mathrm{x}_i) = \frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2} \cdot (\hat{\mathbf{n}}_i \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+
 \end{align}
 Where $\hat{\mathbf{n}}$ and $\hat{\mathbf{n}}_i$ are the surface normals in point $\mathrm{x}$ and $\mathrm{x}_i$ respectively.
-Note that the geometry term is a combination of the photometric distance law and the definition of intensity for Lambert emitter as described earlier in \autoref{sec:preq:theo:relation}. % since VPLs are dimension-less Lambert emitters.
+Note that the geometry term is a combination of the photometric distance law and the definition of intensity for Lambert emitter as described earlier in \autoref{sec:theo:relation}. % since VPLs are dimension-less Lambert emitters.
 \\
 \begin{figure}[h]
 \centering
@@ -96,10 +96,10 @@ Instead of a performing point-to-point evaluations, this type of light is evalua
 Their approach is biased but does not cause bright splotches and preserves the overall energy by redistributing.
 \\
 Lensing et al. \cite{bib:LightskinPaper} use approximate disc shaped lights.
-Since they use reflective shadow maps, the area of these virtual areal lights $A_{VAL}$ can easily be estimated by the distance of the VAL to the light source and the solid angle a RSM texel subtends.
+Since they use reflective shadow maps, the area of these virtual areal lights $A_{i}$ can easily be estimated by the distance of the VAL to the light source and the solid angle a RSM texel subtends.
 They show that if all surfaces are assumed to be diffuse, the lighting can be solved analytically by a simple change in the geometry term:
 \begin{align}
-G(\mathrm{x}, \mathrm{x}_i)_{VAL} = \frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2 + A_{VAL}} \cdot (\hat{\mathbf{n}}_i \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+
+G(\mathrm{x}, \mathrm{x}_i)_{VAL} = \frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2 + A_{i}} \cdot (\hat{\mathbf{n}}_i \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+
 \end{align}
 Using this geometry term, splotches at specular surfaces with low roughness can still occur.
 However, most singularities are no longer visible (see \autoref{fig:rsmbias} right).
@@ -308,7 +308,7 @@ Conservative rasterization, is achieved with the earlier mentioned technique by 
 Each pixel writes up to three values along the projection axis into the volume texture to mark all voxels that are touched by the source triangle.
 If necessary additional attributes can be computed in the fragment shader.
 
-\subsection{Voxel Cone/Ray Tracing}
+\subsection{Voxel Cone/Ray Tracing} \label{sec:prev:voxelcone}
 Voxel-Based GI by Thiedemann et al. \cite{bib:voxelgi} traces multiple rays at each seen world position through a binary voxelization.
 When a ray hits a surface or exceeds a maximum stepping length, light is added using the projected RSM properties in this point if it succeeds the shadow mapping test, i.e. it is visible by the light source.
 Since tracing rays through the voxel-volume is a very costly operation, indirect lighting is only possible over short distances.

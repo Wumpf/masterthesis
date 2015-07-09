@@ -132,6 +132,7 @@ I(\mathrm{d}) = \Big(\frac{(\mathrm{l} \cdot \mathrm{d}) - \cos\alpha }{1-\cos\a
 Note however, that arbitrary intensity distributions are possible.
 \todo{how we define our spot lights is not really a basic, but it fits so nicely in here?}
 
+
 \subsection{Bidirectional Reflectance Distribution Function}\label{sec:preq:brdf}
 The \emph{bidirectional reflectance distribution function} (BRDF) $f_r(\mathrm{x}, \omega_i, \omega_o)$ determines the ratio between the differential outgoing radiance $\mathrm{d}L$ in the direction $\omega_o$ and the differential irradiance $\mathrm{d}E$ from $\omega_i$ at the surface position $\mathrm{x}$,
 \begin{equation}
@@ -171,8 +172,8 @@ f_r(\hat{\mathbf{n}}, \hat{\mathbf{h}}) = \rho_s \cdot \frac{\gamma + 8}{8\pi} \
 Where $\rho_s$ is the specular reflectance (also called specular color) and $\gamma$ the specular exponent which steers the sharpness of the highlight.
 Both may vary across a surface.
 
-\subsection{Rendering Equation}
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\subsection{Rendering Equation} \label{sec:preq:renderingeq}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
 \centering
 \includepdftex{renderingequation}
