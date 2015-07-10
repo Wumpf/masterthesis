@@ -102,7 +102,7 @@ That means that the technique should adapt well to various small and large scene
 \section{Main Contribution}
 The main contribution of this thesis are:
 \begin{itemize}
-\item We introduce a new view-space based light cache selection in cascaded radiance volumes. Our approach is able to limit the lighting computations to the set of actually needed caches and keeps the overall memory consumption low, as we do not need to save any complex data in a grid. Additionally, we provide implementation details on our shared memory cache that speeds up this process. \todo{rethink the shared mem thing}
+\item We introduce a new view-space based light cache selection in cascaded radiance volumes. Our approach is able to limit the lighting computations to the set of actually needed caches and keeps the overall memory consumption low, as we do not need to save any complex data in a grid. Additionally, we provide implementation details how to speed up this process using shared memory.
 \item We present dynamic, scalable and comparatively accurate indirect shadowing for light caches using voxel cone tracing on groups of virtual lights.
 \item We propose hemispherical specular environment maps for glossy reflections as an addition to classic spherical harmonic based radiance caches.
 \end{itemize}
