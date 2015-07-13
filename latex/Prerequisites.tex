@@ -20,7 +20,7 @@ For more detailed explanations the reader is referred to the book \emph{Physical
 
 \subsection{Physical Foundation}
 Generally, light is an electromagnetic wave which originates at a light source and is reflected or absorbed by the surfaces it hits.
-From this result several physical phenomenons like diffraction, polarization and interference which are usually ignored for rendering, as they often play a minor role for the appearance of a scene.
+There are several physical phenomenons like diffraction, polarization and interference which are usually ignored for rendering, as they often play a minor role for the appearance of a scene.
 %and quantization effects (due to the particle properties of electromagnetic waves)
 Electromagnetic waves can also be represented by particles (photons) which have a certain wavelength that is responsible for the perceived color.
 We are only interested in the visible part of the spectrum which ranges from about $380\,nm$ to $780\,nm$.
@@ -40,7 +40,7 @@ For example, an integration of a direction dependent function $f(\mathbf{x})$ ov
 \begin{equation}
 \int\limits_{2\pi\,sr} f(\omega) \, \mathrm{d}\omega
 \end{equation} 
-$\mathrm{d}\omega$ denotes the differential steradian, while $\omega$ alone is a single direction on the unit hemisphere. \todo{recheck this expl}
+$\mathrm{d}\omega$ denotes the differential steradian, while $\omega$ alone is a single direction on the unit hemisphere.
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
@@ -90,7 +90,7 @@ Irradiance $E$ determines how much light (incoming flux $\phi_{in}$) per area $A
 E = \frac{\mathrm{d}\phi_{in}}{\mathrm{d}A}
 \end{equation}
 The opposite, how much light per area is leaving a surface, is also called radiant exitance or radiosity.
-However, as in many other works, we will use the term for both incident and exitant light.
+However, as in many other works, we will use the term for both arriving and leaving flux at a surface.
 
 The last and most important quantity is \emph{radiance} $L$ since it is the only "visible" measure as it corresponds to the seen brightness (see \autoref{fig:radiance}).
 It is defined as emitted flux $\phi$ per solid angle $\omega$ per projected emitter area $A^\perp$ in respect to a certain detector.
@@ -108,7 +108,7 @@ The projected differential area $\mathrm{d}A^\perp$ depends on the angle $\theta
 %$L$ & \textbf{Radiance}, flux density per area per solid angle\\
 
 \subsection{Basic Relations and Common Types of Light Sources} \label{sec:preq:theo:relation}
-A point light is an emitter without any extent, radiating in all directions with the intensity $I$.
+A point light is an emitter without any extent, radiating equally in all directions with the intensity $I$.
 The irradiance  $E$ in respect to such a light source declines with the square of the distance $d$ as the area "seen" by the source declines quadratically.
 Additionally, this area depends on the angle $theta$ between the light direction and the surface normal.
 The resulting formula is known as photometric distance law:
@@ -125,13 +125,12 @@ I(\theta) = (\cos\theta)^+ \cdot I_0
 
 Another reoccurring type of light source is the spot light.
 Generally, a spot light is a point light with a limited region of intensities bigger than zero.
+There are several ways to define the exact attenuation curve of spot lights and often even images are used to model more complex patterns.
 In this thesis we define the intensity of a spot light with an opening angle of $\alpha$ that points in the direction $\mathrm{l}$ depending on as following:
 \begin{equation}
 I(\mathrm{d}) = \Big(\frac{(\mathrm{l} \cdot \mathrm{d}) - \cos\alpha }{1-\cos\alpha}\Big)^+ \cdot I_0
 \end{equation}
-Note however, that arbitrary intensity distributions are possible.
-\todo{how we define our spot lights is not really a basic, but it fits so nicely in here?}
-
+%Note however, that the given definition is arbitrary intensity distributions are possible.
 
 \subsection{Bidirectional Reflectance Distribution Function}\label{sec:preq:brdf}
 The \emph{bidirectional reflectance distribution function} (BRDF) $f_r(\mathrm{x}, \omega_i, \omega_o)$ determines the ratio between the differential outgoing radiance $\mathrm{d}L$ in the direction $\omega_o$ and the differential irradiance $\mathrm{d}E$ from $\omega_i$ at the surface position $\mathrm{x}$,
@@ -143,9 +142,9 @@ Physically plausible BRDFs are always positive, are energy-preserving and have a
 The BRDF determines the color and reflectence properties of a surface.
 Thus, a given configuration is often also called \emph{material}.
 
-There are many different attempts to describe the BRDF by a analytical models.
+There are many different attempts to describe BRDFs by analytical models.
 The most basic one is the Lambert BRDF, also simply called \emph{diffuse} material.
-Diffuse surfaces behave like lambert emitters and distribute incoming radiance in all directions.
+Diffuse surfaces behave like Lambert emitters and distribute incoming radiance in all directions.
 It is defined as:
 \begin{equation}
 f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\rho_d}{\pi}
@@ -189,14 +188,14 @@ Where $L_e$ is the self-emission and $L_i$ the incoming radiance for a given dir
 $f_r$ denotes the BRDF as described in the previous section.
 For all directions $\omega_i$ on the hemisphere, the integral sums up how much light is reflected to a observer in the direction $\omega_o$.
 \autoref{fig:renderingeq} visualizes the concept.
-Note that the evaluation of a single $L_i$ again requires the evaluation of the entire equation.
+Note that the evaluation of a single $L_i$ for every direction again requires the evaluation of the entire equation.
 This means that in theory the radiance at any point in any direction depends on all other points.
 Approaches that try to solve or approximate this recursive property of the rendering equation are thus performing \emph{global illumination}, as opposed to \emph{local illumination} where $L_i$ only includes directly visible light sources.
 
 One of the easiest ways of solving the rendering equation is path tracing which was presented in the same work as the equation.
 It solves the integral via a Monte Carlo integration:
 For each radiance sample (= screen pixel), multiple rays are shot into the scene.
-At each intersection the emissivity of the surface is evaluated. 
+At each intersection the emissivity of the surface and the direct influence of one or more lights are evaluated (next event estimation) which involves additional "shadow rays" to check which lights can reach the surface directly. 
 The ray is then reflected recursively, according to the BRDF of the hit surface.
 For surfaces with an overall reflectivity bellow one (practically all surfaces in reality), there is a chance that the ray will be absorbed which ends the path.
 Depending on the scene, it might take very long until a rendering process using path tracing converges.
@@ -472,7 +471,7 @@ More detailed explanations can be found for example in \cite{bib:grittysh, bib:s
 	\caption{\cite{bib:grittysh} The first three SH bands plotted as unsigned spherical functions by distance from the origin unit sphere. Green are positive values, red are negative ones.}
 	\label{fig:shvisualization}
 \end{figure}
-\todo{Better image quality!}
+%\todo{Better image quality!}
 The SH functions in general are defined on imaginary numbers, but for use in computer graphics usually only real-number Spherical Harmonics are relevant.
 
 $y^m_l(\theta, \varphi)$ represents a Spherical Harmonic function.
@@ -514,9 +513,9 @@ The associated Legendre polynomials are recursively defined as following:
 
 \subsection{Projection, Reconstruction and Convolution} \label{sec:preq:shprojectrecon}
 Each spherical function $f(\theta, \varphi)$ can be represented with an infinite series of SH functions, each weighted by a SH coefficient.
-To calculate a SH coefficient for a given band of a spherical function $f$, the product of $f$ and the SH function $y$ needs to be integrated:
+To calculate a SH coefficient for a given band of a spherical function $f$ (i.e. to project $f$), the product of $f$ and the SH function $y$ needs to be integrated:
 \begin{equation} \label{eq:shprojection}
-	c^m_l=\int\limits_{2\pi\,sr} f(\omega)y^m_l(\omega)\, \mathrm{d}\omega
+	c^m_l=\int\limits_{4\pi\,sr} f(\omega)y^m_l(\omega)\, \mathrm{d}\omega
 \end{equation}
 
 By truncating the SH representation to $n$ bands, a function $f$ can be approximated:
@@ -526,16 +525,16 @@ By truncating the SH representation to $n$ bands, a function $f$ can be approxim
 
 Since SH are orthonormal basis functions, the integral of the product of two functions $\widetilde{f}$ and $\widetilde{g}$, is the same as the dot product of their coefficients $f_l^m$ and $g_l^m$:
 \begin{equation}
-	\int\limits_{2\pi\,sr} \widetilde{f}(\omega) \cdot \widetilde{g}(\omega) \, \mathrm{d}\omega =
+	\int\limits_{4\pi\,sr} \widetilde{f}(\omega) \cdot \widetilde{g}(\omega) \, \mathrm{d}\omega =
 	\sum_{l=0}^{n-l}\sum_{m=-l}^l f_l^m g_l^m
 \end{equation}
 This property is extremely useful as it allows to collapse integrations over the entire sphere into a single dot product which might be (depending on how many bands are used) be rather cheap to evaluate.
 
 \subsection{Rotation and Zonal Harmonics} \label{sec:preq:zonalharmonics}
 Spherical Harmonics are rotationally invariant:
-If a function $g$ is a copy rotated by $R$ named $f$, then for the corresponding SH projections $\widetilde{g}$ and $\widetilde{f}$ it is true that:
+For a function $f$ and its by $R$ rotated copy $g$, the following holds for their corresponding SH projections $\widetilde{f}$ and $\widetilde{g}$:
 \begin{equation}
-	\widetilde{g}(s) = \widetilde{f}(R(s))
+\widetilde{g}(s) = \widetilde{f}(R(s))
 \end{equation}
 This means that it is possible to rotate a function in its SH representation, without losing precision (other than rounding errors).
 

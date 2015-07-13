@@ -125,15 +125,20 @@ Diffuse lighting is comparatively easy to compute and represent since it is (for
 
 Recall the definition for lighting with $M$ virtual lights (see \autoref{sec:prev:manylights}):
 \begin{equation}
-L(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot \hat{V}(\mathrm{x}, \mathrm{x}_i) \cdot f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i
+L(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot \hat{V}(\mathrm{x}, \mathrm{x}_i) \cdot I_i(\overrightarrow{\mathrm{x}_i\mathrm{x}})
 \end{equation}
 We use the geometry term $G$ for disc shaped area lights by Lensing et al. \cite{bib:LightskinPaper} as mentioned in \autoref{sec:fig:rsmbias}.
 The visibility function $\hat{V}$ is ignored for now.
+Since we are only interested in diffuse lighting, the BRDF $f_r$ and the VAL's intensity curves $I_i$ are rather simple:
+\begin{align}
+f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) =& \frac{\rho_d}{\pi}\\
+I_i(\overrightarrow{\mathrm{x}_i\mathrm{x}}) =& \frac{\rho_i}{\pi} \phi_i
+\end{align}
 From this results the final expression for diffuse indirect lighting:
 \begin{equation} \label{eq:rsmdiffuse}
 L_d (\mathrm{x}) = \frac{\rho_d}{\pi} \sum\limits_{i=1}^{M} 
-(\hat{\mathbf{n}}_i\cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+ \cdot
-\underbrace{\frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2 + A_i} \cdot  \frac{\rho_i}{\pi} \phi_i}_{L_i}
+(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+ \cdot
+\underbrace{\frac{(\hat{\mathbf{n}}_i\cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+}{||\mathrm{x} - \mathrm{x}_i||^2 + A_i} \cdot  \frac{\rho_i}{\pi} \phi_i}_{L_i}
 \end{equation}
 The diffuse reflectivity $\rho_d$ at the point $\mathrm{x}$ is factored out - it can be applied easily during the cache interpolation stage.
 Like the position of a virtual area light, its area $A_i$ can be computed from the depth values saved in the RSM.
@@ -145,7 +150,7 @@ We assume a quadratic RSM with a total of $M$ pixels with a near plane area of $
 
 Our cache grid effectively quantifies the range of positions $\mathrm{x}$ in which the sum over all virtual lights is evaluated.
 Since caches are not placed on surfaces, the normal vector $\hat{\mathbf{n}}$ is not known in advance.
-Therefore, we save incoming radiance $L_i$ as a function over the surface normal $\hat{\mathbf{n}}$ in each cache.
+Therefore, we save the incoming radiance $L_i$ as a function over the sphere in each cache to integrate it later on with a cosine lobe, i.e. weighting every direction with the dot product between the surface normal and the direction.
 As in many other previous works, we choose a spherical harmonics representation with either two or three bands to approximate this function.
 The SH representation allow iterative computation and easy evaluation.
 
@@ -158,7 +163,7 @@ As mentioned in \autoref{sec:preq:brdf} we make use of a normalized version of t
 Using virtual point lights from the Reflective Shadow Map, the specular part of the visible radiance is defined as following:
 \begin{equation}
 L_s (\mathrm{x}) = \rho_s \cdot \frac{\gamma + 8}{8\pi} \cdot \sum\limits_{i=1}^{M}
-(\hat{\mathbf{n}}_i\cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+ \cdot L_i \cdot ((\hat{\mathbf{n}} \cdot \hat{\mathbf{h}}_i)^+)^\gamma
+(\hat{\mathbf{n}}\cdot \overrightarrow{\mathrm{x}\mathrm{x}_i})^+ \cdot L_i \cdot ((\hat{\mathbf{n}} \cdot \hat{\mathbf{h}}_i)^+)^\gamma
 \end{equation}
 Where $\hat{\mathbf{h}}_i$ is the half vector to the $i$th light and $\gamma$ the specular exponent.
 The incoming radiance $L_i$ from a light was defined in \autoref{eq:rsmdiffuse}.
