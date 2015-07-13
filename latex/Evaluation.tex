@@ -3,27 +3,51 @@
 \begin{document}
 
 \chapter{Evaluation}\label{chap:eva}
-This chapter will evaluate the proposed algorithms both from a performance and a quality perspective. Since PC and mobile algorithms are very different, they will be examined separately.
+This chapter will evaluate the proposed algorithms both from a performance and a quality perspective.
+In the last section we try to compare our technique to others.
+However, as we were not able to implement comparable implementations within the bounds of this project, we can only provide comparisons on an abstract level.
+
+\section{Test Setup and Parameters}
+
+(TODO)
+
+Parameters:
+Cache-Count \& CAV cascading (transition size, cascade distances, cascade count),
+RSM Resolution,
+Screen Resolution,
+Voxel Resolution,
+num diffuse SH coefficients
+
+Shadow Lod
+
+Specular:
+Resolution, Direct Write
+
+
 
 \section{Performance}
 
-\subsection{Test Setup}
+\subsection{Indirect Diffuse Only}
+
+\subsection{Indirect Diffuse with Indirect Shadow}
+
+\subsection{Indirect Diffuse \& Specular with Indirect Shadow}
 
 \newpage
 
 \section{Quality}
+% phenomelogical: "Quality of light, shadow, etc." - which parameters need to be tweaked
+
+\subsection{Sources of Error and Groundtruth Comparision}
 
 \subsection{Artifacts}
-
 regular placement of caches, jaggies,
 shadow jaggies,
 /interpolation issues
 
 shadow flickering?
 
-
 \subsection{Temporal Coherency}
-
 
 \section{Comparison to other Techniques} \label{sec:eva:comparisiontoother}
 
