@@ -170,6 +170,9 @@ f_r(\hat{\mathbf{n}}, \hat{\mathbf{h}}) = \rho_s \cdot \frac{\gamma + 8}{8\pi} \
 \end{equation}
 Where $\rho_s$ is the specular reflectance (also called specular color) and $\gamma$ the specular exponent which steers the sharpness of the highlight.
 Both may vary across a surface.
+\\
+Note that this does not account for energy preservation of a combination with another BRDF.
+For the typical use together with the Lambert BRDF, care hast to be taken that $\rho_s + \rho_d$ is still not bigger than zero.
 
 \subsection{Rendering Equation} \label{sec:preq:renderingeq}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %

@@ -40,7 +40,7 @@ Where $G(\mathrm{x}, \mathrm{x}_i)$ is the geometry term which describes the lig
 It depends on the type of the virtual light source.
 $\hat{V}(\mathrm{x}, \mathrm{x}_i)$ is the visibility of a virtual light and is either zero or one for dimension-less virtual lights. % and $\phi_i$ its incoming flux.
 $I_i$ gives the intensity distribution of the $i$th virtual light which is evaluated in the direction $\overrightarrow{\mathrm{x}_i\mathrm{x}}$ from virtual light to the surface point.
-It can be computed as the product between BRDF in the point $x_i$ and the incoming flux $\mathrm{x}_i$ originating from the direction $\omega_i$.
+It can be computed as the product between BRDF in the point $\mathrm{x}_i$ and the incoming flux $\mathrm{x}_i$ originating from the direction $\omega_i$.
 %The product of the BRDF $f_r$ at the point $\mathrm{x}_i$, evaluated with the  and the incoming flux $\phi_i$ gives the intensity from the $i$th virtual light in the direction
 \begin{equation}
 I_i(\overrightarrow{\mathrm{x}_i\mathrm{x}}) = f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i
@@ -151,7 +151,7 @@ Because caches are often placed sparsely, most of the following techniques are p
 The basic idea of light caching was first introduced by Ward et al. \cite{bib:irradiancecaching} in the form of Irradiance Caching (IC) to speed up path-tracing.
 Each time a ray intersects a diffuse surface it first checks if there are nearby caches from which the irradiance can be interpolated.
 If not, the irradiance is computed and a new cache is created at this place.
-There are many extensions to this method, most notably Radiance Caching by Krivanek et al. \cite{bib:radiancecaching} (RC) which supports arbitrary glossy surfaces by saving incoming radiance encoded in a high order spherical harmonics representation.
+There are many extensions to this method, most notably Radiance Caching by Krivanek et al. \cite{bib:radiancecaching} (RC) which supports glossy surfaces by saving incoming radiance encoded in a high order spherical harmonics representation.
 
 \begin{figure}[h]
 	\centering
@@ -204,7 +204,7 @@ The visibility of virtual light sources is determined by sparse sampling in the 
 Radiance volume approaches in general are rather robust against temporal coherence issues.
 The cache placement and interpolation is predefined and thus the only source of incoherence is the lighting process itself.
 Problems may occur when light visibility for caches is determined too aggressively which would case a cache to turn black/bright from one frame to another.
-However this is not the case for any of the aforementioned methods.
+However, this is not the case for any of the aforementioned methods.
 
 \section{LightSkin}
  % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
