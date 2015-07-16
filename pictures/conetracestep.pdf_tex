@@ -36,7 +36,7 @@
   }%
   \providecommand\rotatebox[2]{#2}%
   \ifx\svgwidth\undefined%
-    \setlength{\unitlength}{369.80251465bp}%
+    \setlength{\unitlength}{334.16782227bp}%
     \ifx\svgscale\undefined%
       \relax%
     \else%
@@ -48,16 +48,14 @@
   \global\let\svgwidth\undefined%
   \global\let\svgscale\undefined%
   \makeatother%
-  \begin{picture}(1,0.34273955)%
+  \begin{picture}(1,0.3768943)%
     \put(0,0){\includegraphics[width=\unitlength,page=1]{conetracestep.pdf}}%
-    \put(0.03076023,0.19486509){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\mathrm{c}$}}}%
-    \put(0.77692725,0.1752908){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\mathrm{l}$}}}%
-    \put(0.31546369,0.11490767){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$d_s$}}}%
-    \put(0.35479396,0.20800984){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$r_s$}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=2]{conetracestep.pdf}}%
-    \put(0.53812429,0.24355005){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$r_{s'}$}}}%
-    \put(0.492977,0.12172071){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$d_{s'}$}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=3]{conetracestep.pdf}}%
-    \put(0.74915991,0.25466358){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$max(r_{e1}, r_{e2})$}}}%
+    \put(0.32224005,0.13003312){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$d_s$}}}%
+    \put(0.49137397,0.13239747){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$d_{s'}$}}}%
+    \put(0.57354901,0.26984163){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$r_{s'}$}}}%
+    \put(0.3682948,0.23205552){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$r_{s}$}}}%
+    \put(0.82485621,0.20938383){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\mathrm{l}$}}}%
+    \put(0.01078025,0.21384534){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\mathrm{c}$}}}%
+    \put(0.79486326,0.28730152){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$max(r_{e1}, r_{e2})$}}}%
   \end{picture}%
 \endgroup%

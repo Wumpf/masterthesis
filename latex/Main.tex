@@ -291,7 +291,6 @@ r_{e2} = E(d) \cdot \frac{w_{near}}{z_{near} \cdot R \cdot 2^{-l} }
 	\includepdftex{conetracestep}
 	\caption{Sampling a shadow cone from a cache to a light(-group). The first two enclosing circles do not touch each other because the sample distance would then below the minimum.} \label{fig:shadowconestep}
 \end{figure}
-\todo{mark right angles for radius lines to cone outline}
 The ray from cache to the sphere is sampled in increasing steps.
 %Starting with a step size of one voxel width, the steps are doubled with each additional sample.
 For each sample, we need to determine the mip-level in the voxel-volume of which a single voxel is approximately as large as the cone segment that is represented by the sample.
@@ -343,10 +342,10 @@ Since the direction to the camera varies only little from cache to cache, we use
 This introduces a slight inaccuracy but circumvents the possibility that a per-pixel normal vector might lie outside of a cache's local view hemisphere.\\
 The mipmap-level is computed similar as $\gamma_{max}$ before, only that this time the mipmap-level $m$ is searched for.
 \begin{align}
-\int\limits_{2\pi\,sr} (\cos\theta)^{\gamma}  \,\mathrm{d}\omega = \frac{2\pi}{(R \cdot 2^{-m})}\\
+\int\limits_{2\pi\,sr} (\cos\theta)^{\gamma}  \,\mathrm{d}\omega = \frac{2\pi}{R \cdot 2^{-m}}\\
+\frac{2\pi}{\gamma + 1} = \frac{2\pi}{R \cdot 2^{-m}}\\
 m = \log_2 \Big(\frac{2 \cdot R^2}{\gamma + 1} \Big) \cdot \frac{1}{2}
 \end{align}
-\todo{add another in-between step!}
 where $R$ is the resolution of a single Specular Environment Map.
 As before with the diffuse lighting, the results of all caches are trilinear interpolated and multiplied with the specular reflectivity of the corresponding pixel.
 
@@ -360,16 +359,43 @@ The implementation runs entirely on the GPU and makes use of several OpenGL 4.5 
 %As we have already pointed out in \autoref{sec:preq:gpu} we make use of modern OpenGL 4.5 features like compute shaders.
 
 \subsection{Material Setup and Direct Lighting}
-Our material setup resembles what is usually called "metallic setup" in physically based shading \todo{?citation?}.
-To parameterize the Blinn Phong BRDF, all surfaces have a reflectance texture (sRGB) and a two channel material property texture.
-The first channel contains a roughness value from which we derive the specular exponent and the second determines how metallic a surface is.
-Using this metallic value, the reflectance is split up into diffuse and specular reflectance using simple heuristics at runtime.
-\todo{moaaaar! tiny formulas. small sample image}
-\\
-Additionally, our rendering system samples normalmaps for all surfaces.
+\begin{figure}[h!]
+\centering
+\subcaptionbox{Color}{
+\begin{subfigure}[b]{0.22\textwidth}
+\includegraphics[width=\textwidth]{texture_sample/curtain_color}
+\end{subfigure} }
+\subcaptionbox{Normalmap}{
+\begin{subfigure}[b]{0.22\textwidth}
+\includegraphics[width=\textwidth]{texture_sample/curtain_normal}
+\end{subfigure} }
+\subcaptionbox{Roughness}{
+\begin{subfigure}[b]{0.22\textwidth}
+\includegraphics[width=\textwidth]{texture_sample/curtain_roughness}
+\end{subfigure} }
+\subcaptionbox{Metallic}{
+\begin{subfigure}[b]{0.22\textwidth}
+\includegraphics[width=\textwidth]{texture_sample/curtain_metallic}
+\end{subfigure} }
+\caption{Texture setup demonstrated on curtain from sponza scene.}
+\label{fig:texturesample}
+\end{figure}
+\todo{Move section to the appendix?}
+Our material setup resembles what is usually called "metallic setup" in physically based shading (see \autoref{fig:texturesample}).
+To parameterize the Blinn Phong BRDF, all surfaces have a reflectance texture (sRGB), a tangent space normalmaps and two material property textures which are combined into a single texture during loading if not already in desired format.
+The first channel contains a roughness value $r$ from which we derive the Blinn-Phong specular exponent $\gamma$ and the second determines how metallic a surface is:
+Using this metallic value $m$, the reflectance $c$ is split up into diffuse $\rho_d$ and specular reflectance $\rho_s$.
+The interpretation of all these values happens at runtime using simple heuristics:
+\begin{align}
+\gamma &= \frac{2}{r^4 + 0.0005}\\
+\rho_d &= c \cdot (1-m) + 0.02 \cdot m\\
+\rho_s &= 0.04 \cdot (1-m) + c \cdot m
+\end{align}
+The exponent computation as well as the base diffuse reflectivity for metallic objects are based on cosmetic considerations.
+A specular reflectivity of 0.04 is the average for most dielectrics \cite{bib:natypbr}.
 
 Direct lighting is achieved using a deferred renderer which with a floating point depth buffer and three layers:
-A sRGB texture containing diffuse reflectance, a two channel 16\,bit signed integer layer for angle representation of the normal vector and a 8bit two channel texture for specular exponent and reflectance.
+A sRGB texture containing reflectance, a two channel 16\,bit signed integer layer for angle representation of the normal vector and a 8bit two channel texture for the aforementioned roughness and metallic values.
 
 \subsection{Indirect Lighting}
 
