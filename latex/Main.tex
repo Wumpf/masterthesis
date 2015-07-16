@@ -513,9 +513,55 @@ Note that this more or less forces us to use quadric power of two RSMs since oth
 
 Since all shader invocations need to load all virtual lights from the RSM, we can easily optimize the texture accesses by first storing lights in the virtual memory.
 In our tests uncompressing the data (decoding normals, computing position from depth etc.) proved to be beneficial although this takes more shared memory.
+The following code fragment illustrates the process:
+\begin{lstlisting}[language=GLSL]
+shared LightInfo RSMCache[THREADS_PER_GROUP];
+
+// ...
+
+for(uint rsmIndex = 0; rsmIndex < totalNumRSMPixels; rsmIndex += THREADS_PER_GROUP)
+{
+	// Each thread loads a reflective shadow map pixel.
+	LightInfo cacheEntry;
+
+	// Unpack rsmIndex to a actual position.
+	uint localRsmPixelPos = rsmIndex + gl_LocalInvocationID.x;
+	ivec2 rsmSamplePos = ivec2(Morton_2D_Decode_16bit(localRsmPixelPos)); 
+
+	// Sample flux
+	cacheEntry.Flux = texelFetch(RSM_Flux, rsmSamplePos).rgb;
+	// Sample Depth and compute VAL area
+	float sourceLightToVAL = texelFetch(RSM_DepthLinSq, rsmSamplePos).r;
+	cacheEntry.DiscArea = sourceLightToVAL * sourceLightToVAL * ValAreaFactor;
+	// Compute world position.
+	cacheEntry.Position = ComputeVALPosition(rsmSamplePos, sourceLightToVAL);
+	// Sample and unpack Normal
+	cacheEntry.Normal = UnpackNormal16I(texelFetch(RSM_Normal, rsmSamplePos).xy);
+
+	// Write into cache.
+	barrier(); // Wait for other threads to load lights.
+ 	RSMCache[gl_LocalInvocationID.x] = cacheEntry;
+	barrier(); // Make sure all other threads have written their lights.
+
+	// Perform lighting for all cached lights.
+	float shadowing = 1.0;
+	for(int i=0; i<LIGHTING_THREADS_PER_GROUP; ++i)
+	{
+		if(i % IndirectShadowComputationSampleInterval == 0)
+		{
+			shadowing = ComputeConeTraceShadow(/* ... */);
+		}
+		
+		PerformLighting(RSMCache[i].Flux, shadowing, /* ... */);
+	}
+}
+
+// Write lighting results to cache buffer.
+// ...
+\end{lstlisting}
 Each compute shader thread of a group loads exactly one light into the shared memory, waits for all other threads of its group and starts to traverse the lights cached in the shared memory.
 This is repeat until all virtual lights have been processed.
-\todo{?pseudocode?}
+
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
