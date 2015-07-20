@@ -95,7 +95,7 @@ There are several bias compensation techniques:
 Kollig and Keller \cite{bib:biascomp:kk04} shoot rays to nearby surface and evaluate the lighting there to transport it back to the original surface.
 However, this technique may degenerate to path-tracing and is thus not suitable for interactive applications.
 Other techniques try to compensate the bias approximately.
-E.g. the bias compensation by Nov\'{a}k et al. \cite{bib:biascomp:novak11} stores the bounded transport in screen-space and computes then residual transport. \todo{a bit more on novak. too short}
+E.g. the bias compensation by Nov\'{a}k et al. \cite{bib:biascomp:novak11} stores the bounded transport and computes then residual transport via a screen-space post-processing step.
 Although it misses invisible surfaces, it is both efficient and plausible in its results.
 \\
 There are also several approaches that use different types of virtual light sources instead of VPLs.
@@ -345,7 +345,7 @@ Additionally, each voxel saves its flux anisotropically for more accurate lighti
 Using an extra, thinner cone for the specular highlight the approach achieves relatively accurate reflections within the same framework.
 The main draw-back of Voxel Cone Tracing is its high memory footprint.
 Because of this the original work makes use of a sparse voxel octree.
-However, for practical considerations the technique has been used in production with cascaded volumes instead. \todo{citation needed}
+However, for practical considerations the technique has been used in production with cascaded volumes instead \cite{bib:fumufu:vct}.
 
 Layered Reflective Shadow Maps by Sugihara et al. \cite{bib:layeredrsm} works very similar but decouples occlusion from lighting data.
 Visibility determination is handled via cone tracing as before while the actual lighting is performed by lookups in a pre-filtered Layered Reflective Shadow Map.
@@ -353,10 +353,10 @@ The RSM is split up into multiple layers to be able to create pre-filterable tex
 Doing so avoids most of the memory and initialization/update overhead associated with the large voxel data structure, since each voxel encodes only binary visibility information.
 While the approach has a significantly lower memory footprint than the original Voxel Cone Tracing, it suffers from temporal coherency issues for highly gloss surfaces and does not scale well with the number of light sources.
 
-\section{Summary} \todo{better title? more like "setting into context"?}
+\section{Summary} %\todo{better title? more like "setting into context"?}
 There are only few techniques that fulfill the goals of this thesis (\autoref{bib:goals}).
 Most notably Voxel Cone Tracing \cite{bib:voxelgi} (VCT) and Cascaded Light Propagation Volumes \cite{bib:lpt} (LPV) are able to perform global illumination without any pre-computations.
-Both have already been used in production environements. \todo{citation needed}
+Both have already been used in production environments. % \todo{citation needed}
 VCT achieves very high quality rendering however with to the price of large complicated memory structures (sparse voxel octree on GPU) and, compared to LPV, at much lower framerates.
 LPV on the other hand is often not able to catch indirect lighting over longer distances and is very prone to light bleeding artifacts.
 Another completely dynamic technique is the radiance volume by Vardis et al. \cite{bib:radiancecachechromaticcompression}.
