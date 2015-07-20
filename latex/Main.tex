@@ -198,7 +198,7 @@ After all caches are lit, MipMaps of the Specular Environment Map atlas are crea
 Similar to classical reflection maps \cite[p.~308]{bib:RealtimeRenderingBook} they will later be used to estimate the specular lighting for Blinn-Phong exponents bellow $\gamma_{max}$.
 \\
 \autoref{fig:specularenvmap} shows visualizations of the Specular Environement Map.
-We found that the method has several severe drawbacks that will be later discussed in \autoref{}. \todo{section ref needed}
+We found that the method has some weak-points that will be later discussed in \autoref{}. \todo{section ref needed}
 \begin{figure}[h!]
 \centering
 \subcaptionbox{Cache visualization displaying indirect specular reflections.}{
@@ -491,10 +491,12 @@ We use the GPU voxelization as presented by Crassin and Green \cite{bib:openglin
 This allows us to the voxelization every frame for a relatively low cost.
 Since we save only a 8bit occupancy value, our overall memory consumption stays low.
 
-In order to avoid temporal incoherence that arises when objects are moving through the coarse binary voxelization, we add the difference between the current voxelization to the last one gradually. \todo{is this detail or main?}
+In order to avoid temporal incoherence that arises when objects are moving through the coarse binary voxelization, we add the difference between the current voxelization to the last one gradually.
 Depending on the (manually set) adaption rate, very fast objects may leave only faint traces in the voxel-grid.
 In consequence they will cast no or only dim shadows.
-\todo{recommend factor. write about extrem cases}
+The perceptually best adaption rate depends on the relative voxel cell size.
+Coarser volumes need slower adaptions since otherwise large shadow features might pop in.
+
 
 All shadow cones start with a offset which is as large as two voxel cells to reduce the likelihood of accidental self-shadowing. 
 
@@ -528,14 +530,14 @@ for(uint rsmIndex = 0; rsmIndex < totalNumRSMPixels; rsmIndex += THREADS_PER_GRO
 	uint localRsmPixelPos = rsmIndex + gl_LocalInvocationID.x;
 	ivec2 rsmSamplePos = ivec2(Morton_2D_Decode_16bit(localRsmPixelPos)); 
 
-	// Sample flux
+	// Sample flux.
 	cacheEntry.Flux = texelFetch(RSM_Flux, rsmSamplePos).rgb;
-	// Sample Depth and compute VAL area
+	// Sample depth and compute VAL area
 	float sourceLightToVAL = texelFetch(RSM_DepthLinSq, rsmSamplePos).r;
 	cacheEntry.DiscArea = sourceLightToVAL * sourceLightToVAL * ValAreaFactor;
 	// Compute world position.
 	cacheEntry.Position = ComputeVALPosition(rsmSamplePos, sourceLightToVAL);
-	// Sample and unpack Normal
+	// Sample and unpack Normal.
 	cacheEntry.Normal = UnpackNormal16I(texelFetch(RSM_Normal, rsmSamplePos).xy);
 
 	// Write into cache.
@@ -544,7 +546,7 @@ for(uint rsmIndex = 0; rsmIndex < totalNumRSMPixels; rsmIndex += THREADS_PER_GRO
 	barrier(); // Make sure all other threads have written their lights.
 
 	// Perform lighting for all cached lights.
-	float shadowing = 1.0;
+	float visibility = 1.0;
 	for(int i=0; i<LIGHTING_THREADS_PER_GROUP; ++i)
 	{
 		if(i % IndirectShadowComputationSampleInterval == 0)
@@ -552,7 +554,7 @@ for(uint rsmIndex = 0; rsmIndex < totalNumRSMPixels; rsmIndex += THREADS_PER_GRO
 			shadowing = ComputeConeTraceShadow(/* ... */);
 		}
 		
-		PerformLighting(RSMCache[i].Flux, shadowing, /* ... */);
+		PerformLighting(RSMCache[i].Flux, visibility, /* ... */);
 	}
 }
 
@@ -561,6 +563,20 @@ for(uint rsmIndex = 0; rsmIndex < totalNumRSMPixels; rsmIndex += THREADS_PER_GRO
 \end{lstlisting}
 Each compute shader thread of a group loads exactly one light into the shared memory, waits for all other threads of its group and starts to traverse the lights cached in the shared memory.
 This is repeat until all virtual lights have been processed.
+
+\subsubsection{Specular Lighting}
+For the specular environment map atlas we use the low precision floating point format \emph{R11G11B10F}.
+\\
+There are two different ways to handle writes to this texture.
+One way is simply to write values in just the moment they are computed.
+However, since multiple VALs might address the same pixel in the specular environment map, a read has to be performed first to add the radiance instead of overwriting existing information.
+Because of this we experimented with a cached write:
+Each thread holds its portion of the texture first in its registers.
+Since even for low resolutions this creates a very high register pressure, it is cheaper to compress this in-memory map.
+As it is expensive to de-/compress from/to \emph{R11G11B10F} in software, we use a custom 32 bit shared exponent format for this task.
+\\
+Due to the different highly lossy compressions both methods yield visually different results.
+\autoref{TODO} \todo{ref eva} discusses which technique performs better.
 
 
 \subfilebib % Makes bibliography available when compiling as subfile
