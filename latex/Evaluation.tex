@@ -112,7 +112,15 @@ The strong changes in the duration of the gbuffer creation pass (especially in \
 
 \subsection{Cache Count}
 Retrieving the current cache count from the GPU is a very costly operation unless extensive multi-buffering is used to avoid stalls (keeping the count in a different buffer every frame to ensure to perform reads only on an unused one).
-Therefore, we measured the cache count over time separately and combined the results in the graphs seen in \autoref{}.
+Therefore, we measured the cache count over time separately and combined the results in the graphs seen in \autoref{fig:cachecountovertime}.
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{eva/cachecountovertime.pdf}
+\caption{Visualization of the influence of cache count (black) to all relevant passes over time (30s), using the same camera flights and settings as in \autoref{fig:frameratebreakdown:specoff}.}
+\label{fig:cachecountovertime}
+\end{figure}
+
 
 Examine effect of different cache counts, cascading, CAV, etc.
 
