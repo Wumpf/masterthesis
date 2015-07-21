@@ -36,6 +36,7 @@ The test machine contains a Intel i7-3770 CPU and uses Windows 8 64bit as OS.
 \autoref{fig:testscenes} gives an overview over the main test scenes used in this chapter (and throughout the thesis).
 We use McGuire's \cite{bib:McGuire2011Data} version of the well known Crytek \dataset{Sponza} scene which was modeled by Frank Meinl.
 For a better fit into our physically based pipeline we used the freely provided texture set  by Alexandre Pestana \cite{bib:sponzapbr}.
+Additionally, we placed a continuously rotating Utah teapot with a custom metal-like texture in the scene to show-case specular reflections on a curved surface with varying metallic and roughness values.
 \\
 The \dataset{Sibenik} cathedral scene is as well from McGuire's database \cite{bib:McGuire2011Data}.
 To fill the empty space, we added a dinosaur skeleton from the "Natural History Museeum" modelled by Alvara Luna Bautista and Joel Anderson (available at \url{http://www.3drender.com/challenges/}).
@@ -74,20 +75,34 @@ We limit our observation to meaningful ranges and do not experiment with arbitra
 \section{Performance}
 In this section the performance and scalability of our approach is examined.
 We measure primarily frame times in milliseconds.
-To be able to evaluate how specific parts of our algorithm perform, we use OpenGLs timer query functionality to check how long a series of calls take to finish on the GPU (\texttt{GL\_TIME\_ELAPSED}).
+To be able to evaluate how specific parts of our algorithm perform, we use multi-buffered OpenGLs timer query functionality to check how long a series of calls take to finish on the GPU (\texttt{GL\_TIME\_ELAPSED}) without stalling it.
 The sum of timings from multiple commands may exceed the time a frame takes, since the GPU might work on multiple commands at a time.
 However, in our tests this overlap seems to play a minor role since most tasks are either very computational intense or are depending on each other which prohibits parallel command execution.
+\\
+In general such measurements can slow down the rendering process.
+For our scenarios though, we did not measure any drops the independently measured framerate with activated timer queries.
 
 \subsection{General Breakdown}
 First we want to provide a general overview over how long the different steps of our rendering pipeline usually take.
-For this we measure all timings along 30 seconds camera flights through our test scenes using the default settings mentioned in \autoref{sec:eva:setup}.
+For this, we measure all timings along 30 seconds camera flights through our test scenes using the default settings mentioned in \autoref{sec:eva:setup}.
+The first set of graphs in \autoref{fig:frameratebreakdown:specoff} shows timings without and the second in \autoref{fig:frameratebreakdown:specoff} with indirect specular reflections.
+The stacked area plots in the graph are sorted in the order in which the respective passes are issued, starting with the GBuffer creation (light green) at the bottom and ending with the cache interpolation on top (beige).
+The black line at the top of all plots shows the total duration for each recorded frame.
+Note that there is a small white gap bellow this line which represents the duration of all overheads that were not measured explicitly like tonemapping, several uniform buffer updates and backbuffer output.
+
+As easily can be seen, the indirect specular lighting increases the costs of the indirect lighting pass (dark yellow) considerably while the additional mipmapping of the specular environment map is very cheap.
+Since the light does not move in these tests, the rendering of the (reflective) shadow map (dark grey) is constant over time.
+The duration both the voxelization pass and its blending + mipmapping is constant as well since there are no changes over time in resolution, number of written cells or geometrical complexity of the scene.
+More surprisingly, there are also almost no changes over time in the cache allocation pass (bright yellow) even when the cache lighting pass (dark yellow) is significantly slower which hints a higher number of light caches.
+Since the main influence to this and the other two cache related passes is the number of of active caches we will investigate this further in the next section on cache count. 
+The strong changes in the duration of the gbuffer creation pass (especially in \dataset{Sponza}) stem from varying overdraw along the camera path. \todo{insert reference to videos of the paths}
+
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{eva/breakdown/specoff.pdf}
 \caption{Breakdown of frame timings with a moving camera over time (30s) for indirect diffuse lighting with shadowing.}
 \label{fig:frameratebreakdown:specoff}
 \end{figure}
-
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{eva/breakdown/specon.pdf}
@@ -96,7 +111,10 @@ For this we measure all timings along 30 seconds camera flights through our test
 \end{figure}
 
 \subsection{Cache Count}
-Examine effect of different cachte counts, cascading, CAV, etc.
+Retrieving the current cache count from the GPU is a very costly operation unless extensive multi-buffering is used to avoid stalls (keeping the count in a different buffer every frame to ensure to perform reads only on an unused one).
+Therefore, we measured the cache count over time separately and combined the results in the graphs seen in \autoref{}.
+
+Examine effect of different cache counts, cascading, CAV, etc.
 
 \subsection{Resolution Dependence}
 Examine effect of resolution on prepare and apply passes.
