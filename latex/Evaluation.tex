@@ -116,13 +116,44 @@ Therefore, we measured the cache count over time separately and combined the res
 
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{eva/cachecountovertime.pdf}
+\includegraphics[width=\textwidth]{eva/cachecountovertime/combined.pdf}
 \caption{Visualization of the influence of cache count (black) to all relevant passes over time (30s), using the same camera flights and settings as in \autoref{fig:frameratebreakdown:specoff}.}
 \label{fig:cachecountovertime}
 \end{figure}
 
+Surprisingly, there seems to be only slight correlation between the duration of the cache lighting pass and the number of caches.
+The duration of the allocate pass is rather stable over time and only the apply cache pass shows a slight and very unsteady correlation to the cache count.
+\\
+The steadiness of the cache allocation pass comes most likely from the fact that on average every thread group performs a single cache allocation attempt regardless of the cache count (since it does not go high enough in our scenarios).
+Weather an attempt is redundant or not might not as important for the runtime.
+The cache apply pass on the other hand has a strict control flow, i.e. it executes the same code insensitive to the number of caches.
+This leaves only the changing number of cache misses as reasonable explanation for its behavior.
+Clearly, the main bottleneck of the cache lighting pass in the preceding tests is not the raw number (within the tested bounds) of caches to be lit, but another factor that changed along the tested camera paths.
+To reduce the number of influences we ran the same experiment in the \dataset{Sponza} scene again with disabled indirect shadow.
 
-Examine effect of different cache counts, cascading, CAV, etc.
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{eva/cachecountovertime/sponza_noshadow.pdf}
+\caption{Cache count (black) in comparison to indirect lighting passes with inactive indirect shadowing (camera path and other settings as in \autoref{fig:frameratebreakdown:specoff}).}
+\label{fig:cachecountovertime:noshadow}
+\end{figure}
+
+The results, seen in \autoref{fig:cachecountovertime:noshadow}, show a even more extreme picture:
+Now the duration of the caching pass is almost completely constant, while correlations of the cache count and the performance of the other two parts are much better visible.
+Naturally we suspected a bug in the implementation of the light caching pass that is expected to a have linear performance characteristic in respect to the number of active light caches.
+However, more experiments with higher cache counts show that there is in fact such a linear correlation.
+This time we chose a fixed view point in the \dataset{Sponza} scene, using the default non-specular settings and measured the performance (and cache count) for different CAV resolutions.
+\todo{graph showing our experiment}
+Our implementation uses 512 threads per group during the cache lighting pass.
+This is the lowest theoretical granularity to which the performance of this pass can react, since the shared memory optimization (see \autoref{label} \todo{}) enforces that all threads of a group remain active.
+Obviously though, due to some characteristics of our graphics card (or driver), the measured granularity is much coarser, especially for a low number of thread groups.
+More experiments with different thread group sizes would be necessary for a deeper insight into this matter.
+
+The experiment also % confirms our hypothesis on the behaviour of the allocate cache pass, .....................
+
+
+
+\todo{Experiments considering cascading? Impact of transitions?}
 
 \subsection{Resolution Dependence}
 Examine effect of resolution on prepare and apply passes.
