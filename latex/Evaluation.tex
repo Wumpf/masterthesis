@@ -163,7 +163,31 @@ This experiment also shows that the allocate pass is more sensible to the cache 
 \todo{Experiments considering cascading? Impact of transitions?}
 
 \subsection{RSM Resolution}
-The RSM resolution has a major impact on the 
+\begin{table}[htbp]
+  \centering
+    \begin{tabular}{r|rrr}
+    \toprule
+    \multirow{2}{*}{RSM resolution} & \multicolumn{3}{c}{ shadow/specular}\\
+     & off/off & on/off & on/on \\
+    \midrule
+    $16^2$    & 0.220 & 1.423 & 3.276 \\
+    $32^2$    & 0.419 & 2.480 & 6.138 \\
+    $64^2$    & 1.200 & 3.875 & 16.260 \\
+    $128^2$   & 4.311 & 9.710 & 50.160 \\
+    $256^2$   & 16.764 & 38.419 & 155.660 \\
+    $512^2$   & 66.587 & 154.771 & 400.265 \\
+    \bottomrule
+    \end{tabular}
+\caption{Performance of the cache lighting pass in ms for different reflective shadow map resolutions in the \dataset{Republique} scene. All tests used same number shadow cones. }
+\label{bib:RSMsizeperf}
+\end{table}
+The reflective shadow map resolution has a major impact on the duration of the indirect lighting pass which is almost always the slowest.
+\autoref{[bib:RSMsizeperf} shows how the it behaves with different RSM resolutions.
+Increasing the size of the reflective shadow map also increases the number of shadow cones per cache.
+Since we are only interested in the effects of the RSM resolution we canceled that factor out by increasing the shadow lod so that the number of cones stays the same.
+\\
+Resolutions beyond $128^2$ are practically not usable from a real-time performance standpoint, regardless if indirect shadows and specular effects are activated or not.
+\todo{More analysis?}
 
 \subsection{Indirect Shadow}
 
