@@ -564,7 +564,7 @@ for(uint rsmIndex = 0; rsmIndex < totalNumRSMPixels; rsmIndex += THREADS_PER_GRO
 Each compute shader thread of a group loads exactly one light into the shared memory, waits for all other threads of its group and starts to traverse the lights cached in the shared memory.
 This is repeat until all virtual lights have been processed.
 
-\subsubsection{Specular Lighting}
+\subsubsection{Specular Lighting} \label{sec:impl:details:specular}
 For the specular environment map atlas we use the low precision floating point format \emph{R11G11B10F}.
 \\
 There are two different ways to handle writes to this texture.

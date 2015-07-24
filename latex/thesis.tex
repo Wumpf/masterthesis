@@ -12,13 +12,19 @@
 \usepackage{amsmath}
 \usepackage{marvosym}
 \usepackage[pdftex]{graphicx}
-\usepackage{xcolor, luximono}
+\usepackage[table]{xcolor} % table argument allows color cells
+\usepackage{luximono}
 \usepackage{geometry}
 
-% Multirow in tables
-\usepackage{multirow}
-% More stuff for table (used by Excel2LaTex)
-\usepackage{booktabs}
+% table stuff
+\usepackage{multirow}	% Multirow in tables
+\usepackage{booktabs}	% Special lines in tables
+\usepackage{diagbox}	% Box with diagonal in tables
+
+% Cell colors
+\definecolor{good}{rgb}{0.6,1.0,0.6}
+\definecolor{bad}{rgb}{1.0,0.7,0.7}
+\definecolor{neutral}{rgb}{1.0,0.95,0.5}
 
 % Text floating around figure
 \usepackage{wrapfig}

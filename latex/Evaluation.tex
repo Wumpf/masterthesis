@@ -179,10 +179,10 @@ This experiment also shows that the allocate pass is more sensible to the cache 
     \bottomrule
     \end{tabular}
 \caption{Performance of the cache lighting pass in ms for different reflective shadow map resolutions in the \dataset{Republique} scene. All tests used same number shadow cones. }
-\label{bib:RSMsizeperf}
+\label{tab:RSMsizeperf}
 \end{table}
 The reflective shadow map resolution has a major impact on the duration of the indirect lighting pass which is almost always the slowest.
-\autoref{[bib:RSMsizeperf} shows how the it behaves with different RSM resolutions.
+\autoref{tab:RSMsizeperf} shows how the it behaves with different RSM resolutions in the \dataset{Republique} scene with a fixed view point from which 3045 caches are activated (which is still in the "almost constant cache count performance-region" in \autoref{fig:cachecountdirect}).
 Increasing the size of the reflective shadow map also increases the number of shadow cones per cache.
 Since we are only interested in the effects of the RSM resolution we canceled that factor out by increasing the shadow lod so that the number of cones stays the same.
 \\
@@ -190,12 +190,86 @@ Resolutions beyond $128^2$ are practically not usable from a real-time performan
 \todo{More analysis?}
 
 \subsection{Indirect Shadow}
+Comparing \autoref{fig:cachecountovertime} and the counterpart \autoref{fig:cachecountovertime:noshadow} without shadowing we can already deduce that indirect shadowing has a rather high performance impact depending on how long the shadow cones are traced.
+More importantly though is the shadow lod since, together with the RSM resolution, it determines how many shadow cones are needed for each cache.
+\begin{table}[htbp]
+  \centering
+    \begin{tabular}{c|rrrrr}
+    \toprule
+    \diagbox[width=8.5em]{\small{shadow lod}}{\small{RSM res.}} \,\,    & $16^2$ & $32^2$ & $64^2$ & $128^2$ & $256^2$ \\
+    \midrule
+    0     & 2.16  & 8.89  & 36.91 & 150.09 & 538.45 \\
+    1     & 0.62  & 2.48  & 10.06 & 44.21 & 231.43 \\
+    2     & 0.33  & 0.97  & 3.87  & 15.73 & 67.37 \\
+    3     & 0.29  & 0.71  & 2.45  & 9.70  & 39.12 \\
+    4     & 0.29  & 0.67  & 2.19  & 8.35  & 33.29 \\
+    5     &       & 0.66  & 2.15  & 8.11  & 32.00 \\
+    6     &       &       & 2.15  & 8.08  & 31.79 \\
+    7     &       &       &       & 8.08  & 31.81 \\
+    8     &       &       &       &       & 31.79 \\
+    \bottomrule
+    \end{tabular}
+\caption{Performance of the cache lighting pass in ms for different shadow lods and RSM resolutions in the \dataset{Republique} scene.}
+\label{tab:shadowlod}
+\end{table}
+\autoref{tab:shadowlod} shows measurements of the duration of the cache lighting pass depending on shadow lod ans reflective shadow map resolution.
+The last entry in each column was rendered with a single large shadow cone. 
+Each entry above quadruples the number of shadow cones.
+\todo{some judement on that? Did we learn sth. specific?}
+\todo{Voxel resolution is ignored so far.}
 
 \subsection{Indirect Specular}
+\begin{table}[htbp]
+\begin{subtable}{\textwidth}
+	\centering
+	\begin{tabular}{c|rrrrr}
+	\toprule
+	 \diagbox[width=10em]{\small{spec. map res.}}{\small{RSM res.}} \,\, & $16^2$    & $32^2$    & $64^2$    & $128^2$   & $256^2$ \\
+	\midrule
+	$4^2$     & \cellcolor{bad} 1.04  & \cellcolor{bad} 3.05  & \cellcolor{bad} 11.14 & \cellcolor{bad} 43.20 & \cellcolor{bad} 170.39 \\
+	$8^2$     & \cellcolor{bad} 1.16  & \cellcolor{bad} 3.48  & \cellcolor{bad} 12.83 & \cellcolor{bad} 49.67 & \cellcolor{bad} 195.66 \\
+	$16^2$    & \cellcolor{bad} 1.30  & \cellcolor{bad} 3.62  & \cellcolor{bad} 12.95 & \cellcolor{bad} 49.86 & \cellcolor{bad} 195.87 \\
+	$32^2$    & \cellcolor{good} 1.72  & \cellcolor{good} 4.07  & \cellcolor{good} 13.33 & \cellcolor{good} 49.96 & \cellcolor{good} 195.24 \\
+	$64^2$    & \cellcolor{good} 3.42  & \cellcolor{good} 5.78  & \cellcolor{good} 15.06 & \cellcolor{good} 51.76 & \cellcolor{good} 196.83 \\
+	\bottomrule
+	\end{tabular}
+	\caption{Direct write.}
+\end{subtable}
+
+\begin{subtable}{\textwidth}
+	\centering
+	\begin{tabular}{c|rrrrr}
+	\toprule
+	 \diagbox[width=10em]{\small{spec. map res.}}{\small{RSM res.}} \,\, & $16^2$    & $32^2$    & $64^2$    & $128^2$   & $256^2$ \\
+	\midrule
+	$4^2$     & \cellcolor{good} 0.74  & \cellcolor{good} 1.74  & \cellcolor{good} 5.89  & \cellcolor{good} 22.50 & \cellcolor{good} 88.66 \\
+	$8^2$     & \cellcolor{good} 0.90  & \cellcolor{good} 2.12  & \cellcolor{good} 7.09  & \cellcolor{good} 26.92 & \cellcolor{good} 105.93 \\
+	$16^2$    & \cellcolor{bad} 3.75  & \cellcolor{good} 3.05  & \cellcolor{good} 9.32  & \cellcolor{good} 34.43 & \cellcolor{good} 134.22 \\
+	$32^2$    & \cellcolor{bad} 8.48  & \cellcolor{bad} 14.34 & \cellcolor{bad} 37.82 & \cellcolor{bad} 131.00 & \cellcolor{bad} 501.43 \\
+	$64^2$    & \multicolumn{5}{c}{\cellcolor{bad} \emph{application crash}} \\
+	\bottomrule
+	\end{tabular}
+	\caption{\centering Register cached write. }
+\end{subtable}
+\caption{Performance of the cache lighting pass in ms for different specular environment and RSM resolutions in the \dataset{Sponza} scene. The colors indicate where direct writing to the map or caching in the shader's registers is better.}
+\label{tab:specularperf}
+\end{table}
+
+So far we have ignored the effect of indirect specular lighting, except in the breakdown overview in \autoref{fig:frameratebreakdown:specon}.
+Indirect specular lighting in general has a severe impact on the performance.
+As noted in \autoref{sec:impl:details:specular} there are two ways to handle writes to the specular environment map:
+Either by writing directly into it or by caching in the shaders registers.
+\autoref{tab:specularperf} shows timings of the indirect lighting pass in the \dataset{Sponza} scene with varying RSM and specular environment map resolutions for both direct and cached write.
+The RSM resolution determines how often writes to the specular environment map occur.
+On our machine specular environment maps with a resolution of $8^2$ and lower are clearly faster.
+For $16^2$ it depends and $64^2$ lead to a crash on our machine since the driver was not able to compile the shader (which looks like a driver bug since there was no controlled error output).
+\\
+For direct writes, the performance is very stable independently of the specular environment map resolution.
+However, this parameter can raise memory requirements drastically \todo{check and add link to mem req chapter}.
+\todo{anything on how some settings are pointless in quality and perf?}
 
 \subsection{Resolution Dependence}
 Examine effect of resolution on prepare and apply passes.
-
 
 \newpage
 
