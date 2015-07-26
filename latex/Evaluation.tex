@@ -4,7 +4,7 @@
 
 \chapter{Evaluation}\label{chap:eva}
 This chapter will evaluate the proposed algorithms both from a performance and a quality perspective.
-In the last section we try to compare our technique to others.
+In the last section we try to compare our technique to related works.
 However, as we were not able to implement comparable implementations within the bounds of this project, we can only provide comparisons on an abstract level.
 
 \section{Test Setup \& Scenes} \label{sec:eva:setup}
@@ -41,8 +41,8 @@ Additionally, we placed a continuously rotating Utah teapot with a custom metal-
 The \dataset{Sibenik} cathedral scene is as well from McGuire's database \cite{bib:McGuire2011Data}.
 To fill the empty space, we added a dinosaur skeleton from the "Natural History Museeum" modelled by Alvara Luna Bautista and Joel Anderson (available at \url{http://www.3drender.com/challenges/}).
 \\
-The \dataset{Republique} scene was extracted from a unity tech demo for the game "République Remastered" by Camouflaj.
-The entire demo is freely available on the unity assetstore \cite{bib:republique}.
+The \dataset{Republique} scene was extracted from a Unity3D tech demo for the game "République Remastered" by Camouflaj.
+The entire demo is freely available on the Unity Assetstore \cite{bib:republique}.
 
 \section{Parameter Overview}
 How our approach performs depends on several parameters.
@@ -53,14 +53,14 @@ The defaults are annotated in brackets in the following parameter overview:
 \ListProperties(Hide=100, Hang=true, Progressive=4ex, Space=0.0ex, Space3=-0.5ex, Space*=-0.5ex, Style*=$\bullet\,$,
 Style2*=\textbf{--} ,Style3*=$\circ$ ,Style4*=\tiny$\blacksquare$ )
 # general
-## screen resolution ($1920\times1080$)
-## number of lights (a single spot light)
-## reflective shadow map resolution (rendering $1024^2$, indirect light $64^2$)
-## number of SH bands for diffuse lighting (2 bands)
 ## number of active caches
 ### cache address volume resolution ($32^3$)
 ### cascading settings (4 cascades, last cascade covers always entire scene)
 ### camera
+## reflective shadow map resolution (rendering $1024^2$, indirect light $64^2$)
+## screen resolution ($1920\times1080$)
+## number of SH bands for diffuse lighting (2 bands)
+## number of lights (a single spot light)
 # shadowing
 ## shadow lod (2)
 ## voxel resolution ($128^3$)
@@ -71,36 +71,16 @@ Style2*=\textbf{--} ,Style3*=$\circ$ ,Style4*=\tiny$\blacksquare$ )
 This chapter tries to give insights on their effects.
 We limit our observation to meaningful ranges and do not experiment with arbitrary combinations.
 
- \todo{write why voxel res is bad}
-
 \section{Performance}
-In this section the performance and scalability of our approach is examined.
-We measure primarily frame times in milliseconds.
-To be able to evaluate how specific parts of our algorithm perform, we use multi-buffered OpenGLs timer query functionality to check how long a series of calls take to finish on the GPU (\texttt{GL\_TIME\_ELAPSED}) without stalling it.
-The sum of timings from multiple commands may exceed the time a frame takes, since the GPU might work on multiple commands at a time.
+The performance and scalability of our approach is examined in this section.
+To be able to evaluate how specific parts of our algorithm perform, we use multi-buffered OpenGL timer queries to check how long a series of calls take to finish on the GPU (\texttt{GL\_TIME\_ELAPSED}) without stalling it.
+The sum of timings from multiple commands may exceed the total time a frame takes since the GPU might work on multiple commands at a time.
 However, in our tests this overlap seems to play a minor role since most tasks are either very computational intense or are depending on each other which prohibits parallel command execution.
 \\
 In general such measurements can slow down the rendering process.
-For our scenarios though, we did not measure any drops the independently measured framerate with activated timer queries.
+For our scenarios though, we did not measure any drops in the independently measured framerate with activated timer queries.
 
 \subsection{General Breakdown}
-First we want to provide a general overview over how long the different steps of our rendering pipeline usually take.
-For this, we measure all timings along 30 seconds camera flights through our test scenes using the default settings mentioned in \autoref{sec:eva:setup}.
-The first set of graphs in \autoref{fig:frameratebreakdown:specoff} shows timings without and the second in \autoref{fig:frameratebreakdown:specoff} with indirect specular reflections.
-The stacked area plots in the graph are sorted in the order in which the respective passes are issued, starting with the GBuffer creation (light green) at the bottom and ending with the cache interpolation on top (beige).
-The black line at the top of all plots shows the total duration for each recorded frame.
-Note that there is a small white gap bellow this line which represents the duration of all overheads that were not measured explicitly like tonemapping, several uniform buffer updates and backbuffer output.
-
-As easily can be seen, the indirect specular lighting increases the costs of the indirect lighting pass (dark yellow) considerably while the additional mipmapping of the specular environment map is very cheap.
-Since the light does not move in these tests, the rendering of the (reflective) shadow map (dark grey) is constant over time.
-The duration both the voxelization pass and its blending + mipmapping is constant as well since there are no changes over time in resolution, number of written cells or geometrical complexity of the scene.
-More surprisingly, there are also almost no changes over time in the cache allocation pass (bright yellow) even when the cache lighting pass (dark yellow) is significantly slower which hints a higher number of light caches.
-Since the main influence to this and the other two cache related passes is the number of of active caches we will investigate this further in the next section on cache count. 
-The strong changes in the duration of the gbuffer creation pass (especially in \dataset{Sponza}) stem from varying overdraw along the camera path. \todo{insert reference to videos of the paths}
-
-In general the performance in the three scenes does not differ much.
-Only the significantly more complex \dataset{Republique} scene performs a bit slower which is observable especially without indirect specular.
-
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{eva/breakdown/specoff.pdf}
@@ -114,8 +94,26 @@ Only the significantly more complex \dataset{Republique} scene performs a bit sl
 \label{fig:frameratebreakdown:specon}
 \end{figure}
 
+First, we want to provide a general overview over how long the different steps of our rendering pipeline usually take.
+For this, we measure all timings along 30 seconds camera flights through our test scenes using the default settings mentioned in \autoref{sec:eva:setup}.
+These paths are shown by the accompanying videos. \todo{MAKE THESE VIDEOS}
+The first set of graphs in \autoref{fig:frameratebreakdown:specoff} shows timings without and the second in \autoref{fig:frameratebreakdown:specoff} with indirect specular reflections.
+The stacked area plots are sorted in the order in which the respective passes are issued, starting with the G-buffer creation (light green) at the bottom and ending with the cache interpolation on top (beige).
+The black line at the top of all plots shows the total duration for each recorded frame.
+Note that there is a small white gap bellow this line which represents the duration of all overheads that were not measured explicitly like tonemapping, several uniform buffer updates and output to the backbuffer.
+
+As easily can be seen, the indirect specular lighting increases the costs of the indirect lighting pass (dark yellow) considerably while the additional mipmapping of the specular environment map is very cheap.
+Since the light does not move in these tests, the rendering of the reflective shadow map (dark grey) is constant over time.
+The duration of the voxelization pass and its blending + mipmapping is constant as well since there are no changes in resolution, number of written cells or geometrical complexity of the scene.
+More surprisingly, there are also almost no changes over time in the cache allocation pass (bright yellow) even when the cache lighting pass (dark yellow) is significantly slower which hints a higher number of light caches.
+Since the main influence to this and the other two cache related passes is the number of of active caches we will investigate this further in the next section on cache count. 
+The strong changes in the duration of the G-buffer creation pass (especially in \dataset{Sponza}) stem from varying depending on the current view orientation.
+
+In general, the performance in the three scenes does not differ much.
+Only the significantly more complex \dataset{Republique} scene performs a bit slower which is observable especially without indirect specular.
+
 \subsection{Cache Count}
-Retrieving the current cache count from the GPU is a very costly operation unless extensive multi-buffering is used to avoid stalls (keeping the count in a different buffer every frame to ensure to perform reads only on an unused one).
+Retrieving the current cache count from the GPU is a very costly operation unless extensive multi-buffering is used to avoid stalls (i.e. keeping the count in a different buffer every frame to ensure to perform reads only on an unused one).
 Therefore, we measured the cache count over time separately and combined the results in the graphs seen in \autoref{fig:cachecountovertime}.
 
 \begin{figure}
@@ -124,46 +122,63 @@ Therefore, we measured the cache count over time separately and combined the res
 \caption{Visualization of the influence of cache count (black) to all relevant passes over time (30s), using the same camera flights and settings as in \autoref{fig:frameratebreakdown:specoff}.}
 \label{fig:cachecountovertime}
 \end{figure}
-
 Surprisingly, there seems to be only slight correlation between the duration of the cache lighting pass and the number of caches.
 The duration of the allocate pass is rather stable over time and only the apply cache pass shows a slight and very unsteady correlation to the cache count.
-\\
 The steadiness of the cache allocation pass comes most likely from the fact that on average every thread group performs a single cache allocation attempt regardless of the cache count.
 Weather an attempt is redundant or not might not as important for the runtime.
 The cache apply pass on the other hand has a strict control flow, i.e. it executes the same code insensitive to the number of caches.
 This leaves only the changing number of cache misses as reasonable explanation for its behavior.
-Clearly, the main bottleneck of the cache lighting pass in the preceding tests is not the raw number (within the tested bounds) of caches to be lit, but another factor that changed along the tested camera paths.
+Clearly, the main bottleneck of the cache lighting pass in the preceding tests is not the raw number of caches to be lit, but another factor that changed along the tested camera paths.
 To reduce the number of influences we ran the same experiment in the \dataset{Sponza} scene again with disabled indirect shadow.
-
+\\
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{eva/cachecountovertime/sponza_noshadow.pdf}
 \caption{Cache count (black) in comparison to indirect lighting passes with inactive indirect shadowing (camera path and other settings as in \autoref{fig:frameratebreakdown:specoff}).}
 \label{fig:cachecountovertime:noshadow}
 \end{figure}
-
 The results, seen in \autoref{fig:cachecountovertime:noshadow}, show a even more extreme picture:
 Now the duration of the caching pass is almost completely constant, while correlations of the cache count and the performance of the other two parts are much better visible.
 Naturally we suspected a bug in the implementation of the light caching pass that is expected to a have linear performance characteristic in respect to the number of active light caches.
-However, more experiments with higher cache counts show that there is in fact such a linear correlation.
-This time we chose a fixed view point in the \dataset{Sponza} scene, using the default non-specular settings and measure the performance (and cache count) for different CAV resolutions.
-The results are plotted in \autoref{fig:cachecountdirect}.
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{eva/cachecount.pdf}
 \caption{Performance for different cache counts. Recorded in \dataset{Sponza} with varying CAV resolutions, starting with $16^3$, ending with $192^3$. Otherwise default settings without indirect specular. }
 \label{fig:cachecountdirect}
 \end{figure}
-Our implementation uses 512 threads per group during the cache lighting pass since the pass performed best on average with this count.
-As the shared memory optimization (see \autoref{label} \todo{}) enforces that all threads of a group remain active, this is also the lowest theoretical granularity to which the performance of this pass can react.
+However, more experiments with higher cache counts show that there is in fact such a linear correlation.
+This time we chose a fixed view point in the \dataset{Sponza} scene, using the default non-specular settings and measure the performance (and cache count) for different CAV resolutions.
+The results are plotted in \autoref{fig:cachecountdirect}.
+The implementation of the cache lighting pass uses 512 threads per group since it performed best on average with this count.
+As the shared memory optimization (see \autoref{sec:impl:details:lighting}) enforces that all threads of a group remain active, this is also the lowest theoretical granularity to which the performance of this pass can react.
 Obviously though, due to the characteristics of our graphics card (number of multiprocessors, minimum/maximum parallel thread groups in flight etc.), the measured granularity is much coarser, especially for a low number of thread groups.
 More experiments with different thread group sizes would be necessary for a deeper insight into this matter.
 \\
 This experiment also shows that the allocate pass is more sensible to the cache count than the apply pass for large cache counts.
 \todo{Experiments considering cascading? Impact of transitions?}
 
-\subsection{RSM Resolution}
+\subsection{SH Band Count}
 \begin{table}[htbp]
+  \centering
+    \begin{tabular}{r|rr|rr|rr}
+    \toprule
+          & \multicolumn{2}{c|}{CAV $32^3$ (2177)} & \multicolumn{2}{c|}{CAV $64^3$ (7128)} & \multicolumn{2}{c}{CAV $128^4$ (24033)} \\
+    \midrule
+          & \small{Ind. Lighting} & Apply & Ind. Lighting & Apply & Ind. Lighting & Apply \\
+    \midrule
+    2 bands & 3.75  & 2.12  & 4.16  & 2.25  & 14.8  & 2.51 \\
+    3 bands & 3.98  & 3.83  & 4.58  & 4.14  & 16.7  & 4.74 \\
+    \bottomrule
+    \end{tabular}
+\caption{Performance of indirect lighting and cache apply passes in ms for different numbers of spherical harmonics bands and CAV resolutions (resulting cache counts in parenthesis) in the \dataset{Sponza} scene. }
+\label{tab:shperf}
+\end{table}
+For diffuse lighting we use either two or three spherical harmonics bands.
+Using more bands was considered to complex to implement for the large performance hit with only slight improvement in lighting which we expect from that.
+In fact already switching from two to three bands can result in a much costlier cache apply pass, as can be seen in \autoref{tab:shperf}.
+
+\subsection{RSM Resolution}
+\begin{table}[h]
   \centering
     \begin{tabular}{r|rrr}
     \toprule
@@ -181,18 +196,18 @@ This experiment also shows that the allocate pass is more sensible to the cache 
 \caption{Performance of the cache lighting pass in ms for different reflective shadow map resolutions in the \dataset{Republique} scene. All tests used same number shadow cones. }
 \label{tab:RSMsizeperf}
 \end{table}
-The reflective shadow map resolution has a major impact on the duration of the indirect lighting pass which is almost always the slowest.
-\autoref{tab:RSMsizeperf} shows how the it behaves with different RSM resolutions in the \dataset{Republique} scene with a fixed view point from which 3045 caches are activated (which is still in the "almost constant cache count performance-region" in \autoref{fig:cachecountdirect}).
+The reflective shadow map resolution has a major impact on the duration of the indirect lighting pass which is practically always the slowest step in our rendering process.
+\autoref{tab:RSMsizeperf} shows how the it behaves with different RSM resolutions in the \dataset{Republique} scene with a fixed view point from which 3045 caches are activated. %(which is still in the region of almost constant cache count performance-region" in \autoref{fig:cachecountdirect}).
 Increasing the size of the reflective shadow map also increases the number of shadow cones per cache.
 Since we are only interested in the effects of the RSM resolution we canceled that factor out by increasing the shadow lod so that the number of cones stays the same.
 \\
 Resolutions beyond $128^2$ are practically not usable from a real-time performance standpoint, regardless if indirect shadows and specular effects are activated or not.
-\todo{More analysis?}
+\todo{More analysis? What?}
 
 \subsection{Indirect Shadow}
-Comparing \autoref{fig:cachecountovertime} and the counterpart \autoref{fig:cachecountovertime:noshadow} without shadowing we can already deduce that indirect shadowing has a rather high performance impact depending on how long the shadow cones are traced.
-More importantly though is the shadow lod since, together with the RSM resolution, it determines how many shadow cones are needed for each cache.
-\begin{table}[htbp]
+Comparing the statistics on cache count influence with (see \autoref{fig:cachecountovertime}) and without shadowing (see \autoref{fig:cachecountovertime:noshadow}) we can already deduce that indirect shadowing has a rather high performance impact depending on how long the shadow cones are traced.
+More importantly though, is the shadow lod since together with the RSM resolution it determines how many shadow cones are needed for each cache.
+\begin{table}[h]
   \centering
     \begin{tabular}{c|rrrrr}
     \toprule
@@ -215,11 +230,35 @@ More importantly though is the shadow lod since, together with the RSM resolutio
 \autoref{tab:shadowlod} shows measurements of the duration of the cache lighting pass depending on shadow lod ans reflective shadow map resolution.
 The last entry in each column was rendered with a single large shadow cone. 
 Each entry above quadruples the number of shadow cones.
-\todo{some judement on that? Did we learn sth. specific?}
-\todo{Voxel resolution is ignored so far.}
+
+Another important parameter is the resolution of the voxel volume.
+For simplicity, the application only supports cubic volumes that are aligned to the entire scene.
+This results in rather poor voxel space usage as all our scenes have a larger extent on a single dominant axis.
+\begin{table}[h]
+  \centering
+    \begin{tabular}{rrrrrr}
+    \toprule
+    \diagbox[width=8.5em]{\small{shadow lod}}{\small{Voxel res.}} \,\, & $32^3$ & $64^3$ & $128^3$ & $256^3$ & $512^3$ \\
+    \midrule
+    0     & 22.22 & 29.61 & 36.91 & 112.07 & 301.33 \\
+    1     & 6.89  & 8.60  & 10.06 & 24.23 & 68.54 \\
+    2     & 3.26  & 3.56  & 3.87  & 6.03  & 16.69 \\
+    3     & 2.34  & 2.41  & 2.45  & 2.64  & 3.29 \\
+    4     & 2.18  & 2.19  & 2.19  & 2.21  & 2.24 \\
+    5     & 2.15  & 2.15  & 2.15  & 2.16  & 2.16 \\
+    6     & 2.15  & 2.15  & 2.15  & 2.15  & 2.15 \\
+    \bottomrule
+    \end{tabular}
+\caption{Performance of the cache lighting pass in ms for different shadow lods and voxel volume resolutions in the \dataset{Republique} scene. RSM resolution was fixed to $64^2$.}
+\label{tab:shadowvoxelres}
+\end{table}
+\autoref{tab:shadowvoxelres} shows how the resolution of the voxel volume influences the duration of the cache lighting pass.
+For unrealistic high shadow lods there is almost now difference in performance for different voxel resolutions.
+This can easily be explained by the fact that a high shadow lod results in large cones that take only few samples in high order mip-levels, thus using a low resolution version of the voxelization anyways.
+We deliberately did not include how long the voxelization takes as this was discussed in the works from which our implementation is derived.
 
 \subsection{Indirect Specular}
-\begin{table}[htbp]
+\begin{table}[h]
 \begin{subtable}{\textwidth}
 	\centering
 	\begin{tabular}{c|rrrrr}
@@ -227,8 +266,8 @@ Each entry above quadruples the number of shadow cones.
 	 \diagbox[width=10em]{\small{spec. map res.}}{\small{RSM res.}} \,\, & $16^2$    & $32^2$    & $64^2$    & $128^2$   & $256^2$ \\
 	\midrule
 	$4^2$     & \cellcolor{bad} 1.04  & \cellcolor{bad} 3.05  & \cellcolor{bad} 11.14 & \cellcolor{bad} 43.20 & \cellcolor{bad} 170.39 \\
-	$8^2$     & \cellcolor{bad} 1.16  & \cellcolor{bad} 3.48  & \cellcolor{bad} 12.83 & \cellcolor{bad} 49.67 & \cellcolor{bad} 195.66 \\
-	$16^2$    & \cellcolor{bad} 1.30  & \cellcolor{bad} 3.62  & \cellcolor{bad} 12.95 & \cellcolor{bad} 49.86 & \cellcolor{bad} 195.87 \\
+	$8^2$     & \cellcolor{neutral} 1.16  & \cellcolor{bad} 3.48  & \cellcolor{bad} 12.83 & \cellcolor{bad} 49.67 & \cellcolor{bad} 195.66 \\
+	$16^2$    & \cellcolor{good} 1.30  & \cellcolor{neutral} 3.62  & \cellcolor{bad} 12.95 & \cellcolor{bad} 49.86 & \cellcolor{bad} 195.87 \\
 	$32^2$    & \cellcolor{good} 1.72  & \cellcolor{good} 4.07  & \cellcolor{good} 13.33 & \cellcolor{good} 49.96 & \cellcolor{good} 195.24 \\
 	$64^2$    & \cellcolor{good} 3.42  & \cellcolor{good} 5.78  & \cellcolor{good} 15.06 & \cellcolor{good} 51.76 & \cellcolor{good} 196.83 \\
 	\bottomrule
@@ -243,8 +282,8 @@ Each entry above quadruples the number of shadow cones.
 	 \diagbox[width=10em]{\small{spec. map res.}}{\small{RSM res.}} \,\, & $16^2$    & $32^2$    & $64^2$    & $128^2$   & $256^2$ \\
 	\midrule
 	$4^2$     & \cellcolor{good} 0.74  & \cellcolor{good} 1.74  & \cellcolor{good} 5.89  & \cellcolor{good} 22.50 & \cellcolor{good} 88.66 \\
-	$8^2$     & \cellcolor{good} 0.90  & \cellcolor{good} 2.12  & \cellcolor{good} 7.09  & \cellcolor{good} 26.92 & \cellcolor{good} 105.93 \\
-	$16^2$    & \cellcolor{bad} 3.75  & \cellcolor{good} 3.05  & \cellcolor{good} 9.32  & \cellcolor{good} 34.43 & \cellcolor{good} 134.22 \\
+	$8^2$     & \cellcolor{neutral} 0.90  & \cellcolor{good} 2.12  & \cellcolor{good} 7.09  & \cellcolor{good} 26.92 & \cellcolor{good} 105.93 \\
+	$16^2$    & \cellcolor{bad} 3.75  & \cellcolor{neutral} 3.05  & \cellcolor{good} 9.32  & \cellcolor{good} 34.43 & \cellcolor{good} 134.22 \\
 	$32^2$    & \cellcolor{bad} 8.48  & \cellcolor{bad} 14.34 & \cellcolor{bad} 37.82 & \cellcolor{bad} 131.00 & \cellcolor{bad} 501.43 \\
 	$64^2$    & \multicolumn{5}{c}{\cellcolor{bad} \emph{application crash}} \\
 	\bottomrule
@@ -257,21 +296,36 @@ Each entry above quadruples the number of shadow cones.
 
 So far we have ignored the effect of indirect specular lighting, except in the breakdown overview in \autoref{fig:frameratebreakdown:specon}.
 Indirect specular lighting in general has a severe impact on the performance.
+\\
 As noted in \autoref{sec:impl:details:specular} there are two ways to handle writes to the specular environment map:
-Either by writing directly into it or by caching in the shaders registers.
+Either by writing directly into it or by caching the map in the shader's registers.
 \autoref{tab:specularperf} shows timings of the indirect lighting pass in the \dataset{Sponza} scene with varying RSM and specular environment map resolutions for both direct and cached write.
 The RSM resolution determines how often writes to the specular environment map occur.
 On our machine specular environment maps with a resolution of $8^2$ and lower are clearly faster.
-For $16^2$ it depends and $64^2$ lead to a crash on our machine since the driver was not able to compile the shader (which looks like a driver bug since there was no controlled error output).
+For $16^2$ it depends and $64^2$ lead to a crash on our machine since the driver was not able to compile the shader (which indicates a driver bug since there was no controlled error output).
 \\
 For direct writes, the performance is very stable independently of the specular environment map resolution.
 However, this parameter can raise memory requirements drastically \todo{check and add link to mem req chapter}.
-\todo{anything on how some settings are pointless in quality and perf?}
 
 \subsection{Resolution Dependence}
-Examine effect of resolution on prepare and apply passes.
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{eva/screen_resolution.pdf}
+\caption{Performance of cache allocation and interpolation in ms at different screen resolutions in \dataset{Sibenik} scene. Used CAV with $64^3$, resulting in about 7300 caches.}
+\label{fig:resolutionperf}
+\end{figure}
+Finally we want to test the effect of the screen resolution on our global illumination algorithm.
+Both the cache allocation and interpolation (= apply) passes are executed per screen pixel.
+As expected, our tests in \autoref{fig:resolutionperf} show an almost linear correlation to the number of screen pixels.
+However, especially the duration of the allocate pass increases slowly with the resolution
+For this test we used the \dataset{Sibenik} scene and increased the CAV resolution to $64^3$ for a higher cache density.
+The exact resulting cache count varies slightly with the different aspect ratio of the resolution configurations.
+
+\todo{Multiple lights?!!!}
 
 \newpage
+
+
 
 \section{Quality}
 % phenomelogical: "Quality of light, shadow, etc." - which parameters need to be tweaked
