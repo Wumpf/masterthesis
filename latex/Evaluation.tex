@@ -329,7 +329,7 @@ The exact resulting cache count varies slightly with the different aspect ratio 
 
 \section{Quality}
 While the previous section examined the effect of several parameters on how well the approach performs in terms of computation time, this section will try to evaluate its general visual quality.
-Unlike before, we will do this in a more feature oriented fashion instead of observing the effect of single configuration tweaks.
+Unlike before, we will do this in a more feature oriented fashion instead of observing the effect of single configuration tweaks. \todo{still true?}
 
 \subsection{Sources of Error}
 There are several sources of error in regard to path-traced ground-truth solutions.
@@ -363,7 +363,6 @@ More important, the isotropic filtering process via mipmaps is flawed, as sample
 However, in practice the largest error originates from the assumption that a single VAL does only affect a single pixel in the specular environment map.
 This is more inaccurate with \emph{higher} specular environment and lower RSM resolutions.
 
-
 %\begin{easylist}
 %# RSM
 %## infinte size -> no error
@@ -378,12 +377,113 @@ This is more inaccurate with \emph{higher} specular environment and lower RSM re
 %\end{easylist}
 
 
-\subsection{Artifacts}
-regular placement of caches, jaggies,
-shadow jaggies,
-/interpolation issues
+%\subsection{Artifacts}
+%regular placement of caches, jaggies,
+%shadow jaggies,
+%/interpolation issues
+%
+%shadow flickering?
 
-shadow flickering?
+\subsection{General Quality}
+\todo{groundtruth vs dyn rad cache in pictures}
+
+\subsection{Indirect Shadow}
+\autoref{fig:shadowcomparision:resolutions} shows indirect shadow for different CAV and voxel resolutions.
+In \autoref{fig:shadowcomparision:resolutions:cavdensities} the corresponding cache-density is visualized.
+For a lower cache density there are sometimes jaggies visible at a shadows border.
+Finer details get lost and Peter panning is more likely to occur.
+Using multiple cascades, the more distant cascades may have to few caches to represent the shadow at all, as can be seen in the corridor in the upper left of the images.
+Higher voxel resolution has not only advantages:
+While the shadow borders are more accurate (especially for high CAV resolutions), it is also disproportional brighter and tends to miss distant thin features since the volume is less dense in its higher mipmap-levels.
+\\
+Similar behavior can be observed for the shadow lod, see \autoref{fig:shadowcomparision:lod}.
+With raising shadow lod, the shadow gets brighter and thin features are more likely lost.
+Besides, these images also features colored shadows which are an implicit consequence of our technique.
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/vox128_cav32}
+\caption{Voxel: $128^3$ CAV: $4\times32^2$}
+\end{subfigure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/vox256_cav32}
+\caption{Voxel: $256^3$ CAV: $4\times32^2$}
+\end{subfigure}
+\\
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/vox128_cav64}
+\caption{Voxel: $128^3$ CAV: $4\times64^2$}
+\end{subfigure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/vox256_cav64}
+\caption{Voxel: $256^3$ CAV: $4\times64^2$}
+\end{subfigure}
+\\
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/vox128_cav128}
+\caption{Voxel: $128^3$ CAV: $4\times128^2$}
+\end{subfigure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/vox256_cav128}
+\caption{Voxel: $256^3$ CAV: $4\times128^2$}
+\end{subfigure}
+\caption{Indirect shadow for different voxel volume and cascaded address volume resolutions in the \dataset{Sponza} scene.}
+\label{fig:shadowcomparision:resolutions}
+\end{figure}
+\todo{Images not bright enough?}
+
+\begin{figure}
+\begin{subfigure}[b]{0.32\textwidth}
+\includegraphics[width=\textwidth]{eva/shadow/vox256_cav32_cvis}
+\caption{CAV: $4\times32^2$}
+\end{subfigure}
+\begin{subfigure}[b]{0.32\textwidth}
+\includegraphics[width=\textwidth]{eva/shadow/vox256_cav64_cvis}
+\caption{CAV: $4\times64^2$}
+\end{subfigure}
+\begin{subfigure}[b]{0.32\textwidth}
+\includegraphics[width=\textwidth]{eva/shadow/vox256_cav128_cvis}
+\caption{CAV: $4\times128^2$}
+\end{subfigure}
+\caption{Cache density visualization for \autoref{fig:shadowcomparision}.}
+\label{fig:shadowcomparision:resolutions:cavdensities}
+\end{figure}
+
+\begin{figure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/lod0}
+\caption{Shadow Lod 0}
+\end{subfigure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/lod1}
+\caption{Shadow Lod 1}
+\end{subfigure}
+\\
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/lod2}
+\caption{Shadow Lod 2}
+\end{subfigure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/lod3}
+\caption{Shadow Lod 3}
+\end{subfigure}
+\\
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/lod4}
+\caption{Shadow Lod 4}
+\end{subfigure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/shadow/lod5}
+\caption{Shadow Lod 5}
+\end{subfigure}
+\caption{Indirect shadow for different shadow lods in the \dataset{Sponza} scene using a voxel volume resolution of $256^3$ and CAV resolution of $64^3$. }
+\label{fig:shadowcomparision:lod}
+\end{figure}
+
+
+\subsection{Indirect Specular}
+Image matrix of different settings
 
 \subsection{Temporal Coherency}
 
