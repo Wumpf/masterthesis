@@ -331,7 +331,7 @@ The exact resulting cache count varies slightly with the different aspect ratio 
 While the previous section examined the effect of several parameters on how well the approach performs in terms of computation time, this section will try to evaluate its general visual quality.
 Unlike before, we will do this in a more feature oriented fashion instead of observing the effect of single configuration tweaks. \todo{still true?}
 
-\subsection{Sources of Error}
+\subsection{Sources of Error} \label{sec:eva:errorsources}
 There are several sources of error in regard to path-traced ground-truth solutions.
 As the approach does not claim to be able to compute several phenomenons at all, we limit these observation to the officially supported types of light-paths.
 In addition to both specular and diffuse direct lighting, our approach is able to compute specular and diffuse lighting after a diffuse light bounce.
@@ -386,6 +386,8 @@ This is more inaccurate with \emph{higher} specular environment and lower RSM re
 
 \subsection{General Quality}
 \todo{groundtruth vs dyn rad cache in pictures}
+\todo{SH01 vs SH012}
+\todo{sth. on cascading}
 
 \subsection{Indirect Shadow}
 \autoref{fig:shadowcomparision:resolutions} shows indirect shadow for different CAV and voxel resolutions.
@@ -453,29 +455,29 @@ Besides, these images also features colored shadows which are an implicit conseq
 \begin{figure}
 \begin{subfigure}[b]{\halfpageimage}
 \includegraphics[width=\textwidth]{eva/shadow/lod0}
-\caption{Shadow Lod 0}
+\caption{shadow lod 0}
 \end{subfigure}
 \begin{subfigure}[b]{\halfpageimage}
 \includegraphics[width=\textwidth]{eva/shadow/lod1}
-\caption{Shadow Lod 1}
+\caption{shadow lod 1}
 \end{subfigure}
 \\
 \begin{subfigure}[b]{\halfpageimage}
 \includegraphics[width=\textwidth]{eva/shadow/lod2}
-\caption{Shadow Lod 2}
+\caption{shadow lod 2}
 \end{subfigure}
 \begin{subfigure}[b]{\halfpageimage}
 \includegraphics[width=\textwidth]{eva/shadow/lod3}
-\caption{Shadow Lod 3}
+\caption{shadow lod 3}
 \end{subfigure}
 \\
 \begin{subfigure}[b]{\halfpageimage}
 \includegraphics[width=\textwidth]{eva/shadow/lod4}
-\caption{Shadow Lod 4}
+\caption{shadow lod 4}
 \end{subfigure}
 \begin{subfigure}[b]{\halfpageimage}
 \includegraphics[width=\textwidth]{eva/shadow/lod5}
-\caption{Shadow Lod 5}
+\caption{shadow lod 5}
 \end{subfigure}
 \caption{Indirect shadow for different shadow lods in the \dataset{Sponza} scene using a voxel volume resolution of $256^3$ and CAV resolution of $64^3$. }
 \label{fig:shadowcomparision:lod}
@@ -483,9 +485,59 @@ Besides, these images also features colored shadows which are an implicit conseq
 
 
 \subsection{Indirect Specular}
-Image matrix of different settings
+As seen in \autoref{fig:specularrescomparision}, the quality of indirect specular lighting seemingly improves straight-forward with higher specular environment map resolutions.
+However, there are massive temporal coherence problems for resolutions beyond $16^2$ per cache.
+The indirect specular lighting is the only part of our solution that has temporal coherency issues under camera movement since the local hemispheres of the caches are view dependent.
+In combination with the single write each VAL performs on the per cache this can result in flickering.
+The effect is most problematic witth higher specular environment map resolutions.
+As \autoref{fig:specular:cachegaps} shows it leads to gaps on the specular environment map which are surrounded by to bright pixels since their samples should have been distributed into neighboring pixels as well.
+We tried to close these gaps using a post-processing step similar as in imperfect shadow mapping \autoref{bib:imperfectshadowmaps} but this did worsen temporal artifacts while not improving the visual quality noticeable.
+However, for smaller resolutions and  the results are still visual pleasing and rather stable under movements.
 
-\subsection{Temporal Coherency}
+
+\begin{figure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/specular/0}
+\caption{No indirect specular for comparison.}
+\end{subfigure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/specular/4}
+\caption{specular environment map $4^2$}
+\end{subfigure}
+\\
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/specular/8}
+\caption{specular environment map $8^2$}
+\end{subfigure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/specular/16}
+\caption{specular environment map $16^2$}
+\end{subfigure}
+\\
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/specular/32}
+\caption{specular environment map $32^2$}
+\end{subfigure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/specular/64}
+\caption{specular environment map $64^2$}
+\end{subfigure}
+\caption{Indirect specular lighting for different specular environement map resolutions in the \dataset{Sponza} scene using CAV resolution of $64^3$. }
+\label{fig:specular:rescomparision}
+\end{figure}
+
+\begin{figure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/specular/cache64_rsm64}
+\caption{RSM resolution $64^2$.}
+\end{subfigure}
+\begin{subfigure}[b]{\halfpageimage}
+\includegraphics[width=\textwidth]{eva/specular/cache64_rsm256}
+\caption{RSM resolution $256^2$}
+\end{subfigure}
+\caption{Specular environment map cache visualization in the teapot in \autoref{fig:specular:rescomparision}. Resolution of the specular environment map is $64^2$. Unwritten parts have been colored in magenta to highlight the gaps between samples. }
+\label{fig:specular:cachegaps}
+\end{figure}
 
 
 \section{Memory Consumption}
