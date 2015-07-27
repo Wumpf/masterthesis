@@ -397,9 +397,7 @@ A specular reflectivity of 0.04 is the average for most dielectrics \cite{bib:na
 Direct lighting is achieved using a deferred renderer which with a floating point depth buffer and three layers:
 A sRGB texture containing reflectance, a two channel 16\,bit signed integer layer for angle representation of the normal vector and a 8bit two channel texture for the aforementioned roughness and metallic values.
 
-\subsection{Indirect Lighting}
-
-\subsubsection{RSM Format}
+\subsection{RSM Format}
 Like our G-Buffer, the RSM consists of three textures and a floating point depth texture.
 As before we store normals compressed by storing their two angles in signed 16 bit integer textures.
 We tried to use the low precision floating point format \emph{R11G11B10F} for storing the flux.
@@ -408,7 +406,7 @@ Instead, a three channel 16bit float format is used.
 Since we need to downsample depth and squared depth, we added a separate 2 channel 16bit float texture for this purpose.
 The full float depth texture is only used as depth buffer during rendering and for direct lighting.
 
-\subsubsection{Cache Allocation} \label{sec:impl:cachealloc}
+\subsection{Cache Allocation} \label{sec:impl:cachealloc}
 For simpler addressability all CAV cascades are stored in the same 32bit integer volume texture.
 Since each cascade is cubic and has the same resolution, they can be simply aligned along the x-coordinate.
 
@@ -486,7 +484,7 @@ We achieved the best performance at with a thread group size of $16\times16$.
 
 For a resolution of $2560\times1440$ and a view with about 16 thousand caches, our methods is roughly six times faster than the primitive approach.
 
-\subsubsection{Voxelization \& Shadow Cones}
+\subsection{Voxelization \& Shadow Cones}
 We use the GPU voxelization as presented by Crassin and Green \cite{bib:openglinsightsvoxel}.
 This allows us to the voxelization every frame for a relatively low cost.
 Since we save only a 8bit occupancy value, our overall memory consumption stays low.
@@ -500,7 +498,7 @@ Coarser volumes need slower adaptions since otherwise large shadow features migh
 
 All shadow cones start with a offset which is as large as two voxel cells to reduce the likelihood of accidental self-shadowing. 
 
-\subsubsection{Cache Lighting} \label{sec:impl:details:lighting}
+\subsection{Cache Lighting} \label{sec:impl:details:lighting}
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.5\textwidth]{morton_rtr}
