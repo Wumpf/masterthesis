@@ -328,10 +328,55 @@ The exact resulting cache count varies slightly with the different aspect ratio 
 
 
 \section{Quality}
-% phenomelogical: "Quality of light, shadow, etc." - which parameters need to be tweaked
+While the previous section examined the effect of several parameters on how well the approach performs in terms of computation time, this section will try to evaluate its general visual quality.
+Unlike before, we will do this in a more feature oriented fashion instead of observing the effect of single configuration tweaks.
 
-\subsection{Sources of Error and Groundtruth Comparision}
-Shadow heuristic check! (try to use only one)
+\subsection{Sources of Error}
+There are several sources of error in regard to path-traced ground-truth solutions.
+As the approach does not claim to be able to compute several phenomenons at all, we limit these observation to the officially supported types of light-paths.
+In addition to both specular and diffuse direct lighting, our approach is able to compute specular and diffuse lighting after a diffuse light bounce.
+Like in the original reflective shadow mapping, our approach is not able to handle indirect specular light bounces which are necessary to compute caustics.
+
+The reflective shadow map itself is the first source of error.
+Problems arise from to its limited resolution which determines how well the scene is sampled.
+Low RSM resolutions can lead to flickering during movement and irregular lighting, even with the bias compensation techniques which were discussed in \autoref{sec:fig:rsmbias}.
+Also, small features may be missed entirely which leads to either to low or to high brightness in different areas.
+\\
+The discretized placement of light caches and their later interpolation has a similar effect on the overall accuracy, however in a more temporal stable fashion.
+It assumes that there are no features of interest in-between two caches and that the transition can be expressed by simple linear interpolation.
+\\
+This is especially hazardous in combination with the RSM visibility approximation which is performed by cone-casts in a pre-filtered volume:
+The higher the distance between the caches, the higher is their needed start offset since sparsely placed caches lie often deep inside of solid objects.
+Voxel cone-casts assume that sampling the density information in arbitrary volume mipmap-levels expresses an isotropic visibility function for any cone going through this sample.
+This estimate is more incorrect the more complex the geometry is which was combined into a single opacity value, i.e. it gets worse for higher mip-levels and lower resolutions.
+Additionally, as we do not perform solid voxelization, blockers vanish in high mipmap-levels especially for a high starting resolution.
+Larger cone angles produce higher errors as they perform samples more often in high mipmap-levels, while tight cones ray-march through (relatively) high-detailed volumes.
+Testing multiple VALs at once with a single cone (shadow lod) is based on the assumption that the visibility between arbitrary VALs does not vary much, which is obviously wrong for many cases.
+\\
+The two ways in which lighting information is saved have each their own accuracy issues.
+Since our SH representation (for diffuse lighting) uses only very few bands, it can catch radiance only at very low frequencies.
+Using higher SH basis would improve this but leads inevitable to stronger ringing artifacts.
+While high frequencies are not necessary to compute irradiance, the representation is far from accurate. \todo{can't find references with numbers. why?}
+The specular lighting on the other hand is limited by the per-cache specular environement map resolution that determines practically how large the maximal supported Blinn-Phong exponent is.
+Saving only a hemisphere does not introduce any new errors but the hemispherical projection creates some distortion - filtering results on this map is not mathematically correct.
+More important, the isotropic filtering process via mipmaps is flawed, as samples on higher mipmap-levels do not represent correct integrals over the anisotropic Blinn-Phong lobes.
+However, in practice the largest error originates from the assumption that a single VAL does only affect a single pixel in the specular environment map.
+This is more inaccurate with \emph{higher} specular environment and lower RSM resolutions.
+
+
+%\begin{easylist}
+%# RSM
+%## infinte size -> no error
+%## single diffuse bounce
+%# Cache discretization
+%## infinite density -> every pixel lit individually
+%# Shadow
+%## bias
+%## res
+%# SH
+%# SpecEnv
+%\end{easylist}
+
 
 \subsection{Artifacts}
 regular placement of caches, jaggies,
@@ -348,8 +393,6 @@ shadow flickering?
 \section{Comparison to other Techniques} \label{sec:eva:comparisiontoother}
 
 comparison table, similar to the one in radiance hints?
-
-\subsection{Comparison to LightSkin}
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
