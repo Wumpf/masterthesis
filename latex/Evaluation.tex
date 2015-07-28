@@ -332,7 +332,7 @@ While the previous section examined the effect of several parameters on how well
 Unlike before, we will do this in a more feature oriented fashion instead of observing the effect of single configuration tweaks. \todo{still true?}
 
 \subsection{Sources of Error} \label{sec:eva:errorsources}
-There are several sources of error in regard to path-traced ground-truth solutions.
+There are several sources of error in regard to the ground-truth as defined by the rendering equation.
 As the approach does not claim to be able to compute several phenomenons at all, we limit these observation to the officially supported types of light-paths.
 In addition to both specular and diffuse direct lighting, our approach is able to compute specular and diffuse lighting after a diffuse light bounce.
 Like in the original reflective shadow mapping, our approach is not able to handle indirect specular light bounces which are necessary to compute caustics.
@@ -384,10 +384,48 @@ This is more inaccurate with \emph{higher} specular environment and lower RSM re
 %
 %shadow flickering?
 
-\subsection{General Quality}
-\todo{groundtruth vs dyn rad cache in pictures}
-\todo{SH01 vs SH012}
-\todo{sth. on cascading}
+\subsection{Groundtruth Comparision} \todo{other title?}
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.7\textwidth}
+\includegraphics[width=\textwidth]{eva/groundtruthcomp/pathtracer}
+\caption{Mitsuba \cite{bib:mitsuba} path-tracer, 2k samples per pixel ($\sim15\,$min)}
+\end{subfigure}
+\\
+\begin{subfigure}[b]{0.7\textwidth}
+\includegraphics[width=\textwidth]{eva/groundtruthcomp/realtime}
+\caption{Rendered with Dynamic Radiance Volumes ($\sim25\,$ms)}
+\end{subfigure}
+\caption{Comparison of a (diffuse only) scene rendered with the Mitsuba \cite{bib:mitsuba} path-tracer and with our realtime solution.}
+\label{fig:groundtruthcomparision}
+\end{figure}
+\autoref{fig:groundtruthcomparision} shows a comparison between the results of a pathtracer and our technique of a simple diffuse-only scene.
+Please note that we were not able to include such groundtruth images for the other scenes since it is rather difficult to share complex model and material setups in such way that fundamentally different renderers interpret them equally.
+Due to the limited view range we chose used a single adress volume with a resolution of $128^3$, other than that we use the default settings but without specular lighting since we were not able to replicate our BRDF setup in the Mitsuba \cite{bib:mitsuba} path-tracer.
+With this high cache frequency our approach is able to hint most shadowing details however fails to compute them accurately.
+The shadows are generally too bright and - not easily visible due to the tonemapping - tend to darken wide regions that should not be shadowed at all.
+The simple low frequent lighting in this scene though, is no problem for our approach in general.
+\todo{concluding notes on how well it performs against pathtracing..?}
+
+\subsection{SH Band Comparision}
+\autoref{fig:shcomparision}
+\todo{write on SH01 vs SH012}
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.8\textwidth}
+\includegraphics[width=\textwidth]{eva/sh/sh01}
+\caption{2 SH bands.}
+\end{subfigure}
+\\
+\begin{subfigure}[b]{0.8\textwidth}
+\includegraphics[width=\textwidth]{eva/sh/sh012}
+\caption{3 SH bands.}
+\end{subfigure}
+\caption{Different spherical harmonics basis for diffuse diffuse lighting in the \dataset{Republique} scene.}
+\label{fig:shcomparision}
+\end{figure}
+
+\todo{sth. on cascading / cache density}
 
 \subsection{Indirect Shadow}
 \autoref{fig:shadowcomparision:resolutions} shows indirect shadow for different CAV and voxel resolutions.
@@ -494,7 +532,6 @@ As \autoref{fig:specular:cachegaps} shows it leads to gaps on the specular envir
 We tried to close these gaps using a post-processing step similar as in imperfect shadow mapping \autoref{bib:imperfectshadowmaps} but this did worsen temporal artifacts while not improving the visual quality noticeable.
 However, for smaller resolutions and  the results are still visual pleasing and rather stable under movements.
 
-
 \begin{figure}
 \begin{subfigure}[b]{\halfpageimage}
 \includegraphics[width=\textwidth]{eva/specular/0}
@@ -525,7 +562,6 @@ However, for smaller resolutions and  the results are still visual pleasing and 
 \caption{Indirect specular lighting for different specular environement map resolutions in the \dataset{Sponza} scene using CAV resolution of $64^3$. }
 \label{fig:specular:rescomparision}
 \end{figure}
-
 \begin{figure}
 \begin{subfigure}[b]{\halfpageimage}
 \includegraphics[width=\textwidth]{eva/specular/cache64_rsm64}
