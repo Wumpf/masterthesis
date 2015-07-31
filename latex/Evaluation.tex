@@ -399,33 +399,37 @@ This is more inaccurate with \emph{higher} specular environment and lower RSM re
 \caption{Comparison of a (diffuse only) scene rendered with the Mitsuba \cite{bib:mitsuba} path-tracer and with our realtime solution.}
 \label{fig:groundtruthcomparision}
 \end{figure}
-\autoref{fig:groundtruthcomparision} shows a comparison between the results of a pathtracer and our technique of a simple diffuse-only scene.
+\autoref{fig:groundtruthcomparision} shows renderings of a simple diffuse-only scene computed using the Mitsuba's pathtracer \cite{bib:mitsuba} and our technique.
 Please note that we were not able to include such groundtruth images for the other scenes since it is rather difficult to share complex model and material setups in such way that fundamentally different renderers interpret them equally.
-Due to the limited view range we chose used a single adress volume with a resolution of $128^3$, other than that we use the default settings but without specular lighting since we were not able to replicate our BRDF setup in the Mitsuba \cite{bib:mitsuba} path-tracer.
-With this high cache frequency our approach is able to hint most shadowing details however fails to compute them accurately.
+We chose used a single address volume with a resolution of $128^3$, other than that we used the default settings without specular lighting since we were not able to replicate our BRDF setup in the path-tracer.
+Using this rather high cache frequency, our approach is able to depict most shadowing details, however fails to compute them accurately.
 The shadows are generally too bright and - not easily visible due to the tonemapping - tend to darken wide regions that should not be shadowed at all.
 The simple low frequent lighting in this scene though, is no problem for our approach in general.
-\todo{concluding notes on how well it performs against pathtracing..?}
+Generally speaking, our technique is not able to reproduce high frequency changes in indirect lighting due to the rather sparse distribution of caches.
 
 \subsection{SH Band Comparision}
-\autoref{fig:shcomparision}
-\todo{write on SH01 vs SH012}
 \begin{figure}[h]
 \centering
-\begin{subfigure}[b]{0.8\textwidth}
+\begin{subfigure}[b]{1.0\textwidth}
 \includegraphics[width=\textwidth]{eva/sh/sh01}
 \caption{2 SH bands.}
 \end{subfigure}
 \\
-\begin{subfigure}[b]{0.8\textwidth}
+\begin{subfigure}[b]{1.0\textwidth}
 \includegraphics[width=\textwidth]{eva/sh/sh012}
 \caption{3 SH bands.}
 \end{subfigure}
 \caption{Different spherical harmonics basis for diffuse diffuse lighting in the \dataset{Republique} scene.}
 \label{fig:shcomparision}
 \end{figure}
+The quality difference between using two or three spherical harmonics bands for diffuse lighting is often not very high.
+\autoref{fig:shcomparision} shows an example with both negligible  and rather good visible differences.
+While the shading at the left statue changes only slightly, the right statue is more contrasted.
+Generally, the setting with more SH bands displays crispier transitions between dark and bright zones but does not necessarily lead to more variations as for example on the strongly normal-mapped flag in the middle of the scene.
+For two or three SH bands we found almost no ringing artifacts in our test cases.
 
-\todo{sth. on cascading / cache density}
+
+\todo{sth. on cascading / cache density ?}
 
 \subsection{Indirect Shadow}
 \autoref{fig:shadowcomparision:resolutions} shows indirect shadow for different CAV and voxel resolutions.
