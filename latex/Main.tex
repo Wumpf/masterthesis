@@ -30,19 +30,19 @@ Instead, we use a grid based approach similar to Vardis et al. \cite{bib:radianc
 Before we discuss the details of our solution, several general properties and implications of such an approach are elaborated.
 
 \subsection{General Properties of Dynamic Cache Placement} \label{sec:impl:dyncacheplace}
-Compared to a precomputation based approach, there are several intrinsic advantages which can be expected of dynamic light cache placement.
+Compared to a pre-computation based approach, there are several intrinsic advantages which can be expected of dynamic light cache placement.
 Since we try to achieve only a single bounce of indirect light, caches are only used by locations that lie in the current view frustum. % (for multiple bounces however, it might be necessary to transfer lights between caches).
 It should be possible to decrease the number of caches for distant objects, thus keeping the screen-space cache density low even for high viewing ranges.
 %Both properties result in a much lower memory footprint especially for large scenes.
 \\
-While it can be very beneficial to place caches freely, only depending on view space informations this also may introduce several temporal artifacts if caches disappear or move. %, i.e. strong changes in indirect lighting from one frame to the next.
+While it can be very beneficial to place caches freely, only depending on view space information this also may introduce several temporal artifacts if caches disappear or move. %, i.e. strong changes in indirect lighting from one frame to the next.
 Additionally, it is necessary to guarantee that target pixels have easy access to a certain number of caches to be able to interpolate smoothly between them.
 Note that the interpolation pass can have temporal coherence problems on its own, as the assignment of a cache to its surrounding world positions needs to be stable, no matter how densely they are sampled, i.e. how many pixels a given world space area covers.
 
 %So far, the data requirements of each cache have not been defined yet.
 Precomputed caches can naturally hold almost arbitrary data. % (as long as a given memory bound is not exceeded).
 Dynamic caches on the other hand need to acquire their data every frame, which is not only costly performance-wise but may also cancel out certain types of data as it may not be accessible.
-For example LightSkin~\cite{bib:LightskinPaper} needs a rather complex area metric for each cache that can not be computed in real-time.
+For example LightSkin~\cite{bib:LightskinPaper} needs a rather complex area metric for each cache that cannot be computed in real-time.
 Naturally, such constraints also affect the following lighting and interpolation stages tremendously.
 
 We evaluated several approaches before we came up with our final algorithm.
@@ -53,10 +53,10 @@ A summary of these attempts can be found in \autoref{chap:abandoned}.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{cachevis}
-	\caption{Visualization of active caches for a view hinted by the white lines. Note that there is a "shadow" behind the object in the middle where no caches are active since the camera can not see behind it.} \label{fig:cachevis}
+	\caption{Visualization of active caches for a view hinted by the white lines. Note that there is a "shadow" behind the object in the middle where no caches are active since the camera cannot see behind it.} \label{fig:cachevis}
 \end{figure}
 To cancel out temporal artifacts caused by moving light caches, we decided to place caches only at the nodes of a regular world space grid.
-The main disadvantage of this method is, that caches are not placed on surfaces and thus can not have a specific orientation.\\
+The main disadvantage of this method is, that caches are not placed on surfaces and thus cannot have a specific orientation.\\
 Since only a small fraction of all grid cells contains any caches, their data is stored in a separate \emph{cache buffer} and only addresses to this buffer are saved within the grid.
 Accordingly, we call this grid the \emph{Cache Address Volume (CAV)}.
 This approach reduces not only the memory consumption drastically, it makes it also much easier to perform the lighting for each cache, since those reside consecutive in a special memory block instead of being scattered within a volume as in Vardis et al. \cite{bib:radiancecachechromaticcompression}.
@@ -75,7 +75,7 @@ Since neighboring pixels often access the same grid cells, there is room for som
 	\includegraphics[width=\textwidth]{cascades}
 	\caption{Visualization of CAV cascades. Again, the white lines to the right show the active view frustum. The brightness differences within a cascade (single colored area) hint the cache size.} \label{fig:cavcascades}
 \end{figure}
-Similar to Cascaded Light Propagation Volumes \cite{bib:lpt} a set of nested CAV cascades are centered around the camera.
+Similar to Cascaded Light Propagation Volumes \cite{bib:lpt} a set of nested CAV cascades are centered on the camera.
 \autoref{fig:cavcascades} visualizes the cascading system.
 This introduces a distance dependent level of detail and keeps the number of caches constant, even for large scenes.
 The cascade positions are snapped to multiples of their grid size to ensure consistent lighting results. %\todo{elaborate the snapping-whys further?}
@@ -92,7 +92,7 @@ For our demos we use transition areas as wide as twice the cell size of the smal
 This delivers sufficiently smooth transitions for reasonable performance costs in our scenes.
 
 Contrary to Light Propagation Volumes, the cascades are not offset depending on the camera direction.
-Instead they are strictly centered around the camera position as this helps to keep the level of detail stable for view rotations.\\
+Instead they are strictly centered on the camera position as this helps to keep the level of detail stable for view rotations.\\
 While this means that a very large portion of each cascade is never used at all, the costs are still rather low since there are no computations involved for empty cells.
 Also, the memory footprint is still rather small: %nevertheless
 A highly detailed setup consists of four cascades, each with a resolution of $64^3$.
@@ -100,7 +100,7 @@ With a four byte address in each cell, this makes only four megabytes for all CA
 
 \section{Indirect Lighting}
 The indirect lighting of the caches relies on reflective shadow maps (see \autoref{sec:prev:rsm}).
-In principle each cache iterates over the entire RSM to retrieve the encoded lighting informations.
+In principle each cache iterates over the entire RSM to retrieve the encoded lighting information.
 This section explains how this information is processed and how the results are saved for later interpolation.
 
 \subsection{RSM Preparation}
@@ -108,7 +108,7 @@ We render the RSM in a relatively high resolution (usually $1024^2$) and sample 
 %For the down-sampling
 In the process depth values and normals are averaged, while flux values are summed to preserve energy.
 For geometry with many depth discontinuities, this improves the temporal coherence under movement of both objects or lights.
-This approach may result in incorrect virtual lights, floating in mid air with normals vectors that are not present in the original RSM samples.
+This approach may result in incorrect virtual lights, floating in midair with normals vectors that are not present in the original RSM samples.
 However, we have not encountered any visible artifacts resulting from this filtering technique in our tests.
 \\
 The direct lighting process uses the original depth from the RSM as shadow map.
@@ -191,13 +191,13 @@ To be able to efficiently address values per direction on a texture, the hemisph
 First, all directions are expressed in the local view space, which is a transformation that maps the direction to the camera to $(0,0,1)$ .
 For the projection itself it is important that it introduces as little distortion as possible since otherwise the directions are no longer distributed equally.
 For this purpose we use uniform concentric maps by Shirly and Chiu \cite{bib:concentricmaps}.
-We call the resulting maps \emph{Specular Environment Maps} and store them in a large texture atlas.
+We call the resulting maps \emph{specular environment maps} and store them in a large texture atlas.
 The atlas can easily be addressed by the cache address which was already used for the cache buffer.
 Depending on the quality setting, each cache uses typically a resolution between 8x8 and 32x32 pixels on this atlas.
-After all caches are lit, MipMaps of the Specular Environment Map atlas are created.
+After all caches are lit, mipmaps of the Specular Environment Map atlas are created.
 Similar to classical reflection maps \cite[p.~308]{bib:RealtimeRenderingBook} they will later be used to estimate the specular lighting for Blinn-Phong exponents bellow $\gamma_{max}$.
 \\
-\autoref{fig:specularenvmap} shows visualizations of the Specular Environement Map.
+\autoref{fig:specularenvmap} shows visualizations of the specular environment map.
 We found that the method has some weak-points that will be later discussed in \autoref{}. \todo{section ref needed}
 \begin{figure}[h!]
 \centering
@@ -212,7 +212,7 @@ We found that the method has some weak-points that will be later discussed in \a
 		\includegraphics[width=\textwidth]{specularenvmap/atlas}
    	\end{subfigure}
 }
-\caption{Visualizations of the Specular Environement Map, using 16x16 pixels per cache.}
+\caption{Visualizations of the specular environement map, using 16x16 pixels per cache.}
 \label{fig:specularenvmap}
 \end{figure}
 
@@ -239,21 +239,21 @@ To estimate shadowing effectively, we trace cones from the caches to virtual lig
 The general approach is very similar to the cone tracing step in Layered Reflective Shadow Maps from Sugihara et al. \cite{bib:layeredrsm}. % (as mentioned in \autoref{sec:prev:voxelcone}).
 By averaging the occlusion percentage, mipmaps are created from the initial binary data (where the occlusion percentage is either zero or one).
 
-Higher mipmap-levels tend to have too low occlusion values since we voxelize only surfaces.
+Higher mip-levels tend to have too low occlusion values since we voxelize only surfaces.
 Instead, a solid voxelization would be required.
-However, such solid voxelizations are not only computational more intense, they also  require a clear cut definition of the outer and inner volume which is not given by most triangles meshes.
+However, such solid voxelizations are not only computational more intense, they also require a clear cut definition of the outer and inner volume which is not given by most triangles meshes.
 
 \subsubsection{Cone Trace LOD}
 \todo{review if non dynamic lod is clear}
-Contrary to both Sugihara's layered reflective shadow maps and Crassin's voxel cone tracing we do not use the cone tracing to look up a prefilter lighting value.
+Contrary to both Sugihara's layered reflective shadow maps and Crassin's voxel cone tracing we do not use the cone tracing to look up a pre-filtered lighting value.
 Instead, the tracing is only used to determine if a given virtual light is visible from the position of a cache.
-We found, that tracing a cone to every virtual light is, depending on the RSM resultion, usually too expensive.
+We found, that tracing a cone to every virtual light is, depending on the RSM resolution, usually too expensive.
 However, most virtual lights lie very close in space and do not need to be tested separately.
 To test multiple VALs at once we need an estimate of their spatial distribution.
 %To be able to exploit this property and reduce the number of needed cones, we pre-filter the depth map of the reflective shadow map.
 Inspired by Variance Shadow Maps from Donnelly and Lauritzen \cite{bib:vsm}, we save not only depth but also squared depth in the reflective shadow map and pre-filter the combined depth texture by creating mipmaps.
 As in Variance Shadow Maps, the squared depth will be used to retrieve the variance of the depth value.
-We introduce the \emph{Indirect Shadow LOD} as a global constant parameter that determines for which miplevel-level cones are traced to check the visibility of the underlying group of virtual lights (0: for each VAL, 1: every four, 2: every 16, ...).
+We introduce the \emph{Indirect Shadow LOD} as a global constant parameter that determines for which mip-level cones are traced to check the visibility of the underlying group of virtual lights (0: for each VAL, 1: every four, 2: every 16, ...).
 All other lighting computations will still work on the lowest mip-level but use the previously computed shadowing value which stays the same across multiple lights.\\
 
 \begin{figure}[h]
@@ -301,7 +301,7 @@ r_s = d_s \cdot \sin \alpha = d_s \cdot \frac{max(r_{e1}, r_{e2})}{||\mathrm{c} 
 \end{equation}
 $d_s$ is the distance of the given sample to the cache. $\mathrm{c}$ and $\mathrm{l}$ are the positions of the cache and light.
 The cone angle $\alpha$ does not need to be evaluated directly. % at any time.
-If all values are given in voxel volume coordinates, the sampled mipmap-level is simply $log_2(r_s)$.\\
+If all values are given in voxel volume coordinates, the sampled mip-level is simply $log_2(r_s)$.\\
 The distance $d_s$ of the next sample is chosen so that two inner circles touch each other:
 \begin{align}
 d_{s'} =& d_s + r_s + r_{s'} = d_s + r_s + d_{s'} \cdot \sin \alpha\\
@@ -309,7 +309,7 @@ d_{s'} =& \frac{d_s + r_s}{1-\sin\alpha} = \frac{d_s + r_s}{1-\frac{r_s}{d_s}}
 \end{align}
 To avoid needless oversampling for thin cones, step sizes smaller than one voxel are no allowed (as illustrated by the first two samples in \autoref{fig:shadowconestep}).
 
-Using a trilinear texture filter, the opacity values $\alpha_s$ from the voxel volume are interpolated within and across mipmap-levels.
+Using a trilinear texture filter, the opacity values $\alpha_s$ from the voxel volume are interpolated within and across mip-levels.
 The total visibility $V$ is accumulated front to back:
 \begin{equation}
 V = 1 - \sum\limits_{s=1}\alpha_s \prod\limits_{j=0}^{s-1}(1-\alpha_j)
@@ -336,17 +336,17 @@ The resulting expressions for the first three SH bands can be found in \autoref{
 The result is trilinear interpolated depending on the relative position of the pixel to its eight nearest caches.
 To retrieve the final visible radiance, the interpolated radiance value is then multiplied with the diffuse reflectance divided by $\pi$ (see \autoref{sec:preq:brdf}).
 
-For the specular lighting we need to determine the relative coordinate and, depending on the Blinn-Phong exponent, at which mipmap-level the Specular Environement Map of each cache should be sampled.
+For the specular lighting we need to determine the relative coordinate and, depending on the Blinn-Phong exponent, at which mip-level the specular environment map of each cache should be sampled.
 Identical to the computation of the Specular Environment Map, finding the coordinate involves the projection of the normal vector using the local view space (see \autoref{sec:impl:specenvmap}).
 Since the direction to the camera varies only little from cache to cache, we use the local view space at the pixel-position for all caches.
 This introduces a slight inaccuracy but circumvents the possibility that a per-pixel normal vector might lie outside of a cache's local view hemisphere.\\
-The mipmap-level is computed similar as $\gamma_{max}$ before, only that this time the mipmap-level $m$ is searched for.
+The mip-level is computed similar as $\gamma_{max}$ before, only that this time the mip-level $m$ is searched for.
 \begin{align}
 \int\limits_{2\pi\,sr} (\cos\theta)^{\gamma}  \,\mathrm{d}\omega = \frac{2\pi}{R \cdot 2^{-m}}\\
 \frac{2\pi}{\gamma + 1} = \frac{2\pi}{R \cdot 2^{-m}}\\
 m = \log_2 \Big(\frac{2 \cdot R^2}{\gamma + 1} \Big) \cdot \frac{1}{2}
 \end{align}
-where $R$ is the resolution of a single Specular Environment Map.
+Where $R$ is the resolution of a single Specular Environment Map.
 As before with the diffuse lighting, the results of all caches are trilinear interpolated and multiplied with the specular reflectivity of the corresponding pixel.
 
 Pixels in transition areas (see \autoref{sec:impl:cavcascading}) compute two radiance values, one for both CAV cascade.
@@ -382,7 +382,7 @@ The implementation runs entirely on the GPU and makes use of several OpenGL 4.5 
 \end{figure}
 \todo{Move section to the appendix?}
 Our material setup resembles what is usually called "metallic setup" in physically based shading (see \autoref{fig:texturesample}).
-To parameterize the Blinn Phong BRDF, all surfaces have a reflectance texture (sRGB), a tangent space normalmaps and two material property textures which are combined into a single texture during loading if not already in desired format.
+To parameterize the Blinn Phong BRDF, all surfaces have a reflectance texture (sRGB), a tangent space normal-maps and two material property textures which are combined into a single texture during loading if not already in desired format.
 The first channel contains a roughness value $r$ from which we derive the Blinn-Phong specular exponent $\gamma$ and the second determines how metallic a surface is:
 Using this metallic value $m$, the reflectance $c$ is split up into diffuse $\rho_d$ and specular reflectance $\rho_s$.
 The interpretation of all these values happens at runtime using simple heuristics:
