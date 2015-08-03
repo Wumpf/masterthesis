@@ -14,7 +14,7 @@ Readers that are familiar with the basic concepts may skip the respective parts.
 % - References to work that is directly related to the topic
 
 \section{Theoretical Foundation} \label{sec:preq:theo}
-The following section explains several the fundamentals of physically based rendering.
+The following section explains several of the fundamentals of physically based rendering.
 Only a few basics which are helpful for a good understanding of this thesis will be discussed.
 For more detailed explanations the reader is referred to the book \emph{Physically Based Rendering, From Theory to Implementation} by Pharr and Humphreys \cite{bib:pbrt}.
 
@@ -31,9 +31,9 @@ As the human retina has only three receptors, each with a non-linear range of wa
 \subsection{Radiometric Quantities}
 There are several basic quantities that describe the transport and perception of light.
 Several of them are measures over a \emph{solid angle}, the 3D equivalent of a 2D arc length.
-The solid angle subtended by an object is computed by the projected area on the unit sphere in a given point.
+The solid angle subtended by an object in a given point is computed by the projected area on the unit sphere around this point.
 Solid angles are measured in steradians $sr$.
-A solid angle representing the entire unit sphere, has $4\pi\,sr$.
+A solid angle representing the entire unit sphere has $4\pi\,sr$.
 As common, we use the symbol $\omega$ both for the solid angle itself and the normalized directions of differential solid angles when integrating over (parts of) a sphere.
 For example, an integration of a direction dependent function $f(\mathbf{x})$ over all directions in a hemisphere is expressed as:
 \begin{equation}
@@ -75,7 +75,7 @@ $\mathrm{d}\omega$ denotes the differential steradian, while $\omega$ alone is a
 \end{figure}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
-\emph{Radiant flux} $\phi$ describes the energetic output of a light source (see \autoref{fig:flux}).
+\emph{Flux} $\phi$ describes the energetic output of a light source (see \autoref{fig:flux}).
 It measures how much energy a light source emits over time and is thus given in watts.
 
 \emph{Intensity} $I$ gives how much flux $\phi$ per solid angle $\omega$ is emitted in a certain direction (see \autoref{fig:intensity}).
@@ -84,12 +84,12 @@ I = \frac{\mathrm{d}\phi}{\mathrm{d}\omega}
 \end{equation}
 It is especially useful to describe in which direction light sources emit more or less light.
 
-Irradiance $E$ determines how much light (incoming flux $\phi_{in}$) per area $A$ a surface receives (see \autoref{fig:irradiance}).
+\emph{Irradiance} $E$ determines how much light (incoming flux $\phi_{in}$) per area $A$ a surface receives (see \autoref{fig:irradiance}).
 \begin{equation}
 E = \frac{\mathrm{d}\phi_{in}}{\mathrm{d}A}
 \end{equation}
 The opposite, how much light per area is leaving a surface, is also called radiant exitance or radiosity.
-However, as in many other works, we will use the term for both arriving and leaving flux at a surface.
+However, as in many other works, we will use the term for both arriving and leaving flux per area. % at a surface.
 
 The last and most important quantity is \emph{radiance} $L$ since it is the only "visible" measure as it corresponds to the seen brightness (see \autoref{fig:radiance}).
 It is defined as emitted flux $\phi$ per solid angle $\omega$ per projected emitter area $A^\perp$ in respect to a certain detector.
@@ -107,7 +107,7 @@ The projected differential area $\mathrm{d}A^\perp$ depends on the angle $\theta
 %$L$ & \textbf{Radiance}, flux density per area per solid angle\\
 
 \subsection{Basic Relations and Common Types of Light Sources} \label{sec:preq:theo:relation}
-A point light is an emitter without any extent, radiating equally in all directions with the intensity $I$.
+A \emph{point light} is an emitter without any extent, radiating equally in all directions with the intensity $I$.
 The irradiance  $E$ in respect to such a light source declines with the square of the distance $d$ as the area "seen" by the source declines quadratic.
 Additionally, this area depends on the angle $theta$ between the light direction and the surface normal.
 The resulting formula is known as photometric distance law:
@@ -115,14 +115,14 @@ The resulting formula is known as photometric distance law:
 E = \frac{I \cdot \cos\theta}{d^2}
 \end{equation}
 
-A Lambert emitter is a hemispherical light source that appears equally bright from all directions.
-That means that the radiance is independent of the angle under which the emitter is seen.
+A \emph{Lambert emitter} is a hemispherical light source that appears equally bright from all directions.
+That means that the radiance $L$ is independent of the angle under which the emitter is seen.
 This results in a cosine falloff of the intensity of such an emitter:
 \begin{equation}
 I(\theta) = (\cos\theta)^+ \cdot I_0
 \end{equation}
 
-Another reoccurring type of light source is the spot light.
+Another reoccurring type of light source is the \emph{spot light}.
 Generally, a spot light is a point light with a limited region of intensities bigger than zero.
 There are several ways to define the exact attenuation curve of spot lights and often even images are used to model more complex patterns.
 In this thesis we define the intensity of a spot light with an opening angle of $\alpha$ that points in the direction $\mathrm{l}$ depending on as following:
@@ -137,7 +137,7 @@ The \emph{bidirectional reflectance distribution function} (BRDF) $f_r(\mathrm{x
 f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\mathrm{d}L}{\mathrm{d}E}
 \end{equation}
 Generally, the values of the BRDF depend on the wavelength of the irradiance, but as mentioned earlier we use only RGB vectors instead.
-Physically plausible BRDFs are always positive, are energy-preserving and have an equal value if $\omega_i$ and $\omega_o$ are swapped (\emph{Helmholtz reciprocity}).
+Physically plausible BRDFs are always positive, have an equal value if $\omega_i$ and $\omega_o$ are swapped (\emph{Helmholtz reciprocity}) and are energy-preserving (i.e. sum of outgoing flux is smaller or equal to sum of ingoing flux).
 The BRDF determines the color and reflectance properties of a surface.
 Thus, a given configuration is often also called \emph{material}.
 
@@ -151,7 +151,7 @@ f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\rho_d}{\pi}
 Where $\rho_d$ is the diffuse \emph{reflectance}.
 Reflectance $\rho$ is generally defined as ratio between all outgoing and all incoming light:
 \begin{equation}
-\rho = \frac{\phi_o}{\phi_i} = \frac{\int\limits_{2\pi\,sr} L_o(\omega_o)\cdot \cos\theta_o  \, \mathrm{d}\omega_o}{\int\limits_{2\pi\,sr} L_i(\omega_o)\cdot \cos\theta_i  \, \mathrm{d}\omega_i}
+\rho = \frac{\phi_o}{\phi_i} = \frac{\int\limits_{2\pi\,sr} L_o(\omega_o)\cdot \cos\theta_o  \, \mathrm{d}\omega_o}{\int\limits_{2\pi\,sr} L_i(\omega_i)\cdot \cos\theta_i  \, \mathrm{d}\omega_i}
 \end{equation}
 It is often used in combination with a second BRDF to account for specular highlights.
 Note that it is possible to combine arbitrary BRDFs as long as the combined result is still physically plausible.
@@ -171,7 +171,7 @@ Where $\rho_s$ is the specular reflectance (also called specular color) and $\ga
 Both may vary across a surface.
 \\
 Note that this does not account for energy preservation of a combination with another BRDF.
-For the typical use together with the Lambert BRDF, care hast to be taken that $\rho_s + \rho_d$ is still not bigger than zero.
+For the typical use together with the Lambert BRDF, care has to be taken that $\rho_s + \rho_d$ is still not bigger than zero.
 
 \subsection{Rendering Equation} \label{sec:preq:renderingeq}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
@@ -190,12 +190,12 @@ Where $L_e$ is the self-emission and $L_i$ the incoming radiance for a given dir
 $f_r$ denotes the BRDF as described in the previous section.
 For all directions $\omega_i$ on the hemisphere, the integral sums up how much light is reflected to a observer in the direction $\omega_o$.
 \autoref{fig:renderingeq} visualizes the concept.
-Note that the evaluation of a single $L_i$ for every direction again requires the evaluation of the entire equation.
+Note that the computation of every $L_i$ again requires the evaluation of the entire equation at all points that reflect/emit light in this direction to the point $x$.
 This means that in theory the radiance at any point in any direction depends on all other points.
 Approaches that try to solve or approximate this recursive property of the rendering equation are thus performing \emph{global illumination}, as opposed to \emph{local illumination} where $L_i$ only includes directly visible light sources.
 
-One of the easiest ways of solving the rendering equation is path tracing which was presented in the same work as the equation.
-It solves the integral via a Monte Carlo integration:
+One of the easiest ways of solving the rendering equation is \emph{path tracing} which was presented in the same work as the equation.
+It solves the integral via a Monte Carlo integration over paths that originate at the viewer, instead of starting from the light sources:
 For each radiance sample (= screen pixel), multiple rays are shot into the scene.
 At each intersection the emissivity of the surface and the direct influence of one or more lights are evaluated (next event estimation) which involves additional "shadow rays" to check which lights can reach the surface directly. 
 The ray is then reflected recursively, according to the BRDF of the hit surface.

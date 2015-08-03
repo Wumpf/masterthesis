@@ -14,13 +14,13 @@
 \section{Introduction}
 Everything that human eyes can perceive is the result of light reaching the retina after interacting with matter.
 The way how light interacts with our environment is very complex and depends always on a global context.
-There is a variety of natural phenomenon like indirect light, (indirect) shadowing, (glossy) reflections, and scattering which are impossible to simulate by local lighting models.
+There is a variety of natural phenomenon like indirect light, (indirect) shadowing, (glossy) reflections and scattering which are impossible to simulate by local lighting models.
 The photography in \autoref{fig:giphenomenons} demonstrates a few of them.
 Compared to the simulation of local light effects which only take an isolated surface point into consideration, the simulation of global illumination effects as they occur in nature is extremely challenging both in terms of computational and algorithmic complexity.
 \\
 Images which lack these global effects look synthetic and are often missing important cues which are needed to understand the interrelations of the depicted objects.
-Wherever 3D-scenes need to be displayed in a either believable or aesthetic manner, the simulation of global illumination becomes important.
-Some of these applications are namely movies, architectural visualizations, video games and professional training simulations.
+Wherever 3D-scenes need to be displayed in an either believable or aesthetic manner, the simulation of global illumination becomes important.
+Some of these applications are movies, architectural visualizations, video games and professional training simulations.
 While the concrete demands of these applications vary greatly, the underlying principles are the same as they are governed by the physical laws of light which are familiar to our visual system.
 \\
 Generally, these applications can be divided in two categories: Interactive and non-interactive.
@@ -28,20 +28,20 @@ Where a non-interactive application like a movie or single images can afford com
 A simulation is usually called interactive if images are rendered in less than 50ms (20 frames per second).
 However, frame rates need to be much higher to be comfortable for the user.
 Fast paced games usually profit from much better rendering times of more than 16ms (about 60 frames per second) \cite{bib:shooterfps} and the vendors of the upcoming virtual reality displays recommend even shorter rendering times of about 11-8ms (90-120 frames per second) to reduce motion sickness \cite{bib:oculushighfps}.
-Naturally, real-time rendering that is performed on personal computers usually makes use of a different set of approaches and algorithms as offline rendering which runs often on large computer clusters.
-In this work we want to introduce a new global illumination approach that is aimed for real-time rendering and does not need any pre-computation.
+Naturally, real-time rendering that is performed on personal computers usually makes use of a set of approaches and algorithms different from offline rendering which runs often on large computer clusters.
 % resolutions rising?
 
-\section{Motivation} \todo{Merge Intro/Motiv? "Pronounce differences" between sections?}
+\section{Motivation}
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{mirrorsedgescreenshot}
 \caption{Screenshot from the 2008 video game \emph{Mirrors Edge}, featuring pre-computed indirect lighting.}
 \label{fig:gameprecomputedgi}
 \end{figure}
-To be able to display the aforementioned light effects in real-time, interactive application make often use of various pre-computation steps under the assumption that specific parts of the scene do not change.
+In this work we want to introduce a new global illumination approach that is aimed for real-time rendering and does not need any pre-computation.
+To be able to display the aforementioned light effects in real-time, interactive applications often make use of various pre-computation steps under the assumption that specific parts of the scene do not change.
 In the extreme case this means that both scene and lighting conditions are assumed to be completely static which allows to compute a large variety of effects up-front.
-This has been common practice in many games for over a decade now, as seen e.g. in Mirrors Edge in \autoref{fig:gameprecomputedgi} where only the characters and very few dynamic objects are lit at runtime.
+This has been common practice in many games for over a decade now, as can be seen for example in Mirrors Edge in \autoref{fig:gameprecomputedgi} where only the characters and very few dynamic objects are lit at runtime.
 \\
 Obviously such techniques imply many restrictions on the design of virtual worlds and may not be applicable at all.
 However, there are also solutions which less restrictions, for example to allow dynamic lights in a static scene or apply pre-computed lighting on dynamic objects (more on other techniques in \autoref{chap:prevwork}).
