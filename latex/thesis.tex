@@ -7,7 +7,7 @@
 % Style, math graphics
 \usepackage{lmodern}
 \usepackage{setspace}
-\usepackage[labelfont=bf, font=small]{caption} % font=small,  ?
+\usepackage[labelfont=bf]{caption} % font=small,  ?
 \usepackage{acronym}
 \usepackage{amsmath}
 \usepackage{marvosym}
@@ -16,10 +16,21 @@
 \usepackage{luximono}
 \usepackage{geometry}
 
+% Landscape pages
+\usepackage{lscape}
+
+% Standard unity
+\usepackage[binary-units=true]{siunitx}
+
 % table stuff
 \usepackage{multirow}	% Multirow in tables
 \usepackage{booktabs}	% Special lines in tables
 \usepackage{diagbox}	% Box with diagonal in tables
+\usepackage{makecell}	% Multiline cells and more
+
+% Caption setup.
+\captionsetup{margin=0pt}
+\captionsetup{labelfont=bf}
 
 % Cell colors
 \definecolor{good}{rgb}{0.6,1.0,0.6}
@@ -57,7 +68,6 @@
 % Use subfiles instead of includes
 \usepackage{subfiles}
 
-\captionsetup{width=12cm}
 \definecolor{darkgreen}{rgb}{0.1,0.7,0.2}
 \definecolor{backgray}{rgb}{0.8,0.8,0.8}
 

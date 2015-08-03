@@ -44,7 +44,7 @@ To fill the empty space, we added a dinosaur skeleton from the "Natural History 
 The \dataset{Republique} scene was extracted from a Unity3D tech demo for the game "République Remastered" by Camouflaj.
 The entire demo is freely available on the Unity Assetstore \cite{bib:republique}.
 
-\section{Parameter Overview}
+\section{Parameter Overview} \label{sec:eva:params}
 How our approach performs depends on several parameters.
 To make this chapter more readable and make comparisons easier, we introduce a standard configuration on all parameters.
 If not noted otherwise we fall back to these default settings.
@@ -170,7 +170,7 @@ This experiment also shows that the allocate pass is more sensible to the cache 
     3 bands & 3.98  & 3.83  & 4.58  & 4.14  & 16.7  & 4.74 \\
     \bottomrule
     \end{tabular}
-\caption{Performance of indirect lighting and cache apply passes in ms for different numbers of spherical harmonics bands and CAV resolutions (resulting cache counts in parenthesis) in the \dataset{Sponza} scene. }
+\caption{Performance of indirect lighting and cache apply passes in \si{\milli\second} for different numbers of spherical harmonics bands and CAV resolutions (resulting cache counts in parenthesis) in the \dataset{Sponza} scene. }
 \label{tab:shperf}
 \end{table}
 For diffuse lighting we use either two or three spherical harmonics bands.
@@ -193,7 +193,7 @@ In fact already switching from two to three bands can result in a much costlier 
     $512^2$   & 66.587 & 154.771 & 400.265 \\
     \bottomrule
     \end{tabular}
-\caption{Performance of the cache lighting pass in ms for different reflective shadow map resolutions in the \dataset{Republique} scene. All tests used same number shadow cones. }
+\caption{Performance of the cache lighting pass in \si{\milli\second} for different reflective shadow map resolutions in the \dataset{Republique} scene. All tests used same number shadow cones. }
 \label{tab:RSMsizeperf}
 \end{table}
 The reflective shadow map resolution has a major impact on the duration of the indirect lighting pass which is practically always the slowest step in our rendering process.
@@ -224,7 +224,7 @@ More importantly though, is the shadow lod since together with the RSM resolutio
     8     &       &       &       &       & 31.79 \\
     \bottomrule
     \end{tabular}
-\caption{Performance of the cache lighting pass in ms for different shadow lods and RSM resolutions in the \dataset{Republique} scene.}
+\caption{Performance of the cache lighting pass in \si{\milli\second} for different shadow lods and RSM resolutions in the \dataset{Republique} scene.}
 \label{tab:shadowlod}
 \end{table}
 \autoref{tab:shadowlod} shows measurements of the duration of the cache lighting pass depending on shadow lod ans reflective shadow map resolution.
@@ -249,7 +249,7 @@ This results in rather poor voxel space usage as all our scenes have a larger ex
     6     & 2.15  & 2.15  & 2.15  & 2.15  & 2.15 \\
     \bottomrule
     \end{tabular}
-\caption{Performance of the cache lighting pass in ms for different shadow lods and voxel volume resolutions in the \dataset{Republique} scene. RSM resolution was fixed to $64^2$.}
+\caption{Performance of the cache lighting pass in \si{\milli\second} for different shadow lods and voxel volume resolutions in the \dataset{Republique} scene. RSM resolution was fixed to $64^2$.}
 \label{tab:shadowvoxelres}
 \end{table}
 \autoref{tab:shadowvoxelres} shows how the resolution of the voxel volume influences the duration of the cache lighting pass.
@@ -259,6 +259,7 @@ We deliberately did not include how long the voxelization takes as this was disc
 
 \subsection{Indirect Specular}
 \begin{table}[h]
+
 \begin{subtable}{\textwidth}
 	\centering
 	\begin{tabular}{c|rrrrr}
@@ -272,7 +273,7 @@ We deliberately did not include how long the voxelization takes as this was disc
 	$64^2$    & \cellcolor{good} 3.42  & \cellcolor{good} 5.78  & \cellcolor{good} 15.06 & \cellcolor{good} 51.76 & \cellcolor{good} 196.83 \\
 	\bottomrule
 	\end{tabular}
-	\caption{Direct write.}
+	\caption{Direct write.\vspace{0.5cm}}
 \end{subtable}
 
 \begin{subtable}{\textwidth}
@@ -290,7 +291,7 @@ We deliberately did not include how long the voxelization takes as this was disc
 	\end{tabular}
 	\caption{\centering Register cached write. }
 \end{subtable}
-\caption{Performance of the cache lighting pass in ms for different specular environment and RSM resolutions in the \dataset{Sponza} scene. The colors indicate where direct writing to the map or caching in the shader's registers is better.}
+\caption{Performance of the cache lighting pass in \si{\milli\second} for different specular environment and RSM resolutions in the \dataset{Sponza} scene. The colors indicate where direct writing to the map or caching in the shader's registers is better.}
 \label{tab:specularperf}
 \end{table}
 
@@ -311,7 +312,7 @@ However, this parameter can raise memory requirements drastically \todo{check an
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{eva/screen_resolution.pdf}
-\caption{Performance of cache allocation and interpolation in ms at different screen resolutions in \dataset{Sibenik} scene. Used CAV with $64^3$, resulting in about 7300 caches.}
+\caption{Performance of cache allocation and interpolation in \si{\milli\second} at different screen resolutions in \dataset{Sibenik} scene. Used CAV with $64^3$, resulting in about 7300 caches.}
 \label{fig:resolutionperf}
 \end{figure}
 Finally we want to test the effect of the screen resolution on our global illumination algorithm.
@@ -389,12 +390,12 @@ This is more inaccurate with \emph{higher} specular environment and lower RSM re
 \centering
 \begin{subfigure}[b]{0.7\textwidth}
 \includegraphics[width=\textwidth]{eva/groundtruthcomp/pathtracer}
-\caption{Mitsuba \cite{bib:mitsuba} path-tracer, 2k samples per pixel ($\sim15\,$min)}
+\caption{Mitsuba \cite{bib:mitsuba} path-tracer, 2k samples per pixel ($\sim\SI{15}{\minute}$)}
 \end{subfigure}
 \\
 \begin{subfigure}[b]{0.7\textwidth}
 \includegraphics[width=\textwidth]{eva/groundtruthcomp/realtime}
-\caption{Rendered with Dynamic Radiance Volumes ($\sim25\,$ms)}
+\caption{Rendered with Dynamic Radiance Volumes ($\sim\SI{25}{\milli\second}$)}
 \end{subfigure}
 \caption{Comparison of a (diffuse only) scene rendered with the Mitsuba \cite{bib:mitsuba} path-tracer and with our realtime solution.}
 \label{fig:groundtruthcomparision}
@@ -581,10 +582,96 @@ However, for smaller resolutions and  the results are still visual pleasing and 
 
 
 \section{Memory Consumption}
+\begin{table}[h]
+\centering
+\begin{tabular}{lrr}
+\toprule
+\emph{RSM} & Flux + Depth + Normal & \SI{22.6}{\mebi\byte} \\
+\hspace{0.5cm} Flux                 & $1024^2 \cdot \SI{6}{\byte} + \mathrm{mipmaps}$ & \SI{8.0}{\mebi\byte} \\
+\hspace{0.5cm} \emph{Normal} & $1024^2 \cdot \SI{4}{\byte} + \mathrm{mipmaps}$ & \SI{5.3}{\mebi\byte} \\
+\hspace{0.5cm} \emph{Depth + Depth}$^2$  & $1024^2 \cdot \SI{4}{\byte} + \mathrm{mipmaps}$ & \SI{5.3}{\mebi\byte} \\
+\hspace{0.5cm} \emph{Depth}  & $1024^2 \cdot \SI{4}{\byte}$ & \SI{4}{\mebi\byte} \\
+\midrule
+CAV   & $4\times 32^3 \cdot \SI{4}{\byte}$ & \SI{0.5}{\mebi\byte} \\
+\midrule
+Voxel Volume & $128^3 \cdot \SI{1}{\byte} + \mathrm{mipmaps}$ & \SI{2.3}{\mebi\byte} \\
+\midrule
+Cache Buffer & $32768\times\mathrm{cache}$ & \SI{2.5}{\mebi\byte} \\
+\hspace{0.5cm} \emph{Position (+ padding)} & $4 \cdot \SI{4}{\byte}$ & \SI{16}{\byte} \\
+\hspace{0.5cm} \emph{2 Band SH (3 colors)} & $16 \cdot \SI{4}{\byte}$ & \SI{64}{\byte} \\
+\midrule
+SpecEnvMap &  $32768\times 16^2 \cdot \SI{4}{\byte}$ & \SI{32}{\mebi\byte} \\
+\midrule
+\midrule
+\textbf{Overall} &       & \textbf{\SI{59.9}{\mebi\byte}} \\
+\bottomrule
+\end{tabular}
+\caption{Memory consumption break-down of the default configuration with maximum of about 32k caches.}
+\label{tab:memory}
+\end{table}
+\autoref{tab:memory} shows a memory consumption break-down for the default sample configuration which was mentioned in \autoref{sec:eva:params}.
+The RSM is responsible for a surprisingly large portion of the used space, since we start out with a rather high resolution and sample it down.
+The flux texture consists of three half floats and the normal portion of two signed integers (encoding angles).
+We need two depth textures:
+One for holding both depth and squared depth which is used for the cache-lighting and another one which serves as depth buffer during the RSM rendering and as shadow map later on.
+The cascaded address volumes (CAV) consist of unsigned integers that address caches in the cache buffer.
+While the voxel volume has a rather high resolution and needs mipmaps, it is still far bellow the memory consumption of the RSM volume since each voxel needs only a single byte.
+The size of the cache buffer depends on the number of used SH bands (two: \SI{64}{\byte} three: \SI{112}{\byte}) and the number of reserved caches.
+For this overview we used assumed a maximum of 32768 caches, which is well beyond everything we measured.
+It would also be possible to adjust this number during the rendering.
+If indirect specular is activated, the maximum cache number plays a more important role since each cache needs an individual specular enthronement buffer (on the atlas).
+With \SI{32}{\mebi\byte} this is the clearly the largest item in this configuration.
 
 \section{Comparison to other Techniques} \label{sec:eva:comparisiontoother}
+Exact comparisons to other real-time global illumination techniques are difficult since both quality and performance are often highly dependent on various implementation details.
+To be able to make an appropriate attempt to address this issue, we would have needed to implement all techniques in a unified framework.
+However, this is beyond the scope of this work.
+\\
+Therefore, we provide comparisons based only theoretical facts and our personal estimates.
+These are summarized in \autoref{tab:comparision}.
 
-comparison table, similar to the one in radiance hints?
+
+\begin{landscape}
+\newcommand{\specialVspace}{\vspace{0.5cm}}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{llllll}
+\toprule
+Method  & \makecell[l]{Ind. shadows quality\\ \& basic approach} & \makecell[l]{Ind. specular freq.\\ \& basic approach} & Typical artifacts & \makecell[l]{Memory requ.\\ \& main bound} & Main perf. bound\\
+\midrule
+
+\specialVspace
+
+Ours    & \makecell[l]{rather accurate\\cone traced (to RSM)}& \makecell[l]{medium\\ high perf impact} & \makecell[l]{ temp. coherency specular \\ shadow jaggies, bleeding } & \makecell[l]{low\\spec. env. map} & \makecell[l]{shadow quality, \\ RSM resolution}\\
+
+\specialVspace
+
+RRC \cite{bib:radiancecachechromaticcompression} & \makecell[l]{coarse\\ray march in low-\\ res. occupancy volume} & \makecell[l]{low (theory)\\spherical harmonics} & light bleeding & \makecell[l]{medium\\SH bands, volumes} & \makecell[l]{volume res.\\RSM sample count.} \\
+
+\specialVspace
+
+LightSkin \cite{bib:LightskinPaper} & \makecell[l]{coarse, no color\\blocker estimates} & \makecell[l]{low\\similar radiance cache\\encoded as virtual light} &  \makecell[l]{small features wrong \\ slight bleeding} & \makecell[l]{medium\\cache references} & cache count \\
+
+\specialVspace
+
+VCT \cite{bib:voxelconetracing} & \makecell[l]{rather accurate\\cone traced (in volume)} & \makecell[l]{high\\approx. with thin cone} & \makecell[l]{blocky reflections \\ bleeding} & \makecell[l]{high\\sparse voxel octree} & \makecell[l]{cone count\\ volume res.} \\
+
+\specialVspace
+
+LPV \cite{bib:lpt} & \makecell[l]{very coarse\\injected blocker volume} & \makecell[l]{very low\\spherical harmonics} & heavy bleeding & \makecell[l]{medium\\SH bands, volumes}  & \makecell[l]{volume resolution,\\SH bands} \\
+
+\specialVspace
+
+RSM \cite{bib:reflectiveshadowmaps} & n/a & \makecell[l]{arbitrary\\good results expensive} & \makecell[l]{bright splotches \\ ("fixable")} & \makecell[l]{very low\\RSM} & \makecell[l]{RSM resolution,\\sample-count per pixel}\\
+
+
+\bottomrule
+\end{tabular}
+\caption{Coarse comparison of our technique with other realtime global illumination techniques. Except LightSkin \cite{bib:LightskinPaper}, all listed approaches work without any pre-computations.}
+\label{tab:comparision}
+\end{table}
+\end{landscape}
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
