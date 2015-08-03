@@ -14,7 +14,7 @@
 \section{Introduction}
 Everything that human eyes can perceive is the result of light reaching the retina after interacting with matter.
 The way how light interacts with our environment is very complex and depends always on a global context.
-There is a variety of natural phenomenons like indirect light, (indirect) shadowing, (glossy) reflections, and scattering which are impossible to simulate by local lighting models.
+There is a variety of natural phenomenon like indirect light, (indirect) shadowing, (glossy) reflections, and scattering which are impossible to simulate by local lighting models.
 The photography in \autoref{fig:giphenomenons} demonstrates a few of them.
 Compared to the simulation of local light effects which only take an isolated surface point into consideration, the simulation of global illumination effects as they occur in nature is extremely challenging both in terms of computational and algorithmic complexity.
 \\
@@ -36,7 +36,7 @@ In this work we want to introduce a new global illumination approach that is aim
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{mirrorsedgescreenshot}
-\caption{Screenshot from the 2008 video game \emph{Mirrors Edge}, featuring precomputed indirect lighting.}
+\caption{Screenshot from the 2008 video game \emph{Mirrors Edge}, featuring pre-computed indirect lighting.}
 \label{fig:gameprecomputedgi}
 \end{figure}
 To be able to display the aforementioned light effects in real-time, interactive application make often use of various pre-computation steps under the assumption that specific parts of the scene do not change.
@@ -44,7 +44,7 @@ In the extreme case this means that both scene and lighting conditions are assum
 This has been common practice in many games for over a decade now, as seen e.g. in Mirrors Edge in \autoref{fig:gameprecomputedgi} where only the characters and very few dynamic objects are lit at runtime.
 \\
 Obviously such techniques imply many restrictions on the design of virtual worlds and may not be applicable at all.
-However, there are also solutions which less restrictions, for example to allow dynamic lights in a static scene or apply precomputed lighting on dynamic objects (more on other techniques in \autoref{chap:prevwork}).
+However, there are also solutions which less restrictions, for example to allow dynamic lights in a static scene or apply pre-computed lighting on dynamic objects (more on other techniques in \autoref{chap:prevwork}).
 Of course there are various trade-offs between different approaches and so far there is no technique that is even close to simulate all global illumination effects in real-time in a reasonable quality (which can be considered to be an open problem for offline rendering as well).
 \\
 A fully dynamic lighting approach not only frees a simulation of many technical restrictions, but also lowers the scene authoring iteration times as it is no longer necessary to wait for pre-computation processes to display the final result.
@@ -60,7 +60,7 @@ Light can bounce many times in a scene before it reaches the viewer.
 In this thesis however, only the most important first indirect bounce will be handled.
 % ability to parameterize BRDFs locally?
 \\
-As already mentioned, we strongly focus on avoiding precomputation entirely and demand that all computations can be performed every frame.
+As already mentioned, we strongly focus on avoiding pre-computation entirely and demand that all computations can be performed every frame.
 It should be possible to manipulate the scene's geometry and surface materials as well as lights and the camera freely at runtime.
 \\
 The solution should run entirely on the graphics hardware to free the CPU for different work and avoid expensive transfers.
@@ -77,12 +77,13 @@ We aim for real-time rendering performance on mid-range desktop hardware.
 \\
 The work tries to accomplish appealing and credible lighting, physical correctness is secondary.
 Though, it should be based on physical laws to be able to make statements about its theoretical correctness.
-%We want to be able to run the algorithm on weaker machines or in situations where a real-time solution can not be presented at the highest quality.
+%We want to be able to run the algorithm on weaker machines or in situations where a real-time solution cannot be presented at the highest quality.
 \\
-In contrast to precomputation-based techniques and also some modern dynamic approaches we want to try to keep the memory consumption low.
+In contrast to pre-computation-based techniques and also some modern dynamic approaches we want to try to keep the memory consumption low.
 \\
 Finally, the approach should be as invariant as possible to the chosen scene and its scale. %in terms of performance and memory requirements.
 That means that the technique should adapt well to various small and large scenes and still deliver convincing results.
+
 
 \todo{[Jo] Consider additional goals: Invariance to resolution}
 
@@ -92,7 +93,7 @@ That means that the technique should adapt well to various small and large scene
 %\begin{itemize}
 %\item Realtime global illumination, first bounce
 %\subitem Dynamic camera, scene and lights!
-%\item No significant precomputation
+%\item No significant pre-computation
 %\subitem This is important, as it excludes LightSkin!
 %\item Support both diffuse and glossy reflections
 %\subitem Simple BRDFs are okay, but we want to parameterize them 

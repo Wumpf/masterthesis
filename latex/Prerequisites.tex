@@ -20,14 +20,13 @@ For more detailed explanations the reader is referred to the book \emph{Physical
 
 \subsection{Physical Foundation}
 Generally, light is an electromagnetic wave which originates at a light source and is reflected or absorbed by the surfaces it hits.
-There are several physical phenomenons like diffraction, polarization and interference which are usually ignored for rendering, as they often play a minor role for the appearance of a scene.
+There are several physical phenomenon like diffraction, polarization and interference which are usually ignored for rendering, as they often play a minor role for the appearance of a scene.
 %and quantization effects (due to the particle properties of electromagnetic waves)
 Electromagnetic waves can also be represented by particles (photons) which have a certain wavelength that is responsible for the perceived color.
 We are only interested in the visible part of the spectrum which ranges from about $380\,nm$ to $780\,nm$.
 The number of photons registered by the eye is responsible for the perceived brightness.
 \\
 As the human retina has only three receptors, each with a non-linear range of wavelength-support, it is usually sufficient to perform all calculations using only the three basic color stimuli red, green and blue \cite{bib:colorscience} (RGB).
-%However, as recently pointed out by Meng et al. \cite{bib:spectrumrendering} there are several problems that might lead to color shifts and violation of energy conservation. \todo{recheck when I heared that talk (upcoming EGSR)}
 
 \subsection{Radiometric Quantities}
 There are several basic quantities that describe the transport and perception of light.
@@ -109,7 +108,7 @@ The projected differential area $\mathrm{d}A^\perp$ depends on the angle $\theta
 
 \subsection{Basic Relations and Common Types of Light Sources} \label{sec:preq:theo:relation}
 A point light is an emitter without any extent, radiating equally in all directions with the intensity $I$.
-The irradiance  $E$ in respect to such a light source declines with the square of the distance $d$ as the area "seen" by the source declines quadratically.
+The irradiance  $E$ in respect to such a light source declines with the square of the distance $d$ as the area "seen" by the source declines quadratic.
 Additionally, this area depends on the angle $theta$ between the light direction and the surface normal.
 The resulting formula is known as photometric distance law:
 \begin{equation}
@@ -139,7 +138,7 @@ f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\mathrm{d}L}{\mathrm{d}E}
 \end{equation}
 Generally, the values of the BRDF depend on the wavelength of the irradiance, but as mentioned earlier we use only RGB vectors instead.
 Physically plausible BRDFs are always positive, are energy-preserving and have an equal value if $\omega_i$ and $\omega_o$ are swapped (\emph{Helmholtz reciprocity}).
-The BRDF determines the color and reflectence properties of a surface.
+The BRDF determines the color and reflectance properties of a surface.
 Thus, a given configuration is often also called \emph{material}.
 
 There are many different attempts to describe BRDFs by analytical models.
@@ -203,7 +202,7 @@ The ray is then reflected recursively, according to the BRDF of the hit surface.
 For surfaces with an overall reflectivity bellow one (practically all surfaces in reality), there is a chance that the ray will be absorbed which ends the path.
 Depending on the scene, it might take very long until a rendering process using path tracing converges.
 
-There are several phenomenons which are ignored by this basic form of the rendering equation.
+There are several phenomenon which are ignored by this basic form of the rendering equation.
 For example it is assumed that light travels through vacuum, i.e. no scattering or absorption within participating media occurs.
 
 
@@ -220,7 +219,7 @@ We try to avoid stating contemporary facts about specific pieces of hardware.
 As of this writing, the mentioned properties are at least true for the recent desktop GPUs of the three big GPU vendors Intel, AMD and Nvidia.
 There are several resources available on the inner workings of the hardware or at least on how to use it more efficient \cite{bib:intelhardwaredoc, bib:amdhardwaredoc}.
 For Nvidia hardware, we recommend the CUDA programming guide \cite{bib:cudaprogguide} which maps in many cases surprisingly well to other APIs like OpenGL.
-While not entirely up to date, Giesen's article \emph{A trip through the Graphics Pipeline 2011} \cite{bib:tripthroughgraphicspipe} gives an excellent overview of the inner workings of todays graphic processors.
+While not entirely up to date, Giesen's article \emph{A trip through the Graphics Pipeline 2011} \cite{bib:tripthroughgraphicspipe} gives an excellent overview of the inner workings of today's graphic processors.
 
 %As of this writing, OpenGL 4.5 is the most recent
 %While we are aware that the API abstraction layer often does not reflect the underlying hardware, throughout this thesis we usually operate only on 
@@ -279,7 +278,7 @@ However, there are many ways in which these two can be accessed (see \autoref{fi
 In general it is possible to access a resource that was created as a buffer like a texture but not the other way round.
 Conceptually, a resource is bound to a certain usage type and can then be accessed by shaders or, depending on the usage, may be used to influence scheduling within the graphics pipeline.
 Textures are generally defined as a collection of images, which consist of image elements, called texels. % \cite[p.~29]{bib:openglspec}.
-Contrary, buffers have no such limitations an can contain virtually any data.
+Contrary, buffers have no such limitations and can contain virtually any data.
 Both types of resources lie in memory that is directly accessible by the graphics card.
 Weather those accesses are cached, how fast they are, how large underlying resources are allowed to be and where the memory lies physically depends very much on a resource's current usage and the hardware itself.
 The different types of access merely tell the driver how a resource is intended to be used and how it will be addressed.
@@ -307,7 +306,7 @@ Generally, it is possible to use a layer of an arbitrary texture type as rendert
 However, there are a few texture formats that might not be supported to be used as render-target.
 
 All texture types support so called \emph{mipmaps}.
-Mipmapping denotes the process of repeatedly creating prefiltered, half-sized versions of the original texture which are called mipmaps.
+Mipmapping denotes the process of repeatedly creating pre-filtered, half-sized versions of the original texture which are called mipmaps.
 Mipmaps are foremost used for filtering when a texture is minimized, i.e. when many texels cover a single pixel.
 Already the original paper \cite{bib:mipmap} which presented mipmaps proposed to use mipmaps for other purposes like filtering of highlights with varying solid angle.
 Similar, they will be later used to filter outgoing radiance for varying BRDF parameterization (see \autoref{sec:impl:specenvmap}).
@@ -322,7 +321,7 @@ Element array buffers determine how vertices form basic primitives like triangle
 They are also known as index buffers.
 \\
 Using \emph{Draw/Dispatch Indirect Buffer} bindings it is possible to specify the parameters for draw/dispatch calls via a GPU resource (which might have been used as a SSBO earlier).
-%Memory on the GPU is often layed out in blocks of 16 bytes (mostly four floats), which 
+%Memory on the GPU is often laid out in blocks of 16 bytes (mostly four floats), which 
 
 \subsection{Compute Shader} \label{sec:preq:compute}
 The compute shader is the newest addition to the family of shaders in OpenGL.
@@ -359,7 +358,7 @@ While issues with low occupancies may occur in any shader stage, the compute sha
 \section{Realtime Rendering}
 This section gives an overview over a few important aspects of realtime rendering.
 However, it is assumed that the reader is already familiar with the most basic concepts like (camera-)transformations, (triangle) geometry setup and normal mapping.
-Informations about these topics can be found in the book \emph{Real-Time Rendering} by Akenine-M\"{o}ller et al. \cite{bib:RealtimeRenderingBook}. %, on which parts of this section are based.
+Information about these topics can be found in the book \emph{Real-Time Rendering} by Akenine-M\"{o}ller et al. \cite{bib:RealtimeRenderingBook}. %, on which parts of this section are based.
 
 %While global illumination as expressed by the rendering equation is currently very difficult to achieve in real-time, different local illumination approaches have been used successfully in production for many years.
 
@@ -389,7 +388,7 @@ This buffer saves for each screen pixel a depth (which can be used to reconstruc
 Afterwards this information is used to compute dynamic illumination in one or more screen-space passes without re-rendering the scene geometry itself.
 The approach scales very well with many lights and can reduce the general complexity of a renderer considerably.
 Overdraw occurs only during the G-buffer creation which makes expensive BRDF calculations more viable.
-The main drawbacks of deferred shading include difficulties with multisampling-antialiasing and transparent objects which can not be handled by this technique at all.
+The main drawbacks of deferred shading include difficulties with multisampling-antialiasing and transparent objects which cannot be handled by this technique at all.
 
 
 \subsection{Shadow Mapping}
@@ -538,7 +537,7 @@ For a function $f$ and its by $R$ rotated copy $g$, the following holds for thei
 \begin{equation}
 \widetilde{g}(s) = \widetilde{f}(R(s))
 \end{equation}
-This means that it is possible to rotate a function in its SH representation, without losing precision (other than rounding errors).
+This means that it is possible to rotate the SH representation of a function, without losing precision (other than rounding errors).
 
 Later on this property will be very useful combined with \emph{Zonal Harmonics}.
 Zonal Harmonics are SH projections of functions that have rotational symmetry around an axis.
