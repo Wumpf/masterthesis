@@ -103,7 +103,7 @@ The indirect lighting of the caches relies on reflective shadow maps (see \autor
 In principle each cache iterates over the entire RSM to retrieve the encoded lighting information.
 This section explains how this information is processed and how the results are saved for later interpolation.
 
-\subsection{RSM Preparation}
+\subsection{RSM Preparation} \label{sec:impl:rsmprep}
 We render the RSM in a relatively high resolution (usually $1024^2$) and sample it down for the upcoming indirect lighting steps (usually from $16^2$ up to $128^2$).
 %For the down-sampling
 In the process depth values and normals are averaged, while flux values are summed to preserve energy.

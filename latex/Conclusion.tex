@@ -3,10 +3,55 @@
 
 \chapter{Conclusion and Future Work}\label{chap:concl}
 
-\section{Summary}
-
 
 \section{Evaluation}
+% HARD CRITERIA
+% TODO? -> single indirect bounce, shadow + gloss
+We have presented a novel real-time global illumination approach that works on arbitrary scenes without any pre-computations.
+Similar to Vardis et al. \cite{bib:radiancecachechromaticcompression} we use a regular grid of light caches that are activated on demand.
+\\
+% -> no pre-computation
+This makes the technique entirely invariant of animations and allows to perform arbitrary scene changes at runtime.
+The same goes for materials which are allowed to have arbitrary variations over surfaces (contrary to some radiance caching techniques like LightSkin \cite{bib:LightskinPaper}).
+\\
+% -> gpu only
+All steps are executed on the GPU without any transfers to the CPU or back, except camera and scene settings.
+This way the approach is free of any synchronization stalls and frees the CPU for other tasks.
+
+% SOFT CRITERIA
+% -> temp coherency
+We listed temporal coherency as most important quality criterion.
+While our algorithm is rather stable, we were not able to avoid this issue entirely:
+Typical reflective shadow map flickering can occur when directly lit objects move.
+Another source of incoherency are high resolution specular environment map.
+Note however, that there are no incoherencies at all for camera movements in general and animated objects that are receive little direct light.
+
+% -> quality
+As far as other artifacts are concerned, our approach fares relatively well.
+While it suffers from light bleeding like most techniques, our cascaded address volume is able to limit these problems adaptively.
+Indirect specular lighting is quality-wise clearly better solved in a few other techniques like voxel cone tracing \cite{bib:voxelconetracing}.
+Still, our new idea of hemispherical environment maps achieves better results than most competing methods with similar constraints even at low resolutions.
+\autoref{sec:eva:errorsources} provided a concise analysis of all error sources when compared to a ground-truth solution within the given light path types.
+
+% -> performance
+Contrary to previous work our approach selects relevant caches in screen space and stores them in a continuous buffer.
+This allows us to compute indirect lighting very efficiently.
+However, as we traverse every single reflective shadow map pixel (similar to in LightSkin \cite{bib:LightskinPaper} but unlike to most techniques which only sample the RSM) this pass is still very expensive.
+In comparison to the actual cache lighting, the addressing and interpolation overhead seems to be rather low.
+Because of this we refrained to use down-sampling for our screen-depended passes.
+As all cache-based methods, the technique is relatively invariant to resolution changes and is ready for modern "ultra  high definition" displays without the need of upsampling.
+In general our approach can performance-wise compete with other techniques on the field as long as indirect specular lighting is not activated.
+The later has unfortunately, depending on the RSM resolution, a seemingly disproportionate impact on the duration of the cache lighting pass.
+
+% -> memory
+By using modern GPU programming strategies, we were able to work with a very limited memory budget which is superior to the consumptions of most techniques.
+Again, the specular lighting has the highest impact, followed by the RSM which may be rendered with a lower resolution (loosing the advantages of down-sampling and sharing of shadow map for direct lighting).
+
+% -> scale
+By cascading our address volumes we are able to handle large scenes easily.
+Though, the large gaps between caches in higher/distant cascades may lead to artifacts, especially for indirect shadow.
+It may be advisable to perform shadowing and specular lighting only for caches in the closer cascades.
+
 
 
 \section{Future Work}
