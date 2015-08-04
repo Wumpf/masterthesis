@@ -29,6 +29,7 @@ Note however, that there are no incoherencies at all for camera movements in gen
 % -> quality
 As far as other artifacts are concerned, our approach fares relatively well.
 While it suffers from light bleeding like most techniques, our cascaded address volume is able to limit these problems adaptively.
+Using simplified voxel cone tracing we were able to create soft and convincing indirect shadows.
 Indirect specular lighting is quality-wise clearly better solved in a few other techniques like voxel cone tracing \cite{bib:voxelconetracing}.
 Still, our new idea of hemispherical environment maps achieves better results than most competing methods with similar constraints even at low resolutions.
 \autoref{sec:eva:errorsources} provided a concise analysis of all error sources when compared to a ground-truth solution within the given light path types.
@@ -37,6 +38,7 @@ Still, our new idea of hemispherical environment maps achieves better results th
 Contrary to previous work our approach selects relevant caches in screen space and stores them in a continuous buffer.
 This allows us to compute indirect lighting very efficiently.
 However, as we traverse every single reflective shadow map pixel (similar to in LightSkin \cite{bib:LightskinPaper} but unlike to most techniques which only sample the RSM) this pass is still very expensive.
+In this context the simplifications introduced by the shadow lod showed to be vital for the overall performance.
 In comparison to the actual cache lighting, the addressing and interpolation overhead seems to be rather low.
 Because of this we refrained to use down-sampling for our screen-depended passes.
 As all cache-based methods, the technique is relatively invariant to resolution changes and is ready for modern "ultra  high definition" displays without the need of upsampling.
