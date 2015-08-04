@@ -92,7 +92,7 @@ The opposite, how much light per area is leaving a surface, is also called radia
 However, as in many other works, we will use the term for both arriving and leaving flux per area. % at a surface.
 
 The last and most important quantity is \emph{radiance} $L$ since it is the only "visible" measure as it corresponds to the seen brightness (see \autoref{fig:radiance}).
-It is defined as emitted flux $\phi$ per solid angle $\omega$ per projected emitter area $A^\perp$ in respect to a certain detector.
+It is defined as emitted flux $\phi$ per solid angle $\omega$ per projected emitter area $A^\perp$ in respect to a detector.
 \begin{equation}
 L = \frac{\mathrm{d}\phi}{\mathrm{d}\omega \cdot \mathrm{d}A^\perp }
 \end{equation}
@@ -117,22 +117,23 @@ E = \frac{I \cdot \cos\theta}{d^2}
 
 A \emph{Lambert emitter} is a hemispherical light source that appears equally bright from all directions.
 That means that the radiance $L$ is independent of the angle under which the emitter is seen.
-This results in a cosine falloff of the intensity of such an emitter:
+This results in a cosine falloff of the intensity: % of such an emitter:
 \begin{equation}
 I(\theta) = (\cos\theta)^+ \cdot I_0
 \end{equation}
 
-Another reoccurring type of light source is the \emph{spot light}.
+Another reoccurring light type is the \emph{spot light}.
 Generally, a spot light is a point light with a limited region of intensities bigger than zero.
-There are several ways to define the exact attenuation curve of spot lights and often even images are used to model more complex patterns.
-In this thesis we define the intensity of a spot light with an opening angle of $\alpha$ that points in the direction $\mathrm{l}$ depending on as following:
+There are many ways to define the attenuation curve of spot lights.
+Often images are used to model more complex patterns.
+In this thesis we define the intensity attenuation in direction $\mathrm{d}$ for a spot light that points in the direction $\mathrm{l}$ with an opening angle of $\alpha$ as following:
 \begin{equation}
 I(\mathrm{d}) = \Big(\frac{(\mathrm{l} \cdot \mathrm{d}) - \cos\alpha }{1-\cos\alpha}\Big)^+ \cdot I_0
 \end{equation}
 %Note however, that the given definition is arbitrary intensity distributions are possible.
 
 \subsection{Bidirectional Reflectance Distribution Function}\label{sec:preq:brdf}
-The \emph{bidirectional reflectance distribution function} (BRDF) $f_r(\mathrm{x}, \omega_i, \omega_o)$ determines the ratio between the differential outgoing radiance $\mathrm{d}L$ in the direction $\omega_o$ and the differential irradiance $\mathrm{d}E$ from $\omega_i$ at the surface position $\mathrm{x}$,
+The \emph{bidirectional reflectance distribution function} (BRDF) $f_r(\mathrm{x}, \omega_i, \omega_o)$ determines the ratio between the differential outgoing radiance $\mathrm{d}L$ in the direction $\omega_o$ and the differential irradiance $\mathrm{d}E$ from $\omega_i$ at the surface position $\mathrm{x}$.
 \begin{equation}
 f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\mathrm{d}L}{\mathrm{d}E}
 \end{equation}
@@ -143,8 +144,8 @@ Thus, a given configuration is often also called \emph{material}.
 
 There are many different attempts to describe BRDFs by analytical models.
 The most basic one is the Lambert BRDF, also simply called \emph{diffuse} material.
-Diffuse surfaces behave like Lambert emitters and distribute incoming radiance in all directions.
-It is defined as:
+Diffuse surfaces behave like Lambert emitters and distribute incoming radiance in all directions:
+%It is defined as:
 \begin{equation}
 f_r(\mathrm{x}, \omega_i, \omega_o) = \frac{\rho_d}{\pi}
 \end{equation}
@@ -178,7 +179,7 @@ For the typical use together with the Lambert BRDF, care has to be taken that $\
 \begin{figure}[h]
 \centering
 \includepdftex{renderingequation}
-\caption{Schematic sketch of the rendering equation. The seen radiance $L_o(\mathrm{x}, \omega_o)$ depends on the incoming radiance $L_i(\mathrm{x}, \omega_o)$ for all directions on the hemisphere.}
+\caption{Schematic sketch of the rendering equation. The seen/outgoing radiance $L_o$ depends on the incoming radiance $L_i$ from all directions on the hemisphere. }
 \label{fig:renderingeq}
 \end{figure}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
@@ -273,7 +274,7 @@ If a depth buffer is used, the rasterizer will perform depth tests to fulfill a 
 For fragment shaders that optionally discard fragments or change a fragment's depth, such tests happen after the shading which might inflict a major performance penalty.
 
 \subsection{Memory Resources} \label{sec:preq:memory}
-In OpenGL there are basically only two types of graphics card resources: Textures and buffers.
+In OpenGL there are basically only two types of memory resources: Textures and buffers.
 However, there are many ways in which these two can be accessed (see \autoref{fig:openglpipe}).
 In general it is possible to access a resource that was created as a buffer like a texture but not the other way round.
 Conceptually, a resource is bound to a certain usage type and can then be accessed by shaders or, depending on the usage, may be used to influence scheduling within the graphics pipeline.
@@ -380,7 +381,7 @@ To be able to compute direct lighting for multiple lights, shading procedures ei
 \begin{subfigure}[b]{0.24\textwidth}
 	\includegraphics[width=\textwidth]{gbuffer/specular}
 \end{subfigure}
-\caption{Example for a G-buffer with diffuse reflectance, depth, normals and specular BRDF properties.} \label{fig:gbuffer}
+\caption{Example for a G-buffer with (left to right) diffuse reflectance, depth, normals and specular BRDF properties.} \label{fig:gbuffer}
 \end{figure}
 Deferred shading decouples object rendering and pixel shading by saving all information needed for shading in the so called \emph{G-buffer}.
 This buffer saves for each screen pixel a depth (which can be used to reconstruct the world position), normal and material properties.
@@ -405,21 +406,23 @@ If the stored value is smaller, the pixel lies in the shadow, otherwise not.
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
 \centering
-\subcaptionbox{Self-shadow aliasing caused by texels that are both bellow and above the surface. \label{fig:shadowacne}}{
+\subcaptionbox{Self-shadow aliasing caused by texels that are both bellow and above the surface. \label{fig:shadowacne}}[\textwidth]{
 	\begin{subfigure}[b]{0.32\textwidth}
 		\includegraphics[width=\textwidth]{shadow/shadowacne_rtr}
    	\end{subfigure}
-   	~
+   	~~~~
  	\begin{subfigure}[b]{0.4\textwidth}
 	 	\includegraphics[width=\textwidth]{shadow/shadowacne_sketch_rtr}
  	\end{subfigure}
 }
-\\
-\subcaptionbox{Bias fixes above issue, but now the object seems to float. \label{fig:peterpanning}}{
+
+\vspace{0.5cm}
+
+\subcaptionbox{Bias fixes above issue, but now the object seems to float. \label{fig:peterpanning}}[\textwidth]{
 	\begin{subfigure}[b]{0.32\textwidth}
 		\includegraphics[width=\textwidth]{shadow/peterpanning_rtr}
    	\end{subfigure}
-   	~
+   	~~~~
  	\begin{subfigure}[b]{0.4\textwidth}
 	 	\includegraphics[width=\textwidth]{shadow/peterpanning_sketch_rtr}
  	\end{subfigure}
@@ -441,8 +444,8 @@ This allows much lower depth bias values without self-shadow aliasing.
 In our implementation we use shadow maps combined with normal offset mapping to determine the direct light visibility.
 
 \subsection{Gamma Correction \& HDR Rendering}
-Displays can generally not output arbitrary radiance intensities.
-In which range possible values are depends on the hardware and its configuration.
+Displays generally cannot output arbitrary radiance intensities.
+In which range possible values are, depends on the concrete display hardware and its configuration.
 The input format of most displays is eight bit per channel which offers only a \emph{low dynamic range} (LDR).
 However, the LDR contents are not directly interpreted as a radiance but gamma corrected using a transfer function.
 Typically the inputs are assumed to be encoded in the \emph{sRGB} color space.
@@ -463,7 +466,7 @@ Contrary to many other works we do not scale indirect lighting separately at any
 \section{Spherical Harmonics}\label{sec:preq:sh}
 Spherical Harmonics (SH) are a set of orthonormal basis functions, analogous to the Fourier transform's basis functions, but defined on the surface of a sphere.
 They are often used in computer graphics to approximate spherical functions like visibility, lighting or reflectance. Similarly, they will later be used in \autoref{sec:impl:diffuse} to describe the total irradiance for a given normal.
-
+\\
 More detailed explanations can be found for example in \cite{bib:grittysh, bib:stupidsh} on which this summary is based.
 
 \subsection{Definition} \label{chap:sh:def}

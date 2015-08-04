@@ -36,26 +36,26 @@ Global illumination using $M$ virtual lights can generally be expressed as follo
 L_o(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot \hat{V}(\mathrm{x}, \mathrm{x}_i) \cdot I_i(\overrightarrow{\mathrm{x}_i\mathrm{x}})
 %\underbrace{f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i}_{I_i(\overrightarrow{\mathrm{x}_i\mathrm{x}})}
 \end{equation}
-Where $G(\mathrm{x}, \mathrm{x}_i)$ is the geometry term which describes the light transfer from the virtual light in $\mathrm{x}_i$ to the surface in point $\mathrm{x}$.
+Where $G(\mathrm{x}, \mathrm{x}_i)$ is the geometry term that describes the light transfer from the virtual light in $\mathrm{x}_i$ to the surface in point $\mathrm{x}$.
 It depends on the type of the virtual light source.
-$\hat{V}(\mathrm{x}, \mathrm{x}_i)$ is the visibility of a virtual light and is either zero or one for dimension-less virtual lights. % and $\phi_i$ its incoming flux.
+The visibility $\hat{V}(\mathrm{x}, \mathrm{x}_i)$ of a virtual light is either zero or one for dimension-less lights. % and $\phi_i$ its incoming flux.
 $I_i$ gives the intensity distribution of the $i$th virtual light which is evaluated in the direction $\overrightarrow{\mathrm{x}_i\mathrm{x}}$ from virtual light to the surface point.
-It can be computed as the product between BRDF in the point $\mathrm{x}_i$ and the incoming flux $\mathrm{x}_i$ originating from the direction $\omega_i$.
+It is defined by the product between BRDF in the point $\mathrm{x}_i$ and the incoming flux $\mathrm{x}_i$ originating from the direction $\omega_i$.
 %The product of the BRDF $f_r$ at the point $\mathrm{x}_i$, evaluated with the  and the incoming flux $\phi_i$ gives the intensity from the $i$th virtual light in the direction
 \begin{equation}
 I_i(\overrightarrow{\mathrm{x}_i\mathrm{x}}) = f_r(\mathrm{x}_i, \omega_i, \overrightarrow{\mathrm{x}_i\mathrm{x}}) \cdot \phi_i
 \end{equation}
  
-The original IR distributes the light by tracing photon rays from the light source that are bounced inside the scene.
+The original instant radiocity approach distributes the light by tracing photon rays from the light source that are bounced inside the scene.
 Like more recent techniques, IR uses virtual point light sources (VPL).
 \\
 Dachsbacher et al. \cite{bib:manylightssurvey2014} did recently a detailed survey on many-lights for both offline and real-time rendering.
 We focus here on the mainly on important real-time approaches.
 
 \subsection{Reflective Shadow Mapping} \label{sec:prev:rsm}
-One of the most important real-time global illumination algorithms is reflective shadow mapping by Dachsbacher et al. \cite{bib:reflectiveshadowmaps} on which many other approaches, including the one presented in this thesis, rely.
-It handles the virtual light distribution with the rasterization of an extended shadow map, the reflective shadow map (RSM).
-The RSM does not only contain depth as normal shadow maps, but also the reflected (diffuse) flux and the normal of the surface in each texel.
+One of the most important real-time global illumination algorithms is reflective shadow mapping by Dachsbacher et al. \cite{bib:reflectiveshadowmaps} on which many other approaches rely, including the one presented in this thesis.
+It handles the virtual light distribution with the rasterization of an augmented shadow map, the reflective shadow map (RSM).
+The RSM does not only contain depth as normal shadow maps, but also additional layers containing reflected (diffuse) flux and the normal of the seen surface.
 Each texel of this shadow map is then used as virtual point light.
 The original paper shades each pixel with a given number of sampled VPLs without taking indirect shadows into account.
 Also, the technique handles only a single indirect bounce of diffuse lighting since the VPLs are strictly speaking hemispherical Lambert emitters.
@@ -124,8 +124,9 @@ Shadow maps are then computed using these points instead of triangles which is m
 Holes in the shadow maps are filled with a push-pull heuristic.
 The succeeding paper \cite{bib:imperfectshadowmaps:adapative} makes the technique (both VPL placement and shadowing) view adaptive and allows larger scenes.
 \\
-Olsson et al. \cite{bib:virtualshadowmaps} stores shadow maps on a large virtual texture and decides for each frame which lights actually need to compute shadow maps, how high their resolution should be and which objects act as occluders.
-All these operations are performed on the GPU.
+Olsson et al. \cite{bib:virtualshadowmaps} store shadow maps on a large virtual texture.
+Each frame is decided which lights actually need to compute shadow maps, how high their resolution should be and which objects act as occluders.
+All of these operations are performed on the GPU.
 
 Other methods like Micro-rendering by Ritschel et al. \cite{bib:microrendering} or ManyLoDs by Holländer et al. \cite{bib:manylods} use hierarchical data structures to be able to render objects at the exactly needed detail.
 This allows very fast approximations of visibility.
@@ -209,9 +210,17 @@ However, this is not the case for any of the aforementioned methods.
  % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
 \centering
+\begin{subfigure}[b]{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{lightskin_cachedistri}
+\caption{Cache distribution.}
+\end{subfigure}
+\begin{subfigure}[b]{0.49\textwidth}
+\centering
 \includegraphics[width=\textwidth]{lightskin}
-\caption{\cite{bib:lightskinthesis} LightSkin indirect lighting approach.\\
-Left: Cache distribution. Right: Lighting results. } \label{fig:lightskin}
+\caption{Lighting results.}
+\end{subfigure}
+\caption{\cite{bib:lightskinthesis} LightSkin global illumination approach. } \label{fig:lightskin}
 \end{figure}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 LightSkin \cite{bib:LightskinPaper} by Lensing et al. uses precomputed light cache positions which are placed directly on surfaces (see \autoref{fig:lightskin}).
@@ -242,13 +251,16 @@ As long as there are no high frequency changes, slow adaption can exploit frame 
 \caption{Light propagation principle.}
 \label{fig:lpv:principle}
 \end{subfigure}
+~~~~
 \begin{subfigure}[b]{0.53\textwidth}
 \centering
 \includegraphics[width=\textwidth]{lpv/cascading}
 \caption{Cascading of multiple LPVs.}
 \label{fig:lpv:cascading}
 \end{subfigure}
-\\
+
+\vspace{0.3cm}
+
 \begin{subfigure}[b]{0.48\textwidth}
 \centering
 \includegraphics[width=\textwidth]{lpv/lowfreq}
