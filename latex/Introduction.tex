@@ -55,32 +55,42 @@ This is why many applications for which pre-computations are not applicable fall
 \section{Goals} \label{bib:goals}
 The primary goal of this work is to explore the field of completely dynamic global illumination further and come up with a new solution which satisfies the conditions presented in this section.
 
+% HARD CRITERIA
+% -> single indirect bounce, shadow + gloss
 We limit ourselves to what we think are the most important global illumination effects: Indirect diffuse lighting, indirect shadows and glossy reflections.
 Light can bounce many times in a scene before it reaches the viewer.
 In this thesis however, only the most important first indirect bounce will be handled.
 % ability to parameterize BRDFs locally?
 \\
+% -> no pre-computation
 As already mentioned, we strongly focus on avoiding pre-computation entirely and demand that all computations can be performed every frame.
 It should be possible to manipulate the scene's geometry and surface materials as well as lights and the camera freely at runtime.
 \\
+% -> gpu only
 The solution should run entirely on the graphics hardware to free the CPU for different work and avoid expensive transfers.
 
+% SOFT CRITERIA
+% -> temp coherency
 Our most important quality criterion is temporal coherency.
 Many dynamic global illumination approaches suffer from flickering when moving either light, objects or the camera.
 We believe that such artifacts are far more intolerable than physical inaccuracies of a lighting solution.
 Therefore, this work aims to avoid such artifacts as good as possible.
 \\
+% -> quality
+The work tries to accomplish appealing and credible lighting, physical correctness is secondary.
+Though, it should be based on physical laws to be able to make statements about its theoretical correctness.
+%We want to be able to run the algorithm on weaker machines or in situations where a real-time solution cannot be presented at the highest quality.
+\\
+% -> performance
 %The criterion which is most obvious and easiest to measure is of course the time a single frame needs to render.
 The time that a single frame takes to render should be adequate to the computed detail at all times.
 This also means that we want to be able to trade quality for performance if necessary.
 We aim for real-time rendering performance on mid-range desktop hardware.
 \\
-The work tries to accomplish appealing and credible lighting, physical correctness is secondary.
-Though, it should be based on physical laws to be able to make statements about its theoretical correctness.
-%We want to be able to run the algorithm on weaker machines or in situations where a real-time solution cannot be presented at the highest quality.
-\\
+% -> memory
 In contrast to pre-computation-based techniques and also some modern dynamic approaches we want to try to keep the memory consumption low.
 \\
+% -> scale
 Finally, the approach should be as invariant as possible to the chosen scene and its scale. %in terms of performance and memory requirements.
 That means that the technique should adapt well to various small and large scenes and still deliver convincing results.
 
