@@ -632,6 +632,23 @@ However, this is beyond the scope of this work.
 \\
 Therefore, we provide comparisons based only theoretical facts and our personal estimates.
 These are summarized in \autoref{tab:comparision}.
+Diffuse indirections without shadows are generally handled well by all mentioned techniques which is why it is not listed in the table.
+
+Indirect shadowing is comparatively accurate only with voxel cone tracing (VCT) \cite{bib:voxelconetracing} and our approach.
+It is not handled at all by reflective shadow mapping (RSM) \cite{bib:reflectiveshadowmaps} and could possibly be much better in realtime radiance caching by Vardis et al. \cite{bib:radiancecachechromaticcompression} if more samples would be used.
+\\
+Indirect specular lighting is a major problem for all state-of-the-art global illumination techniques.
+To our knowledge only VCT is able to accurately display glossy features with high specular exponents.
+Our technique can provide moderate reflections but those have a disproportional effect on the performance.
+Considering that LightSkin \cite{bib:LightskinPaper} handles the problem with very low data overhead using interpolated virtual lights, its results are surprisingly good.
+RSM can handle the problem by brute force, evaluating the specular lighting for each virtual light in every pixel.
+\\
+Most techniques, including our own, cannot handle thin geometries well and show light bleeding artifacts.
+\autoref{sec:fig:rsmbias} already discussed how to fix the typical "bright spot artifacts" of RSM.
+Techniques with even few pre-computations like LightSkin can alleviate this problem, but may still suffer from missing detail for smaller features.
+\\
+With the exception of VCT, memory requirements are rarely a problem for the listed techniques.
+Especially our technique is able to run on a very limited budget, as has been shown in the last section.
 
 
 \begin{landscape}
@@ -646,27 +663,27 @@ Method  & \makecell[l]{Ind. shadows quality\\ \& basic approach} & \makecell[l]{
 
 \specialVspace
 
-Ours    & \makecell[l]{rather accurate\\cone traced (to RSM)}& \makecell[l]{medium\\ high perf impact} & \makecell[l]{ temp. coherency specular \\ shadow jaggies, bleeding } & \makecell[l]{low\\spec. env. map} & \makecell[l]{shadow quality, \\ RSM resolution}\\
+Ours    & \makecell[l]{rather accurate\\cone traced (to RSM)}& \makecell[l]{medium \\ radiance hemispheres} & \makecell[l]{specular flickering \\ shadow jaggies, bleeding } & \makecell[l]{low\\spec. env. map} & \makecell[l]{shadow quality, \\ RSM resolution}\\
 
 \specialVspace
 
-RRC \cite{bib:radiancecachechromaticcompression} & \makecell[l]{coarse\\ray march in low-\\ res. occupancy volume} & \makecell[l]{low (theory)\\spherical harmonics} & light bleeding & \makecell[l]{medium\\SH bands, volumes} & \makecell[l]{volume res.\\RSM sample count.} \\
+Vardis et al. \cite{bib:radiancecachechromaticcompression} & \makecell[l]{coarse\\ray march in low-\\ res. occupancy volume} & \makecell[l]{low (theory)\\spherical harmonics} & light bleeding & \makecell[l]{medium\\SH bands, volumes} & \makecell[l]{volume resolution\\RSM sample count} \\
 
 \specialVspace
 
-LightSkin \cite{bib:LightskinPaper} & \makecell[l]{coarse, no color\\blocker estimates} & \makecell[l]{low\\similar radiance cache\\encoded as virtual light} &  \makecell[l]{small features wrong \\ slight bleeding} & \makecell[l]{medium\\cache references} & cache count \\
+LightSkin \cite{bib:LightskinPaper} & \makecell[l]{coarse, no color\\blocker estimates} & \makecell[l]{low\\similar to radiance cache\\encoded as virtual light} &  \makecell[l]{small features wrong \\ slight bleeding} & \makecell[l]{medium\\cache references} & cache count \\
 
 \specialVspace
 
-VCT \cite{bib:voxelconetracing} & \makecell[l]{rather accurate\\cone traced (in volume)} & \makecell[l]{high\\approx. with thin cone} & \makecell[l]{blocky reflections \\ bleeding} & \makecell[l]{high\\sparse voxel octree} & \makecell[l]{cone count\\ volume res.} \\
+VCT \cite{bib:voxelconetracing} & \makecell[l]{rather accurate\\cone traced (in volume)} & \makecell[l]{high\\approx. with thin cone} & \makecell[l]{blocky reflections \\ bleeding} & \makecell[l]{high\\sparse voxel octree} & \makecell[l]{cone count\\ volume resolution} \\
 
 \specialVspace
 
-LPV \cite{bib:lpt} & \makecell[l]{very coarse\\injected blocker volume} & \makecell[l]{very low\\spherical harmonics} & heavy bleeding & \makecell[l]{medium\\SH bands, volumes}  & \makecell[l]{volume resolution,\\SH bands} \\
+LPV \cite{bib:lpt} & \makecell[l]{very coarse\\injected blocker volume} & \makecell[l]{very low\\spherical harmonics} & \makecell[l]{heavy bleeding\\limited light range} & \makecell[l]{medium\\SH bands, volumes}  & \makecell[l]{volume resolution,\\SH bands} \\
 
 \specialVspace
 
-RSM \cite{bib:reflectiveshadowmaps} & n/a & \makecell[l]{arbitrary\\good results expensive} & \makecell[l]{bright splotches \\ ("fixable")} & \makecell[l]{very low\\RSM} & \makecell[l]{RSM resolution,\\sample-count per pixel}\\
+RSM \cite{bib:reflectiveshadowmaps} & n/a & \makecell[l]{arbitrary\\brute force} & \makecell[l]{bright splotches \\ ("fixable")} & \makecell[l]{very low\\RSM} & \makecell[l]{RSM resolution,\\sample-count per pixel}\\
 
 
 \bottomrule
