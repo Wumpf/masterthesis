@@ -667,23 +667,23 @@ Ours    & \makecell[l]{rather accurate\\cone traced (to RSM)}& \makecell[l]{medi
 
 \specialVspace
 
-Vardis et al. \cite{bib:radiancecachechromaticcompression} & \makecell[l]{coarse\\ray march in low-\\ res. occupancy volume} & \makecell[l]{low (theory)\\spherical harmonics} & light bleeding & \makecell[l]{medium\\SH bands, volumes} & \makecell[l]{volume resolution\\RSM sample count} \\
+\makecell[l]{Vardis et al. \\ \cite{bib:radiancecachechromaticcompression} } & \makecell[l]{coarse\\ray march in low-\\ res. occupancy volume} & \makecell[l]{low (theory)\\spherical harmonics} & light bleeding & \makecell[l]{medium\\SH bands, volumes} & \makecell[l]{volume resolution\\RSM sample count} \\
 
 \specialVspace
 
-LightSkin \cite{bib:LightskinPaper} & \makecell[l]{coarse, no color\\blocker estimates} & \makecell[l]{low\\similar to radiance cache\\encoded as virtual light} &  \makecell[l]{small features wrong \\ slight bleeding} & \makecell[l]{medium\\cache references} & cache count \\
+\makecell[l]{LightSkin \\ \cite{bib:LightskinPaper}} & \makecell[l]{coarse, no color\\blocker estimates} & \makecell[l]{low\\similar to radiance cache\\encoded as virtual light} &  \makecell[l]{small features wrong \\ slight bleeding} & \makecell[l]{medium\\cache references} & cache count \\
 
 \specialVspace
 
-VCT \cite{bib:voxelconetracing} & \makecell[l]{rather accurate\\cone traced (in volume)} & \makecell[l]{high\\approx. with thin cone} & \makecell[l]{blocky reflections \\ bleeding} & \makecell[l]{high\\sparse voxel octree} & \makecell[l]{cone count\\ volume resolution} \\
+\makecell[l]{VCT \\ \cite{bib:voxelconetracing}} & \makecell[l]{rather accurate\\cone traced (in volume)} & \makecell[l]{high\\approx. with thin cone} & \makecell[l]{blocky reflections \\ bleeding} & \makecell[l]{high\\sparse voxel octree} & \makecell[l]{cone count\\ volume resolution} \\
 
 \specialVspace
 
-LPV \cite{bib:lpt} & \makecell[l]{very coarse\\injected blocker volume} & \makecell[l]{very low\\spherical harmonics} & \makecell[l]{heavy bleeding\\limited light range} & \makecell[l]{medium\\SH bands, volumes}  & \makecell[l]{volume resolution,\\SH bands} \\
+\makecell[l]{LPV \\ \cite{bib:lpt}} & \makecell[l]{very coarse\\injected blocker volume} & \makecell[l]{very low\\spherical harmonics} & \makecell[l]{heavy bleeding\\limited light range} & \makecell[l]{medium\\SH bands, volumes}  & \makecell[l]{volume resolution,\\SH bands} \\
 
 \specialVspace
 
-RSM \cite{bib:reflectiveshadowmaps} & n/a & \makecell[l]{arbitrary\\brute force} & \makecell[l]{bright splotches \\ ("fixable")} & \makecell[l]{very low\\RSM} & \makecell[l]{RSM resolution,\\sample-count per pixel}\\
+\makecell[l]{RSM \\ \cite{bib:reflectiveshadowmaps}} & n/a & \makecell[l]{arbitrary\\brute force} & \makecell[l]{bright splotches \\ ("fixable")} & \makecell[l]{very low\\RSM} & \makecell[l]{RSM resolution,\\sample-count per pixel}\\
 
 
 \bottomrule
@@ -691,7 +691,9 @@ RSM \cite{bib:reflectiveshadowmaps} & n/a & \makecell[l]{arbitrary\\brute force}
 \caption{Coarse comparison of our technique with other realtime global illumination techniques. Except LightSkin \cite{bib:LightskinPaper}, all listed approaches work without any pre-computations.}
 \label{tab:comparision}
 \end{table}
+
 \end{landscape}
+
 
 \subfilebib % Makes bibliography available when compiling as subfile
 \end{document}
