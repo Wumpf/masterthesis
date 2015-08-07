@@ -54,6 +54,7 @@
     colorlinks, linkcolor={dark-red},
     citecolor={dark-blue}, urlcolor={medium-blue}
 }
+\urlstyle{same}	% Use same font for urls as for everything else
 
 % Redfine some autoref macros for proper caseing.
 \renewcommand*{\chapterautorefname}{Chapter}
@@ -123,6 +124,10 @@
 \subfile{Evaluation}
 \subfile{Conclusion}
 
+\appendix
+\chapter*{Appendices}
+\addcontentsline{toc}{chapter}{Appendices}
+\renewcommand{\thesection}{\Alph{section}}
 \subfile{appendix-abandonedtech}
 \subfile{appendix-formulas}
 
