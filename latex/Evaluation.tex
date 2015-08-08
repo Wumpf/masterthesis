@@ -477,18 +477,19 @@ Besides, these images also feature the ability of "colored shadows" which are an
 \caption{Indirect shadow for different voxel volume and cascaded address volume resolutions in the \dataset{Sponza} scene.}
 \label{fig:shadowcomparision:resolutions}
 \end{figure}
-\todo{shadow images not bright enough}
+%\todo{shadow images not bright enough}
 %
 \begin{figure}
-\begin{subfigure}[b]{0.32\textwidth}
+\centering
+\begin{subfigure}[b]{0.27\textwidth}
 \includegraphics[width=\textwidth]{eva/shadow/vox256_cav32_cvis}
 \caption{CAV: $4\times32^2$}
 \end{subfigure}
-\begin{subfigure}[b]{0.32\textwidth}
+\begin{subfigure}[b]{0.27\textwidth}
 \includegraphics[width=\textwidth]{eva/shadow/vox256_cav64_cvis}
 \caption{CAV: $4\times64^2$}
 \end{subfigure}
-\begin{subfigure}[b]{0.32\textwidth}
+\begin{subfigure}[b]{0.27\textwidth}
 \includegraphics[width=\textwidth]{eva/shadow/vox256_cav128_cvis}
 \caption{CAV: $4\times128^2$}
 \end{subfigure}
@@ -569,11 +570,12 @@ However, for smaller resolutions the results are still visual pleasing and rathe
 \label{fig:specular:rescomparision}
 \end{figure}
 \begin{figure}
-\begin{subfigure}[b]{\halfpageimage}
+\centering
+\begin{subfigure}[b]{0.3\textwidth}
 \includegraphics[width=\textwidth]{eva/specular/cache64_rsm64}
 \caption{RSM resolution $64^2$.}
 \end{subfigure}
-\begin{subfigure}[b]{\halfpageimage}
+\begin{subfigure}[b]{0.3\textwidth}
 \includegraphics[width=\textwidth]{eva/specular/cache64_rsm256}
 \caption{RSM resolution $256^2$}
 \end{subfigure}
@@ -581,7 +583,7 @@ However, for smaller resolutions the results are still visual pleasing and rathe
 \label{fig:specular:cachegaps}
 \end{figure}
 
-
+\newpage
 \section{Memory Consumption} \label{sec:eva:memory}
 \begin{table}[h]
 \centering
