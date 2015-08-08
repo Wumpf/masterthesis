@@ -199,7 +199,7 @@ Similar to classical reflection maps \cite[p.~308]{bib:RealtimeRenderingBook} th
 \\
 \autoref{fig:specularenvmap} shows visualizations of the specular environment map.
 We found that the method has some weak-points that will be later discussed in \autoref{sec:eva:specperf} and \autoref{sec:eva:specquality}.
-\begin{figure}[h!]
+\begin{figure}[h]
 \centering
 \subcaptionbox{Cache visualization displaying indirect specular reflections.}{
 	\begin{subfigure}[b]{1.0\textwidth}
@@ -208,11 +208,11 @@ We found that the method has some weak-points that will be later discussed in \a
 }
 \\
 \subcaptionbox{Cut-out of the texture atlas.}{
-	\begin{subfigure}[b]{0.8\textwidth}
+	\begin{subfigure}[b]{0.7\textwidth}
 		\includegraphics[width=\textwidth]{specularenvmap/atlas}
    	\end{subfigure}
 }
-\caption{Visualizations of the specular environement map, using 16x16 pixels per cache.}
+\caption{Visualizations of the specular environment map, using $16^2$ pixels per cache.}
 \label{fig:specularenvmap}
 \end{figure}
 
@@ -220,7 +220,7 @@ We found that the method has some weak-points that will be later discussed in \a
 So far, indirect visibility was ignored.
 In most cases however, approximate shadows are extremely important to the overall image quality, seen for example in \autoref{fig:indirectshadowonoff}.
 This chapter presents a voxel cone tracing based approach with several adjustments and new simplifications that fit well in our framework.
-\begin{figure}[h!]
+\begin{figure}[h]
 \centering
 \begin{subfigure}[b]{\textwidth}
 	\includegraphics[width=\textwidth]{indirectshadow/off}
