@@ -156,7 +156,7 @@ The SH representation allow iterative computation and easy evaluation.
 
 To perform the diffuse cache lighting, the SH coefficients for all virtual lights are accumulated and saved into the cache buffer for later evaluation.
 %Depending on the demanded accuracy we use the first two or three SH bands.
-The impact on performance and quality of varying number of SH bands will be discussed in \autoref{} \todo{ref to eva needed}.
+The impact on performance and quality of varying number of SH bands will be discussed in \autoref{sec:eva:shperf} and \autoref{sec:eva:shquality}.
 
 \subsection{Specular Lighting} \label{sec:impl:specenvmap}
 As mentioned in \autoref{sec:preq:brdf} we make use of a normalized version of the Blinn-Phong BRDF.
@@ -198,7 +198,7 @@ After all caches are lit, mipmaps of the Specular Environment Map atlas are crea
 Similar to classical reflection maps \cite[p.~308]{bib:RealtimeRenderingBook} they will later be used to estimate the specular lighting for Blinn-Phong exponents bellow $\gamma_{max}$.
 \\
 \autoref{fig:specularenvmap} shows visualizations of the specular environment map.
-We found that the method has some weak-points that will be later discussed in \autoref{}. \todo{section ref needed}
+We found that the method has some weak-points that will be later discussed in \autoref{sec:eva:specperf} and \autoref{sec:eva:specquality}.
 \begin{figure}[h!]
 \centering
 \subcaptionbox{Cache visualization displaying indirect specular reflections.}{
@@ -244,7 +244,6 @@ Instead, a solid voxelization would be required.
 However, such solid voxelizations are not only computational more intense, they also require a clear cut definition of the outer and inner volume which is not given by most triangles meshes.
 
 \subsubsection{Cone Trace LOD}
-\todo{review if non dynamic lod is clear}
 Contrary to both Sugihara's layered reflective shadow maps and Crassin's voxel cone tracing we do not use the cone tracing to look up a pre-filtered lighting value.
 Instead, the tracing is only used to determine if a given virtual light is visible from the position of a cache.
 We found, that tracing a cone to every virtual light is, depending on the RSM resolution, usually too expensive.
@@ -574,7 +573,7 @@ Since even for low resolutions this creates a very high register pressure, it is
 As it is expensive to de-/compress from/to \emph{R11G11B10F} in software, we use a custom 32 bit shared exponent format for this task.
 \\
 Due to the different highly lossy compressions both methods yield visually different results.
-\autoref{TODO} \todo{ref eva} discusses which technique performs better.
+\autoref{sec:eva:specperf} discusses which technique performs better.
 
 
 \subfilebib % Makes bibliography available when compiling as subfile

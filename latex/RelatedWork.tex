@@ -70,7 +70,7 @@ Both approaches suffer from temporal coherence problems since the size and posit
 \subsection{VPL Bias and Compensation} \label{sec:fig:rsmbias}
 Using virtual point lights, the geometry term is defined as following:
 \begin{align}
-G(\mathrm{x}, \mathrm{x}_i) = \frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2} \cdot (\hat{\mathbf{n}}_i \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+
+G(\mathrm{x}, \mathrm{x}_i)_{VPL} = (\hat{\mathbf{n}}_i \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+ \cdot \frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2}
 \end{align}
 Where $\hat{\mathbf{n}}$ and $\hat{\mathbf{n}}_i$ are the surface normals in point $\mathrm{x}$ and $\mathrm{x}_i$ respectively.
 Note that the geometry term is a combination of the photometric distance law and the definition of intensity for Lambert emitter as described earlier in \autoref{sec:preq:theo:relation}. % since VPLs are dimension-less Lambert emitters.
@@ -102,7 +102,7 @@ Ha{\v{s}}an et al. \cite{bib:biascomp:vsl} introduce a new light type, the virtu
 Instead of a performing point-to-point evaluations, this type of light is evaluated by an integration over the solid angle subtended by the light source.
 Their approach is biased but does not cause bright splotches and preserves the overall energy by redistributing.
 \\
-Lensing et al. \cite{bib:LightskinPaper} use approximate disc shaped lights.
+Lensing et al. \cite{bib:LightskinPaper} use approximated disc shaped lights.
 Since they use reflective shadow maps, the area of these virtual area lights $A_{i}$ can easily be estimated by the distance of the VAL to the light source and the solid angle a RSM texel subtends.
 They show that if all surfaces are assumed to be diffuse, the lighting can be solved analytically by a simple change in the geometry term:
 \begin{align}

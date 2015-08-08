@@ -157,7 +157,7 @@ More experiments with different thread group sizes would be necessary for a deep
 This experiment also shows that the allocate pass is more sensible to the cache count than the apply pass for large cache counts.
 \todo{Experiments considering cascading? Impact of transitions?}
 
-\subsection{SH Band Count}
+\subsection{SH Band Count} \label{sec:eva:shperf}
 \begin{table}[htbp]
   \centering
     \begin{tabular}{r|rr|rr|rr}
@@ -261,7 +261,7 @@ This can easily be explained by the fact that a high shadow lod results in large
 \\
 We deliberately did not include measurements on how long the voxelization takes, as this was discussed in the works from which our voxelization-implementation is derived.
 
-\subsection{Indirect Specular}
+\subsection{Indirect Specular} \label{sec:eva:specperf}
 \begin{table}[h!]
 \begin{subtable}{\textwidth}
 	\centering
@@ -410,7 +410,7 @@ The shadows are generally too bright and - not easily visible due to the tonemap
 The simple low frequent lighting in this scene though, is no problem for our approach in general.
 Generally speaking, our technique is not able to reproduce high frequency changes in indirect lighting due to the rather sparse distribution of caches.
 
-\subsection{SH Band Comparision}
+\subsection{SH Band Comparision} \label{sec:eva:shquality}
 \begin{figure}[h]
 \centering
 \begin{subfigure}[b]{0.9\textwidth}
@@ -492,7 +492,7 @@ Besides, these images also feature the ability of "colored shadows" which are an
 \includegraphics[width=\textwidth]{eva/shadow/vox256_cav128_cvis}
 \caption{CAV: $4\times128^2$}
 \end{subfigure}
-\caption{Cache density visualization for \autoref{fig:shadowcomparision}.}
+\caption{Cache density visualization for \autoref{fig:shadowcomparision:resolutions}.}
 \label{fig:shadowcomparision:resolutions:cavdensities}
 \end{figure}
 %
@@ -528,14 +528,14 @@ Besides, these images also feature the ability of "colored shadows" which are an
 \end{figure}
 %
 
-\subsection{Indirect Specular}
+\subsection{Indirect Specular}\label{sec:eva:specquality}
 As seen in \autoref{fig:specular:rescomparision}, the quality of indirect specular lighting seemingly improves straight-forward with higher specular environment map resolutions.
 However, there are massive temporal coherence problems for resolutions beyond $16^2$ per cache.
 The indirect specular lighting is the only part of our solution that has temporal coherency issues under camera movement, since the local hemispheres of the caches are view dependent.
 In combination with the single write each VAL performs on the per cache, this can result in flickering.
 The effect is most problematic with high specular environment map resolutions.
 As \autoref{fig:specular:cachegaps} shows, this leads to gaps on the specular environment map which are surrounded by too bright pixels since their samples should have been distributed into neighboring pixels as well.
-We tried to close these gaps using a post-processing step similar as in imperfect shadow mapping \autoref{bib:imperfectshadowmaps} but this did worsen temporal artifacts while not improving the visual quality noticeable.
+We tried to close these gaps using a post-processing step similar as in imperfect shadow mapping \cite{bib:imperfectshadowmaps} but this did worsen temporal artifacts while not improving the visual quality noticeable.
 However, for smaller resolutions the results are still visual pleasing and rather stable under movements.
 %
 \begin{figure}
