@@ -4,15 +4,16 @@
 \chapter{Main}\label{chap:basics}
 
 \section{Overview}
-Inspired by Lensing's LightSkin approach~\cite{bib:LightskinPaper}, we want to compute indirect lighting only at specific locations and interpolate the results over multiple pixels, as opposed to techniques like Reflective Shadow Maps or Voxel Cone Tracing.
-Like other previous works, we call these locations \emph{Light Caches}.
-
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{renderingpipeline.pdf}
-	\caption{Overview over our basic rendering pipeline.}
+	\caption{Overview over our basic rendering pipeline. The three steps of our technique are the orange boxes.}
 	\label{fig:pipelineoverview}
-\end{figure} \todo{Integrate images in graph?}
+\end{figure}
+%
+Inspired by Lensing's LightSkin approach~\cite{bib:LightskinPaper}, we want to compute indirect lighting only at specific locations and interpolate the results over multiple pixels, as opposed to techniques like reflective shadow maps or voxel cone tracing.
+Like other previous works, we call these locations \emph{Light Caches}.
+\\
 Our technique consists of three basic steps which are executed in every frame: Cache allocation, indirect lighting and cache interpolation.
 \autoref{fig:pipelineoverview} gives an overview of the pipeline steps and their dependencies.
 The cache allocation pass assigns cells on a regular grid to cache memory, thus creating the caches that are about to be used in this frame.
@@ -172,6 +173,22 @@ For moderately high $\gamma$ the outgoing specular radiance is, contrary to outg
 Using the same representation as in the previous section on diffuse lighting would require to evaluate much more SH bands (e.g. as in radiance caching \cite{bib:radiancecaching}) which are difficult to compute and prone to ringing artifacts.
 %Instead, an image based approach is used
 
+\begin{figure}[h!]
+\centering
+\subcaptionbox{Cache visualization displaying indirect specular reflections.}{
+	\begin{subfigure}[b]{1.0\textwidth}
+		\includegraphics[width=\textwidth]{specularenvmap/caches}
+   	\end{subfigure}
+}
+\\
+\subcaptionbox{Cut-out of the texture atlas.}{
+	\begin{subfigure}[b]{0.7\textwidth}
+		\includegraphics[width=\textwidth]{specularenvmap/atlas}
+   	\end{subfigure}
+}
+\caption{Visualizations of the specular environment map, using $16^2$ pixels per cache.}
+\label{fig:specularenvmap}
+\end{figure}
 If it is assumed that a cache lies directly on a \textbf{visible} surface, then the space of possible normal vectors is limited to the hemisphere pointing towards the viewer.
 We need to record outgoing radiance (again postponing the factors outside of the sum) for every direction on multiple hemispheres for all possible $\gamma$.
 As the outgoing radiance for lower exponents can be estimated by integrating results for higher $\gamma$ values, only an upper bound $\gamma_{max}$ is handled for now.
@@ -199,28 +216,13 @@ Similar to classical reflection maps \cite[p.~308]{bib:RealtimeRenderingBook} th
 \\
 \autoref{fig:specularenvmap} shows visualizations of the specular environment map.
 We found that the method has some weak-points that will be later discussed in \autoref{sec:eva:specperf} and \autoref{sec:eva:specquality}.
-\begin{figure}[h]
-\centering
-\subcaptionbox{Cache visualization displaying indirect specular reflections.}{
-	\begin{subfigure}[b]{1.0\textwidth}
-		\includegraphics[width=\textwidth]{specularenvmap/caches}
-   	\end{subfigure}
-}
-\\
-\subcaptionbox{Cut-out of the texture atlas.}{
-	\begin{subfigure}[b]{0.7\textwidth}
-		\includegraphics[width=\textwidth]{specularenvmap/atlas}
-   	\end{subfigure}
-}
-\caption{Visualizations of the specular environment map, using $16^2$ pixels per cache.}
-\label{fig:specularenvmap}
-\end{figure}
+
 
 \subsection{Indirect Shadows} \label{sec:main:shadowing}
 So far, indirect visibility was ignored.
 In most cases however, approximate shadows are extremely important to the overall image quality, seen for example in \autoref{fig:indirectshadowonoff}.
 This chapter presents a voxel cone tracing based approach with several adjustments and new simplifications that fit well in our framework.
-\begin{figure}[h]
+\begin{figure}[h!]
 \centering
 \begin{subfigure}[b]{\textwidth}
 	\includegraphics[width=\textwidth]{indirectshadow/off}

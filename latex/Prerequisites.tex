@@ -437,8 +437,8 @@ The problem can be overcome by adding a bias to the depth values.
 This effectively moves the surface away from the light which again leads to another artifact known as "Peter Panning":
 For a too large bias, objects are disconnected from their shadows which leads to a floating appearance, see \autoref{fig:peterpanning}.
 \\
-To alleviate this issue, Holbert \cite{bib:normaloffsetshadowmapping} introduced a normal dependent offsetting approach:
-Positions are offset not just in direction of the shadow projection, but also in the direction of the surface normal depending on the angle to the light direction.
+To alleviate this issue, Holbert \cite{bib:normaloffsetshadowmapping} introduced a normal dependent offsetting approach.
+Contrary to the classic constant offset, the offset is computed based on the angle between surface normal and light direction.
 This allows much lower depth bias values without self-shadow aliasing.
 
 In our implementation we use shadow maps combined with normal offset mapping to determine the direct light visibility.
