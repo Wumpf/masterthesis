@@ -4,17 +4,30 @@
 \chapter{Conclusion}\label{chap:concl}
 
 \section{Summary}
+We have presented a novel real-time global illumination approach that works on arbitrary scenes without any pre-computations.
+Similar to Vardis et al. \cite{bib:radiancecachechromaticcompression} we use a regular grid of light caches that are activated on demand.
+Our cascaded address volume (CAV) points dynamically to positions in a large buffer rather than storing the data itself, allowing low memory consumption and straight forward processing of light caches.
+After an allocation pass that fills the CAV, the actual lighting pass is executed.
+\\
+The lighting pass evaluates the radiance from a reflective shadow map, using virtual area lights as proposed by Lensing et al. \cite{bib:LightskinPaper}.
+Radiance is saved in a low order SH representation for each cache to perform diffuse lighting later on.
+Optionally, shadow cones are traced in a pre-filtered voxel volume.
+Governed by a global shadow LOD setting, cones are may be traced for bundles of virtual lights (from the reflective shadow map).
+Since the SH representation is not sufficient to depict glossy reflections, additionally the hemispherical specular environment maps can be used:
+Each cache is associated with a small rectangular projection of the hemisphere pointing to the viewer.
+Radiances is added to this texture for each visible virtual light.
+The maps are pre-filtered to allow fast evaluation of reflection with different exponents.
+\\
+Finally, the data is evaluated and interpolated per pixel in the cache interpolation pass using per-pixel normals and material properties.
 
 
 \section{Evaluation}
 % HARD CRITERIA
 % TODO? -> single indirect bounce, shadow + gloss
-We have presented a novel real-time global illumination approach that works on arbitrary scenes without any pre-computations.
-Similar to Vardis et al. \cite{bib:radiancecachechromaticcompression} we use a regular grid of light caches that are activated on demand.
-\\
+
 % -> no pre-computation
-This makes the technique entirely invariant of animations and allows to perform arbitrary scene changes at runtime.
-The same goes for materials which are allowed to have arbitrary variations over surfaces (contrary to some radiance caching techniques like LightSkin \cite{bib:LightskinPaper}).
+The technique is entirely invariant of animations and allows to perform arbitrary scene changes at runtime.
+The same goes for materials which are allowed to have arbitrary variations over surfaces (contrary to techniques like LightSkin \cite{bib:LightskinPaper}).
 \\
 % -> gpu only
 All steps are executed on the GPU without any transfers to the CPU or back, except camera and scene settings.
