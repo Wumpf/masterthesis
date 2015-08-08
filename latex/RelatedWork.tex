@@ -30,7 +30,7 @@ All many-light approaches perform two passes (see \autoref{fig:manylights}):
 First, virtual light sources are distributed in the scene.
 Second, second each virtual light source performs direct lighting.
 \\
-The main advantages of the many-light approach in general, is its relatively easy unified framework and its good scalability in performance and quality.
+The main advantages of the many-light approach in general is its relatively easy unified framework and its good scalability in performance and quality.
 Global illumination using $M$ virtual lights can generally be expressed as following:
 \begin{equation}
 L_o(\mathrm{x}, \omega_o) = \sum\limits_{i=1}^{M} f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) \cdot G(\mathrm{x}, \mathrm{x}_i) \cdot \hat{V}(\mathrm{x}, \mathrm{x}_i) \cdot I_i(\overrightarrow{\mathrm{x}_i\mathrm{x}})
@@ -49,8 +49,8 @@ I_i(\overrightarrow{\mathrm{x}_i\mathrm{x}}) = f_r(\mathrm{x}_i, \omega_i, \over
 The original instant radiocity approach distributes the light by tracing photon rays from the light source that are bounced inside the scene.
 Like more recent techniques, IR uses virtual point light sources (VPL).
 \\
-Dachsbacher et al. \cite{bib:manylightssurvey2014} did recently a detailed survey on many-lights for both offline and real-time rendering.
-We focus here on the mainly on important real-time approaches.
+Dachsbacher et al. \cite{bib:manylightssurvey2014} recently did a detailed survey on many-lights for both offline and real-time rendering.
+We focus here mainly on important real-time approaches.
 
 \subsection{Reflective Shadow Mapping} \label{sec:prev:rsm}
 One of the most important real-time global illumination algorithms is reflective shadow mapping by Dachsbacher et al. \cite{bib:reflectiveshadowmaps} on which many other approaches rely, including the one presented in this thesis.
@@ -73,7 +73,7 @@ Using virtual point lights, the geometry term is defined as following:
 G(\mathrm{x}, \mathrm{x}_i) = \frac{(\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+}{||\mathrm{x} - \mathrm{x}_i||^2} \cdot (\hat{\mathbf{n}}_i \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}})^+
 \end{align}
 Where $\hat{\mathbf{n}}$ and $\hat{\mathbf{n}}_i$ are the surface normals in point $\mathrm{x}$ and $\mathrm{x}_i$ respectively.
-Note that the geometry term is a combination of the photometric distance law and the definition of intensity for Lambert emitter as described earlier in \autoref{sec:theo:relation}. % since VPLs are dimension-less Lambert emitters.
+Note that the geometry term is a combination of the photometric distance law and the definition of intensity for Lambert emitter as described earlier in \autoref{sec:preq:theo:relation}. % since VPLs are dimension-less Lambert emitters.
 \\
 \begin{figure}[h]
 \centering
@@ -91,7 +91,7 @@ The result are bright splotches, mostly visibility in creases, as seen left in \
 
 Typically these artifacts are avoided by clamping the geometry term to a user defined maximum which obviously introduces a bias.
 There are several bias compensation techniques:
-Kollig and Keller \cite{bib:biascomp:kk04} shoot rays to nearby surface and evaluate the lighting there to transport it back to the original surface.
+Kollig and Keller \cite{bib:biascomp:kk04} shoot rays to nearby surfaces and evaluate the lighting there to transport it back to the original surface.
 However, this technique may degenerate to path-tracing and is thus not suitable for interactive applications.
 Other techniques try to compensate the bias approximately.
 E.g. the bias compensation by Nov\'{a}k et al. \cite{bib:biascomp:novak11} stores the bounded transport and computes then residual transport via a screen-space post-processing step.
@@ -103,7 +103,7 @@ Instead of a performing point-to-point evaluations, this type of light is evalua
 Their approach is biased but does not cause bright splotches and preserves the overall energy by redistributing.
 \\
 Lensing et al. \cite{bib:LightskinPaper} use approximate disc shaped lights.
-Since they use reflective shadow maps, the area of these virtual areal lights $A_{i}$ can easily be estimated by the distance of the VAL to the light source and the solid angle a RSM texel subtends.
+Since they use reflective shadow maps, the area of these virtual area lights $A_{i}$ can easily be estimated by the distance of the VAL to the light source and the solid angle a RSM texel subtends.
 They show that if all surfaces are assumed to be diffuse, the lighting can be solved analytically by a simple change in the geometry term:
 \begin{align}
 G(\mathrm{x}, \mathrm{x}_i)_{VAL} = (\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i})^+ \cdot \frac{(\hat{\mathbf{n}_i} \cdot \overrightarrow{\mathrm{x}_i\mathrm{x}} )^+}{||\mathrm{x} - \mathrm{x}_i||^2 + A_{i}}
@@ -115,10 +115,10 @@ We use this technique in our approach since it is extremely fast, easy to implem
 Bias compensation in participating media are considerably more complex but not handled in this thesis.
 
 \subsection{Shadows for Many-Lights}
-Computing visibility for a large number of virtual lights is a difficult problem for realtime renderers since classic shadow computations like shadow mapping are far to expensive for this task.
+Computing visibility for a large number of virtual lights is a difficult problem for real-time renderers since classic shadow computations like shadow mapping are far to expensive for this task.
 There are a few methods that try to optimize shadow mapping for rendering large amount of lights:
 \\
-Imperfect shadow maps Ritschel et. al. \cite{bib:imperfectshadowmaps} leverages the fact that exact secondary visibility is not needed.
+Imperfect shadow maps by Ritschel et al. \cite{bib:imperfectshadowmaps} leverage the fact that exact secondary visibility is not needed.
 First, points are placed at random locations on the scene geometry.
 Shadow maps are then computed using these points instead of triangles which is much faster.
 Holes in the shadow maps are filled with a push-pull heuristic.
@@ -130,7 +130,7 @@ All of these operations are performed on the GPU.
 
 Other methods like Micro-rendering by Ritschel et al. \cite{bib:microrendering} or ManyLoDs by Holländer et al. \cite{bib:manylods} use hierarchical data structures to be able to render objects at the exactly needed detail.
 This allows very fast approximations of visibility.
-These techniques have also several other implications for example on how shading performed which is why they are often separately categorized as \emph{point-based GI}.
+These techniques have also several other implications, for example on how shading performed, which is why they are often separately categorized as \emph{point-based GI}.
 
 %\subsection{Shading}
 %Multi-resolution splatting techniques ([All Nichols] Hierarchical

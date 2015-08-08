@@ -238,7 +238,7 @@ While not entirely up to date, Giesen's article \emph{A trip through the Graphic
 The blue boxes represent different types of memory, or rather ways to access memory.
 As memory accesses play an important role in GPU programming, \autoref{sec:preq:memory} will go into more detail.
 With the exception of compute shaders, all major programmable stages in the figure are depicted on the vertical starting with "Vertex Puller" and ending at "Framebuffer".
-The underlying processing is, what is usually called the rendering pipeline which is traversed by the GPU on each draw call the CPU issues.
+The underlying processing is what is usually called the rendering pipeline which is traversed by the GPU on each draw call the CPU issues.
 Compute shader are outside of this pipeline and explained separately in \autoref{sec:preq:compute}.
 Within the rendering pipeline there are also several \emph{shader} stages: Vertex shader, two shaders for tessellation, geometry and fragment shader.
 Generally, shaders are small programs that are issued in parallel.
@@ -256,12 +256,12 @@ Each invocation must output at least a position which is later used in the raste
 The vertex shading stage is mostly used for all sort of vertex transformations.
 
 Afterwards, the optional tessellation stages are executed.
-These are skipped here, as we do not make use the hardware tessellation features in this thesis.
+These are skipped here since we do not use the hardware tessellation features in this thesis.
 The following also optional geometry shading stage is invoked per primitive (= triangles, lines or points).
 It is able to generate new geometry on-the-fly.
 Before the advance of compute shaders, their ability to stream vertex data back to the memory (Transform Feedback) was very important for many algorithms.
 Nowadays, their use is very limited as many of their former tasks can be performed more efficiently by compute shaders.
-In this thesis we use geometry shader only to implement a realtime voxelization algorithm (see \autoref{sec:impl:voxelization}).
+In this thesis we use geometry shader only to implement a real-time voxelization algorithm (see \autoref{sec:impl:voxelization}).
 
 %For several hardware implementation reasons, geometry generation proved to be rather slow on mot 
 
@@ -290,12 +290,12 @@ Transfers from and to CPU accessible memory are usually slow and can introduce h
 Therefore, practically oriented algorithm design usually tries to avoid memory transfers wherever possible.
 
 \subsubsection{Textures}
-Most of the time, textures are accessed read-only through sampler objects ("Texture Fetch" box in \autoref{fig:openglpipe}) and normalized floating point texture coordinates.
+Most of the time, textures are accessed read-only through sampler objects (\emph{Texture Fetch} box in \autoref{fig:openglpipe}) and normalized floating point texture coordinates.
 Sampler objects offer different filter functionalities which are implemented in hardware and make use of texture caches on the devices of all major vendors.
 Contrary, \emph{Image Load / Store} allows random read/write access to specific texels and enables atomic operations.
 However, these accesses might be uncached and rather slow in comparison.
 
-There is wide range of different data formats which can be represented by texels can be stored.
+There is wide range of different data formats that can be stored in texels.
 This includes various compressed, integer, floating point and fixed point formats.
 As a general limitation, all formats have between one and four color channels (though a texel may not necessarily store color).
 
@@ -309,12 +309,12 @@ However, there are a few texture formats that might not be supported to be used 
 All texture types support so called \emph{mipmaps}.
 Mipmapping denotes the process of repeatedly creating pre-filtered, half-sized versions of the original texture which are called mipmaps.
 Mipmaps are foremost used for filtering when a texture is minimized, i.e. when many texels cover a single pixel.
-Already the original paper \cite{bib:mipmap} which presented mipmaps proposed to use mipmaps for other purposes like filtering of highlights with varying solid angle.
-Similar, they will be later used to filter outgoing radiance for varying BRDF parameterization (see \autoref{sec:impl:specenvmap}).
+The original paper \cite{bib:mipmap} that presented mipmaps already proposed to use them for other purposes like filtering of highlights with varying solid angle as well.
+Similarly, they will be later used to filter outgoing radiance for varying BRDF parameterization (see \autoref{sec:impl:specenvmap}).
 
 \subsubsection{Buffers}
 To allow access from arbitrary shaders, a buffer might either be used as \emph{Uniform Buffer Object} (UBO) for read-only access or as \emph{Shader Storage Buffer Object} (SSBO) which allows random writes and even a limited set of atomic operations.
-The values in a UBOs are often called constants, as they are constant during the execution of a shader.
+The values in an UBO are often called constants, as they are constant during the execution of a shader.
 Both buffer access types come with special layouting rules and different size limitations.
 \\
 Another important use of buffer resources is to provide vertex input in the form of vertex and element array buffers.
@@ -329,7 +329,7 @@ The compute shader is the newest addition to the family of shaders in OpenGL.
 It provides an easy interface for general purpose computations on the GPU (GPGPU), i.e. operations which are not bound to a rendering process.
 GPGPU became increasingly popular with the advance of programming interfaces specifically designed to perform any parallel computation on the GPU such as CUDA and OpenCL.
 The main advantage of using compute shader within OpenGL, over using other APIs, is that all OpenGL resources are directly available.
-This makes compute shader an excellent choice for algorithms that are part of the rendering process, but do not fit into the classic concept of the rendering pipeline with their fixed function vertex fetching and rasterization.
+This makes compute shader an excellent choice for algorithms that are part of the rendering process, but do not fit into the classic concept of the rendering pipeline with its fixed function vertex fetching and rasterization.
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \begin{figure}[h]
@@ -350,10 +350,10 @@ The size of the shared memory is limited by hardware restrictions.
 Accesses to shared memory are much faster than to global resources, but still slower than to a thread's registers.
 As with other memory (access) types, there are several properties that, while partially hardware specific and not specified by OpenGL, are important to keep in mind for efficient use.
 
-The ratio between the maximum number of threads the hardware can execute in parallel and the number of threads actually running simultaneously is called occupancy \cite{bib:cudaprogguide, bib:amdoccupancy}.
-Occupancy depends on the chosen group size, the number of needed registers and the amount of used shared memory.
+The ratio between the number of threads actually running simultaneously and the maximum number of threads the hardware can execute in parallel is called occupancy \cite{bib:cudaprogguide, bib:amdoccupancy}.
+Occupancy depends on the chosen group size, the number of registers needed and the amount of shared memory used.
 Low occupancy means that wide parts of the available computational resources remain unused.
-While issues with low occupancies may occur in any shader stage, the compute shader is more prone to such errors as the programmer has much more influence on the scheduling as in the shaders of the rendering pipeline.
+While issues with low occupancies may occur in any shader stage, the compute shader is more prone to such errors as the programmer has much more influence on the scheduling than on the shaders of the rendering pipeline.
 
 
 \section{Realtime Rendering}
@@ -383,7 +383,7 @@ To be able to compute direct lighting for multiple lights, shading procedures ei
 \end{subfigure}
 \caption{Example for a G-buffer with (left to right) diffuse reflectance, depth, normals and specular BRDF properties.} \label{fig:gbuffer}
 \end{figure}
-Deferred shading decouples object rendering and pixel shading by saving all information needed for shading in the so called \emph{G-buffer}.
+\emph{Deferred shading} decouples object rendering and pixel shading by saving all information needed for shading in the so called \emph{G-buffer}.
 This buffer saves for each screen pixel a depth (which can be used to reconstruct the world position), normal and material properties.
 \autoref{fig:gbuffer} gives an example for a possible configuration.
 Afterwards this information is used to compute dynamic illumination in one or more screen-space passes without re-rendering the scene geometry itself.
@@ -397,9 +397,9 @@ Depending on the definition, direct lighting may already no longer be classified
 Visibility checks in general are a "global problem" since it is necessary to take the entire scene between light emitter and receiver into account.
 Especially for non-dimensionless light sources like area or environment lights (light from the entire sky) direct visibility determination can be a difficult problem.
 
-The most popular technique for direct shadows from dimensionless light sources is \emph{shadow mapping} \cite{bib:shadowmapping} since it works very well today's graphics hardware.
+The most popular technique for direct shadows from dimensionless light sources is \emph{shadow mapping} \cite{bib:shadowmapping} since it works very well on today's graphics hardware.
 A shadow map is a texture containing depth values rendered with the view of a corresponding light source.
-When shading an object, the distance to the light source is compared with its depth value stored in the shadow map.
+When shading an object, the distance to the light source is compared with the depth value stored in the shadow map for the respective direction from the light.
 If the stored value is smaller, the pixel lies in the shadow, otherwise not.
 
 
@@ -431,14 +431,14 @@ If the stored value is smaller, the pixel lies in the shadow, otherwise not.
 \end{figure}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 There are various extensions to shadow mapping that try to improve the sampling quality or simulate non-dimensionless light sources.
-Shadow mapping is prone to artifacts like self-shadow aliasing, also known as "shadow acne".
+Shadow mapping is prone to artifacts like edge aliasing (due to the limited map resolution) and self-shadow aliasing, also known as "shadow acne".
 Surfaces are sometimes incorrectly considered shadowing themselves since point samples from the shadow map are used to represent an area's depth, see \autoref{fig:shadowacne}.
 The problem can be overcome by adding a bias to the depth values.
 This effectively moves the surface away from the light which again leads to another artifact known as "Peter Panning":
 For a too large bias, objects are disconnected from their shadows which leads to a floating appearance, see \autoref{fig:peterpanning}.
 \\
 To alleviate this issue, Holbert \cite{bib:normaloffsetshadowmapping} introduced a normal dependent offsetting approach:
-Positions are offset not just in direction of the shadow projection, but in the direction of the surface normal depending on the angle to the light direction.
+Positions are offset not just in direction of the shadow projection, but also in the direction of the surface normal depending on the angle to the light direction.
 This allows much lower depth bias values without self-shadow aliasing.
 
 In our implementation we use shadow maps combined with normal offset mapping to determine the direct light visibility.
@@ -446,7 +446,7 @@ In our implementation we use shadow maps combined with normal offset mapping to 
 \subsection{Gamma Correction \& HDR Rendering}
 Displays generally cannot output arbitrary radiance intensities.
 In which range possible values are, depends on the concrete display hardware and its configuration.
-The input format of most displays is eight bit per channel which offers only a \emph{low dynamic range} (LDR).
+The input format of most displays is eight bits per channel which offers only a \emph{low dynamic range} (LDR).
 However, the LDR contents are not directly interpreted as a radiance but gamma corrected using a transfer function.
 Typically the inputs are assumed to be encoded in the \emph{sRGB} color space.
 
@@ -464,7 +464,7 @@ To account for this, we apply the logarithmic global Drago tonemapping operator 
 Contrary to many other works we do not scale indirect lighting separately at any point.
 
 \section{Spherical Harmonics}\label{sec:preq:sh}
-Spherical Harmonics (SH) are a set of orthonormal basis functions, analogous to the Fourier transform's basis functions, but defined on the surface of a sphere.
+Spherical harmonics (SH) are a set of orthonormal basis functions, analogous to the Fourier transform's basis functions, but defined on the surface of a sphere.
 They are often used in computer graphics to approximate spherical functions like visibility, lighting or reflectance. Similarly, they will later be used in \autoref{sec:impl:diffuse} to describe the total irradiance for a given normal.
 \\
 More detailed explanations can be found for example in \cite{bib:grittysh, bib:stupidsh} on which this summary is based.
@@ -476,19 +476,19 @@ More detailed explanations can be found for example in \cite{bib:grittysh, bib:s
 	\caption{\cite{bib:guerrero:thesis} The first four SH bands plotted as unsigned spherical functions by distance from the origin unit sphere. Green are positive values, red are negative ones.}
 	\label{fig:shvisualization}
 \end{figure}
-The SH functions in general are defined on imaginary numbers, but for use in computer graphics usually only real-number Spherical Harmonics are relevant.
+The SH functions in general are defined on imaginary numbers, but for use in computer graphics usually only real-number SH are relevant.
 
-$y^m_l(\theta, \varphi)$ represents a Spherical Harmonic function.
+$y^m_l(\theta, \varphi)$ represents a SH function.
 The angles $\theta$ and $\varphi$ give a point on the unit hemisphere.
-To convert from spherical to cartesian coordinates we use the following conversion:
+To convert from spherical to Cartesian coordinates we use the following conversion:
 \begin{equation} \label{equ:postoangle}
 (\sin\theta\cos\varphi, \sin\theta\sin\varphi, \cos\theta) \rightarrow (x,y,z)
 \end{equation}
-The index $l$ represents the Spherical Harmonic \emph{band}.
-Each band consists of polynomials of the degree $l$ (zero is a constant function, 1 is linear, etc.).
+The index $l$ represents the SH \emph{band}.
+Each band consists of polynomials of the degree $l$ (for zero it is a constant function, for 1 it is linear, etc.).
 There are $2l+1$ functions for a given band.
 Accordingly, the higher the band index $l$, the higher is the frequency of the information that is encoded in this band.
-\autoref{fig:shvisualization} visualizes the first three bands.
+\autoref{fig:shvisualization} visualizes the first four bands.
 
 $y^m_l(\theta, \varphi)$ is defined as:
 \begin{equation}
@@ -496,7 +496,7 @@ $y^m_l(\theta, \varphi)$ is defined as:
 		y^m_l(\theta, \varphi) &= \begin{cases}
 		\sqrt{2}K^m_l \cos(m\varphi) P^m_l(\cos\theta) & m>0\\
 		\sqrt{2}K^m_l \sin(-m\varphi) P^{-m}_l(\cos\theta) & m<0\\
-		K^0_l P^0_l(\cos\theta) & m=0.\end{cases}
+		K^0_l P^0_l(\cos\theta) & m=0\end{cases}
 	\end{alignedat}
 \end{equation}
 Where $P^m_l(x)$ are the associated \emph{Legendre} polynomials and $K^m_l$ are normalization constants defined as:
@@ -532,10 +532,10 @@ Since SH are orthonormal basis functions, the integral of the product of two fun
 	\int\limits_{4\pi\,sr} \widetilde{f}(\omega) \cdot \widetilde{g}(\omega) \, \mathrm{d}\omega =
 	\sum_{l=0}^{n-l}\sum_{m=-l}^l f_l^m g_l^m
 \end{equation}
-This property is extremely useful as it allows to collapse integrations over the entire sphere into a single dot product which might be (depending on how many bands are used) be rather cheap to evaluate.
+This property is extremely useful as it allows to collapse integrations over the entire sphere into a single dot product which might be (depending on how many bands are used) rather cheap to evaluate.
 
 \subsection{Rotation and Zonal Harmonics} \label{sec:preq:zonalharmonics}
-Spherical Harmonics are rotationally invariant:
+SH functions are rotationally invariant:
 For a function $f$ and its by $R$ rotated copy $g$, the following holds for their corresponding SH projections $\widetilde{f}$ and $\widetilde{g}$:
 \begin{equation}
 \widetilde{g}(s) = \widetilde{f}(R(s))
@@ -546,7 +546,7 @@ Later on this property will be very useful combined with \emph{Zonal Harmonics}.
 Zonal Harmonics are SH projections of functions that have rotational symmetry around an axis.
 If the axis is Z (in respect to \autoref{equ:postoangle}), then only the $c^m_0$ coefficients of the SH projection will be non-zero.\\
 Rotation of such Zonal Harmonics $z_l$ to a new direction $d$ is generally much easier than arbitrary SH.
-The resulting, rotated Spherical Harmonics coefficients are obtained as:
+The resulting, rotated SH coefficients are obtained as:
 \begin{equation} \label{eq:zonalrotate}
 	c_l^m = \sqrt{\frac{4\pi}{2l+1}} z_l y_l^m(d)
 \end{equation}
