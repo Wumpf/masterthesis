@@ -1,721 +1,794 @@
-@book{bib:GPUGems2,
- author = {Pharr, Matt and Fernando, Randima},
- title = {GPU Gems 2: Programming Techniques for High-Performance Graphics and General-Purpose Computation (Gpu Gems)},
- year = {2005},
- isbn = {0321335597},
- publisher = {Addison-Wesley Professional},
-} 
+% This file was created with JabRef 2.10.
+% Encoding: Cp1252
+
+
+@Book{bib:RealtimeRenderingBook,
+  Title                    = {Real-Time Rendering 3rd Edition},
+  Author                   = {Tomas Akenine-M\"{o}ller and Eric Haines and Natty Hoffman},
+  Publisher                = {A. K. Peters, Ltd.},
+  Year                     = {2008},
+
+  Address                  = {Natick, MA, USA},
+
+  ISBN                     = {987-1-56881-424-7},
+  Pages                    = {1045}
+}
+
+@Article{bib:blinnphongbrdf,
+  Title                    = {Models of Light Reflection for Computer Synthesized Pictures},
+  Author                   = {Blinn, James F.},
+  Journal                  = {ACM SIGGRAPH Computer Graphics},
+  Year                     = {1977},
+  Number                   = {2},
+  Pages                    = {192-198},
+  Volume                   = {11}
+}
+
+@Misc{bib:republique,
+  Title                    = {R{\'e}publique Tech Demo},
+
+  Author                   = {Camouflaj},
+  Month                    = apr,
+  Year                     = {2015},
+
+  Url                      = {https://www.assetstore.unity3d.com/en/#!/content/34352}
+}
+
+@Manual{bib:nvconservativeraster,
+  Title                    = {NV\_conservative\_raster OpenGL Extension},
+  Author                   = {Michael Chock},
+  Month                    = {March},
+  Organization             = {Nvidia},
+  Year                     = {2015},
+
+  Url                      = {https://www.opengl.org/registry/specs/NV/conservative_raster.txt}
+}
+
+@InProceedings{bib:shooterfps,
+  Title                    = {The effects of frame rate and resolution on users playing first person shooter games},
+  Author                   = {Claypool, Mark and Claypool, Kajal and Damaa, Feissal},
+  Booktitle                = {Multimedia Computing and Networking},
+  Year                     = {2006},
+  Month                    = {January},
+  Volume                   = {6071}
+}
 
 @InCollection{bib:openglinsightsvoxel,
-  author = {Cyril Crassin and Simon Green},
-  title = {Octree-Based Sparese Voxelization Using the GPU Hardware Rasterizer},
-  booktitle = {{O}pen{GL} {I}nsights},
-  pages = {303-319},
-  editor = {Patrick Cozzi and Christophe Riccio},
-  month = {July},
-  year = {2012},
-  isbn = {978-1439893760},
-  publisher = {CRC Press}
-}
-@InCollection{bib:openglinsightstransfer,
-  author = {Ladislav Hrabcak and Arnaud Masserann},
-  title = {Asynchrounous Buffer Transfers},
-  booktitle = {{O}pen{GL} {I}nsights},
-  pages = {391-414},
-  editor = {Patrick Cozzi and Christophe Riccio},
-  month = {July},
-  year = {2012},
-  isbn = {978-1439893760},
-  publisher = {CRC Press}
-} 
+  Title                    = {Octree-Based Sparese Voxelization Using the GPU Hardware Rasterizer},
+  Author                   = {Cyril Crassin and Simon Green},
+  Booktitle                = {{O}pen{GL} {I}nsights},
+  Publisher                = {CRC Press},
+  Year                     = {2012},
+  Editor                   = {Patrick Cozzi and Christophe Riccio},
+  Month                    = {July},
+  Pages                    = {303-319},
 
-@inproceedings{bib:clusturedshading,
-	 author = {Olsson, Ola and Billeter, Markus and Assarsson, Ulf},
-	 title = {Clustered Deferred and Forward Shading},
-	 booktitle = {HPG '12: Proceedings of the Conference on High 
-		Performance Graphics 2012},
-	 year = {2012},
-	 location = {Paris, France}
+  ISBN                     = {978-1439893760}
 }
 
+@Article{bib:voxelconetracing,
+  Title                    = {Interactive Indirect Illumination Using Voxel Cone Tracing},
+  Author                   = {Crassin, Cyril and Neyret, Fabrice and Sainz, Miguel and Green, Simon and Eisemann, Elmar},
+  Journal                  = {Computer Graphics Forum},
+  Year                     = {2011},
 
-@inproceedings{bib:virtualshadowmaps,
- author = {Ola Olsson and Erik Sintorn and Viktor Kämpe and Markus Billeter and Ulf Assarsson},
- title = {Implementing Efficient Virtual Shadow Maps for Many Lights},
- booktitle = {SIGGRAPH '14: ACM SIGGRAPH 2014 Talks},
- year = {2014},
- location = {Vancouver, Canada},
- publisher = {ACM},
- address = {New York, NY, USA}
+  Month                    = {September},
+  Number                   = {7},
+  Pages                    = {1921-1930},
+  Volume                   = {30},
+
+  Keywords                 = {Global illumination, indirect lighting, ambient occlusion, final gather, cone-tracing, voxels, GPU, real-time rendering}
 }
 
-@book{bib:realtimeshadowsbook,
-  title={Real-time shadows},
-  author={Eisemann, Elmar and Schwarz, Michael and Assarsson, Ulf and Wimmer, Michael},
-  year={2011},
-  publisher={CRC Press}
+@Article{bib:manylightssurvey2014,
+  Title                    = {{Scalable Realistic Rendering with Many-Light Methods}},
+  Author                   = {Carsten Dachsbacher and Jaroslav K{\v{r}}iv{\'a}nek and Milo{\v{s}} Ha{\v{s}}an and Adam Arbree and Bruce Walter and Jan Nov{\'a}k},
+  Journal                  = {Computer Graphics Forum},
+  Year                     = {2014},
+
+  Month                    = {February},
+  Number                   = {1},
+  Pages                    = {88--104},
+  Volume                   = {33}
 }
 
-@article{bib:radiancecaching,
-  title={Radiance caching for efficient global illumination computation},
-  author={Krivanek, Jaroslav and Gautron, Pascal and Pattanaik, Sumanta and Bouatouch, Kadi},
-  journal={Visualization and Computer Graphics, IEEE Transactions on},
-  volume={11},
-  number={5},
-  pages={550--561},
-  year={2005},
-  publisher={IEEE}
+@InProceedings{bib:reflectiveshadowmaps,
+  Title                    = {Reflective Shadow Maps},
+  Author                   = {Dachsbacher, Carsten and Stamminger, Marc},
+  Booktitle                = {Symposium on Interactive 3D Graphics and Games},
+  Year                     = {2005},
+  Pages                    = {203--231},
+  Series                   = {I3D '05},
+
+  ISBN                     = {1-59593-013-2},
+  Location                 = {Washington, District of Columbia},
+  Numpages                 = {29}
 }
 
-@inproceedings{bib:irradiancecaching,
-	author = {Ward, Gregory J. and Rubinstein, Francis M. and Clear, Robert D.},
-	title = {A Ray Tracing Solution for Diffuse Interreflection},
-	booktitle = {Proceedings of the 15th Annual Conference on Computer Graphics and Interactive Techniques},
-	series = {SIGGRAPH '88},
-	year = {1988},
-	isbn = {0-89791-275-6},
-	pages = {85--92},
-	numpages = {8},
-} 
-
-@article{bib:preconvoledradiancecaching,
-   author  = {Daniel Scherzer and 
-              Chuong H. Nguyen and
-              Tobias Ritschel and              
-              Hans-Peter Seidel},
-   title   = {{Pre-convolved Radiance Caching}},
-   journal = {Computer Graphics Forum (Proc. EGSR 2012)},
-   volume  = 4,
-   number  = 31,
-   year    = {2012}
-}
-@inproceedings{bib:clusteredpreconvoledradiancecaching,
-	author = {Hauke Rehfeld and Tobias Zirr and Carsten Dachsbacher},
-	title = {Clustered Pre-convolved Radiance Caching},
-	booktitle = {Proceedings of Eurographics Symposium on Parallel Graphics and Visualization},
-	series = {EGPGV14},
-	year = {2014},
-	publisher = {Eurographics Association}
+@InCollection{bib:rasterizedvbgi,
+  Title                    = {Rasterized Voxel-Based Dynamic Global Illumination},
+  Author                   = {Hawar Doghramachi},
+  Booktitle                = {GPU Pro 4},
+  Publisher                = {CRC Press},
+  Year                     = {2013},
+  Editor                   = {Wolfgang Engel},
+  Pages                    = {155--171}
 }
 
-@inproceedings{bib:manylightssurvey2014,
-	author = {Carsten Dachsbacher and Jaroslav K{\v{r}}iv{\'a}nek and Milo{\v{s}} Ha{\v{s}}an and Adam Arbree and Bruce Walter and Jan Nov{\'a}k},
-	title = {{Scalable Realistic Rendering with Many-Light Methods}},
-	booktitle = {Eurographics 2013 -- State of the Art Reports},
-	pages = {23--38},
-	year = {2013},
-	issn = {1017-4656},
-	address = {Girona, Spain},
-	publisher = {Eurographics Association}
+@InProceedings{bib:dong:voxelization,
+  Title                    = {Real-time Voxelization for Complex Polygonal Models},
+  Author                   = {Dong, Zhao and Chen, Wei and Bao, Hujun and Zhang, Hongxin and Peng, Qunsheng},
+  Booktitle                = {Computer Graphics and Applications, 12th Pacific Conference},
+  Year                     = {2004},
+  Pages                    = {43-50},
+
+  Numpages                 = {8}
 }
 
-@inproceedings{bib:radiancehints,
-  title={Real-time diffuse global illumination using radiance hints},
-  author={Papaioannou, Georgios},
-  booktitle={Proceedings of the ACM SIGGRAPH Symposium on High Performance Graphics},
-  pages={15--24},
-  year={2011},
-  organization={ACM}
+@InProceedings{bib:clusturedvisiblity:dong,
+  Title                    = {Real-time Indirect Illumination with Clustered Visibility.},
+  Author                   = {Dong, Zhao and Grosch, Thorsten and Ritschel, Tobias and Kautz, Jan and Seidel, Hans-Peter},
+  Booktitle                = {Vision, Modeling, and Visualization Workshop},
+  Year                     = {2009},
+  Pages                    = {187--196},
+  Series                   = {VMV '09}
 }
 
-@article{bib:imperfectshadowmaps,
-   author  = {Tobias Ritschel and 
-              Thorsten Grosch and 
-              Min H. Kim and 
-              Hans-Peter Seidel and 
-              Carsten Dachsbacher and 
-              Jan Kautz},
-   title   = {{Imperfect Shadow Maps for Efficient Computation of Indirect Illumination}},
-   journal = {ACM Trans. Graph. (Proc. of SIGGRAPH ASIA 2008)},
-   volume  = 27,
-   number  = 5,
-   year    = {2008}
-}
-@inproceedings{bib:imperfectshadowmaps:adapative,
-  title={Making Imperfect Shadow Maps View-Adaptive: High-Quality Global Illumination in Large Dynamic Scenes},
-  author={Ritschel, Tobias and Eisemann, Elmar and Ha, Inwoo and Kim, James DK and Seidel, Hans-Peter},
-  booktitle={Computer Graphics Forum},
-  volume={30},
-  number={8},
-  pages={2258--2269},
-  year={2011}
+@InProceedings{bib:vsm,
+  Title                    = {Variance Shadow Maps},
+  Author                   = {Donnelly, William and Lauritzen, Andrew},
+  Booktitle                = {Symposium on Interactive 3D Graphics and Games},
+  Year                     = {2006},
+  Pages                    = {161--165},
+  Series                   = {I3D '06},
+
+  ISBN                     = {1-59593-295-X},
+  Location                 = {Redwood City, California},
+  Numpages                 = {5}
 }
 
-@inproceedings{bib:reflectiveshadowmaps,
- author = {Dachsbacher, Carsten and Stamminger, Marc},
- title = {Reflective Shadow Maps},
- booktitle = {Proceedings of the 2005 Symposium on Interactive 3D Graphics and Games},
- series = {I3D '05},
- year = {2005},
- isbn = {1-59593-013-2},
- location = {Washington, District of Columbia},
- pages = {203--231},
- numpages = {29}
-} 
+@Article{bib:tonemapdrago,
+  Title                    = {Adaptive logarithmic mapping for displaying high contrast scenes},
+  Author                   = {Drago, Fr{\'e}d{\'e}ric and Myszkowski, Karol and Annen, Thomas and Chiba, Norishige},
+  Journal                  = {Computer Graphics Forum},
+  Year                     = {2003},
 
-@inproceedings {bib:LightskinPaper,
-booktitle = {Joint Virtual Reality Conference of EGVE - EuroVR},
-editor = {Betty Mohler and Bruno Raffin and Hideo Saito and Oliver Staadt},
-title = {{LightSkin: Real-Time Global Illumination for Virtual and Mixed Reality}},
-author = {Lensing, Philipp and Broll, Wolfgang},
-year = {2013},
-publisher = {The Eurographics Association},
-ISSN = {1727-530X},
-ISBN = {978-3-905674-47-7},
-}
-@phdthesis{bib:lightskinthesis,
-  author       = {Philipp Lensing}, 
-  title        = {LightSkin: Globale Echtzeitbeleuchtung für Virtual und Augmented Reality},
-  school       = {TU Illmenau},
-  year         = {2014},
-  month        = {7},
+  Month                    = {September},
+  Number                   = {3},
+  Pages                    = {419-426},
+  Volume                   = {22}
 }
 
-@book{bib:RealtimeRenderingBook,
- author = {Tomas Akenine-M\"{o}ller and Eric Haines and Natty Hoffman},
- title = {Real-Time Rendering 3rd Edition},
- year = {2008},
- pages = {1045},
- isbn = {987-1-56881-424-7},
- publisher = {A. K. Peters, Ltd.},
- address = {Natick, MA, USA},
+@InProceedings{bib:eisemann:solidvox,
+  Title                    = {Single-pass GPU Solid Voxelization for Real-time Applications},
+  Author                   = {Eisemann, Elmar and D{\'e}coret, Xavier},
+  Booktitle                = {Proceedings of Graphics Interface},
+  Year                     = {2008},
+  Pages                    = {73--80},
+  Series                   = {GI '08},
+
+  ISBN                     = {978-1-56881-423-0},
+  Location                 = {Windsor, Ontario, Canada},
+  Numpages                 = {8}
 }
 
-@article{bib:RealtimeGIOverview,
- author = {Ritschel, Tobias and Dachsbacher, Carsten and Grosch, Thorsten and Kautz, Jan},
- title = {The State of the Art in Interactive Global Illumination},
- journal = {Comput. Graph. Forum},
- issue_date = {February 2012},
- volume = {31},
- number = {1},
- month = feb,
- year = {2012},
- issn = {0167-7055},
- pages = {160--188},
- numpages = {29},
- acmid = {2283310},
- publisher = {Elsevier North-Holland, Inc.},
- address = {Amsterdam, The Netherlands, The Netherlands},
-}
-
-@inproceedings{bib:HL3Basis,
- author = {Mitchell, Jason and McTaggart, Gary and Green, Chris},
- title = {{S}hading in {V}alve's {S}ource {E}ngine},
- booktitle = {ACM SIGGRAPH 2006 Courses},
- series = {SIGGRAPH '06},
- year = {2006},
- isbn = {1-59593-364-6},
- location = {Boston, Massachusetts},
- pages = {129--142},
- numpages = {14}
-} 
-
-@inproceedings{bib:stupidsh,
-  title={Stupid spherical harmonics (sh) tricks},
-  author={Sloan, Peter-Pike},
-  booktitle={Game Developers Conference},
-  volume={2008}
-}
-
-@inproceedings{bib:grittysh,
-  title={Spherical harmonic lighting: The gritty details},
-  author={Green, Robin},
-  booktitle={Archives of the Game Developers Conference},
-  volume={2},
-  number={3},
-  pages={2-3},
-  year={2003}
-}
-
-@mastersthesis{bib:guerrero:thesis,
-  title =      "Approximative Real-time Soft Shadows and Diffuse Reflections
-               in Dynamic Scenes",
-  author =     "Paul Guerrero",
-  year =       "2007",
-  address =    "Favoritenstrasse 9-11/186, A-1040 Vienna, Austria",
-  school =     "Institute of Computer Graphics and Algorithms, Vienna
-               University of Technology",
-  month =      10,
-  keywords =   "precomputed radiance transfer, indirect illumination, global
-               illumination",
-  URL =        "http://www.cg.tuwien.ac.at/research/publications/2007/guerrero-2008-dip/",
-}
-
-@inproceedings{bib:lpt,
- author = {Kaplanyan, Anton and Dachsbacher, Carsten},
- title = {Cascaded Light Propagation Volumes for Real-time Indirect Illumination},
- booktitle = {Proceedings of the 2010 ACM SIGGRAPH Symposium on Interactive 3D Graphics and Games},
- series = {I3D '10},
- year = {2010},
- isbn = {978-1-60558-939-8},
- location = {Washington, D.C.},
- pages = {99-107},
- numpages = {9},
-}
-
-@book{bib:pbrt,
- author = {Pharr, Matt and Humphreys, Greg},
- title = {Physically Based Rendering, Second Edition: From Theory To Implementation},
- year = {2010},
- isbn = {0123750792, 9780123750792},
- edition = {2nd},
- publisher = {Morgan Kaufmann Publishers Inc.},
- address = {San Francisco, CA, USA},
-}
-
-@inproceedings{bib:blinnphongbrdf,
- author = {Blinn, James F.},
- title = {Models of Light Reflection for Computer Synthesized Pictures},
- booktitle = {Proceedings of the 4th Annual Conference on Computer Graphics and Interactive Techniques},
- series = {SIGGRAPH '77},
- year = {1977},
- location = {San Jose, California},
- pages = {192-198},
- numpages = {7}
-} 
-
-@article{bib:concentricmaps,
- author = {Shirley, Peter and Chiu, Kenneth},
- title = {A Low Distortion Map Between Disk and Square},
- journal = {J. Graph. Tools},
- issue_date = {1997},
- volume = {2},
- number = {3},
- month = dec,
- year = {1997},
- issn = {1086-7651},
- pages = {45--52},
- numpages = {8},
-}
-
-@techreport{bib:envmipmap,
- author = {Morgan McGuire and Daniel Evangelakos and James Wilcox and Sam Donow and Michael Mara},
- title = {Plausible {B}linn-{P}hong Reflection of Standard Cube {MIP}-Maps},
- number = {CSTR201301},
- insititution = {Williams College Department of Computer Science},
- pages = {8},
- address = {47 Lab Campus Drive, Williamstown, MA 01267, USA},
- month = {September},
- day={9},
- year = {2013},
-}
-
-@inproceedings{bib:mipmap,
-  title={Pyramidal parametrics},
-  author={Williams, Lance},
-  booktitle={ACM Siggraph Computer Graphics},
-  volume={17},
-  number={3},
-  pages={1--11},
-  year={1983},
-  organization={ACM}
-}
-
-@article{bib:voxelconetracing,
-   author       = "Crassin, Cyril and Neyret, Fabrice and Sainz, Miguel and Green, Simon and Eisemann, Elmar",
-   title        = "Interactive Indirect Illumination Using Voxel Cone Tracing",
-   journal      = "Computer Graphics Forum (Proceedings of Pacific Graphics 2011)",
-   number       = "7",
-   volume       = "30",
-   month        = "sep",
-   year         = "2011",
-   keywords     = "Global illumination, indirect lighting, ambient occlusion, final gather, cone-tracing, voxels, GPU, real-time rendering",
-}
-@inproceedings{bib:layeredrsm,
-  author  = {Masamichi Sugihara and Randall Rauwendaal and Marco Salvi},
-  title   = {Layered Reflective Shadow Maps for Voxel-based Indirect Illumination},  
-  pages   = {117--125},
-  year    = {2014},
-  journal = {Proceedings of High Performance Graphics 2014},
-}
-
-@inproceedings{bib:vsm,
- author = {Donnelly, William and Lauritzen, Andrew},
- title = {Variance Shadow Maps},
- booktitle = {Proceedings of the 2006 Symposium on Interactive 3D Graphics and Games},
- series = {I3D '06},
- year = {2006},
- isbn = {1-59593-295-X},
- location = {Redwood City, California},
- pages = {161--165},
- numpages = {5},
-}
-
-@book{bib:colorscience,
-  title={Color science: concepts and methods, quantitative data and formulae},
-  author={Wyszecki, G. and Stiles, W.S.},
-  isbn={9780471021063},
-  lccn={82002794},
-  series={Wiley classics library},
-  year={1982},
-  publisher={Wiley}
-}
-
-@article{bib:spectrumrendering,
-  title = {Physically Meaningful Rendering using Tristimulus Colours},
-  author = {Johannes Meng and Florian Simon and Johannes Hanika and Carsten Dachsbacher},
-  year = 2015,
-  month = June,
-  volume = 34,
-  number = 4,
-  journal = {Computer Graphics Forum (Proceedings of Eurographics Symposium on Rendering)},
-  pages = {to appear}
-}
-
-@inproceedings{bib:renderingequation,
- author = {Kajiya, James T.},
- title = {The Rendering Equation},
- booktitle = {Proceedings of the 13th Annual Conference on Computer Graphics and Interactive Techniques},
- series = {SIGGRAPH '86},
- year = {1986},
- isbn = {0-89791-196-2},
- pages = {143--150},
- numpages = {8}
-} 
-
-@inproceedings{bib:shadowmapping,
- author = {Williams, Lance},
- title = {Casting Curved Shadows on Curved Surfaces},
- booktitle = {Proceedings of the 5th Annual Conference on Computer Graphics and Interactive Techniques},
- series = {SIGGRAPH '78},
- year = {1978},
- pages = {270--274},
- numpages = {5}
-} 
-
-@misc{bib:normaloffsetshadowmapping,
- author = {Daniel Holbert},
- institution = {High Moon Studios},
- title = {Saying "Goodbye" to Shadow Acne},
- year = {2011},
- note = {Poster presented at Games Developer Conference, San Fransisco}
-} 
-
-@manual{bib:openglspec,
- organization = {Khronos Group},
- title = {Open{G}{L} 4.5 Core Profile Specification},
- year = {2014},
- url = {https://www.opengl.org/registry/doc/glspec45.core.pdf}
-} 
-
-@manual{bib:openglquickref,
- organization = {Khronos Group},
- title = {Open{G}{L} 4.5 Quick Reference Card},
- year = {2014},
- url = {https://www.khronos.org/files/opengl45-quick-reference-card.pdf}
-} 
-
-@manual{bib:cudaprogguide,
- organization = {Nvidia},
- title = {CUDA Programming Guide v7.0},
- year = {2015},
- url = {http://docs.nvidia.com/cuda/cuda-c-programming-guide/}
-} 
-@manual{bib:nvconservativeraster,
- title = {NV\_conservative\_raster OpenGL Extension},
- author = {Michael Chock},
- organization = {Nvidia},
- year = {2015},
- month = {3},
- url = {https://www.opengl.org/registry/specs/NV/conservative_raster.txt},
-} 
-
-@manual{bib:amdhardwaredoc,
- organization = {AMD},
- title = {Developer Guides, Manuals \& ISA Documents},
- year = {2015},
- url = {http://developer.amd.com/resources/documentation-articles/developer-guides-manuals/ }
-}
-@manual{bib:intelhardwaredoc,
- organization = {Intel},
- title = {Developer Documents for Intel® Processor Graphics},
- year = {2015},
- url = {https://software.intel.com/en-us/articles/intel-graphics-developers-guides }
-}
-@manual{bib:amdoccupancy,
- organization = {AMD},
- title = {APP Profiler Kernel Occupancy},
- year = {2015},
- url = {http://developer.amd.com/tools-and-sdks/archive/amd-app-profiler/user-guide/app-profiler-kernel-occupancy/}
-}
-@misc{bib:tripthroughgraphicspipe,
- author = {Fabian Giesen},
- title = {A trip through the Graphics Pipeline},
- year = {2011},
- url = {https://fgiesen.wordpress.com/2011/07/09/a-trip-through-the-graphics-pipeline-2011-index/}
-}
-
-@article{bib:voxelgi,
-  title={Voxel-based Global Illumination}, 
-  journal={Symposium on Interactive 3D Graphics and Games}, 
-  publisher={ACM Press}, 
-  author={Thiedemann, Sinje and Henrich, Niklas and Grosch, Thorsten and M{\"u}ller, Stefan}, 
-  year={2011}, 
-  pages={103-110}
-}
-
-@misc{bib:oculushighfps,
- author = {Shaun Prescott},
- organization = {PC Gamer},
- title = {Oculus founder Palmer Luckey thinks 30 frames per second is 'a failure'},
- year = {2014},
- month = {June},
- url = {http://www.pcgamer.com/oculus-founder-palmer-luckey-thinks-30-frames-per-second-is-a-failure/}
-}
-
-@inproceedings{bib:shooterfps,
-  title={The effects of frame rate and resolution on users playing first person shooter games},
-  author={Claypool, Mark and Claypool, Kajal and Damaa, Feissal},
-  booktitle={Electronic Imaging 2006},
-  pages={607101--607101},
-  year={2006},
-  organization={International Society for Optics and Photonics}
-}
-
-@incollection{bib:biascomp:kk04,
-  title={Illumination in the presence of weak singularities},
-  author={Kollig, Thomas and Keller, Alexander},
-  booktitle={Monte Carlo and Quasi-Monte Carlo Methods 2004},
-  pages={245--257},
-  year={2004},
-  publisher={Springer}
-}
-@inproceedings{bib:biascomp:novak11,
-  title={Screen-space bias compensation for interactive high-quality global illumination with virtual point lights},
-  author={Nov{\'a}k, Jan and Engelhardt, Thomas and Dachsbacher, Carsten},
-  booktitle={Symposium on Interactive 3D Graphics and Games},
-  pages={119--124},
-  year={2011}
-}
-
-@inproceedings{bib:biascomp:vsl,
-  title={Virtual spherical lights for many-light rendering of glossy scenes},
-  author={Ha{\v{s}}an, Milo{\v{s}} and K{\v{r}}iv{\'a}nek, Jaroslav and Walter, Bruce and Bala, Kavita},
-  booktitle={ACM Transactions on Graphics (TOG)},
-  volume={28},
-  number={5},
-  pages={143},
-  year={2009}
-}
-
-@article{bib:manylods,
-  author = {Matthias Holländer and Tobias Ritschel and Elmar Eisemann and Tamy Boubekeur},
-  title = {ManyLoDs: Parallel Many-View Level-of-Detail Selection for Real-Time Global Illumination},
-  journal ={Computer Graphics Forum (Proc. EGSR 2011)},
-  year = {2011},
-} 
-
-@article{bib:microrendering,
-   author    = {Tobias Ritschel and
-                Thomas Engelhardt and   
-                Thorsten Grosch and                
-                Hans-Peter Seidel and
-                Jan Kautz and
-                Carsten Dachsbacher
-               },
-   title     = {Micro-Rendering for Scalable, Parallel Final Gathering},
-   journal   = {ACM Trans. Graph. (Proc. SIGGRAPH Asia 2009)},
-   year      = {2009},
-   volume    = {28},
-   number    = {5}
-}
-
-@article{bib:radiancecachechromaticcompression,
-   author  = {Kostas Vardis and Georgios Papaioannou and Anastasios Gkaravelis},
-   title   = {Real-time Radiance Caching using Chrominance Compression},
-   year    = {2014},
-   month   = {December},
-   day     = {16},
-   journal = {Journal of Computer Graphics Techniques (JCGT)},
-   volume  = {3},
-   number  = {4},
-   pages   = {111--131},
-   issn    = {2331-7418}
-}          
-
-@incollection{bib:rasterizedvbgi,
-	author = {Hawar Doghramachi},
-	title = {Rasterized Voxel-Based Dynamic Global Illumination},
-	booktitle = {GPU Pro 4},
-	editor = {Wolfgang Engel},
-	publisher = {CRC Press},
-	year = {2013},
-	pages = {155--171}
-}
-
-@article{bib:irradiancevolume,
-  title={The irradiance volume},
-  author={Greger, Gene and Shirley, Peter and Hubbard, Philip M and Greenberg, Donald P},
-  journal={Computer Graphics and Applications, IEEE},
-  volume={18},
-  number={2},
-  pages={32--43},
-  year={1998},
-  publisher={IEEE}
-}
-
-@article{bib:nijasure:rtirradiancevol,
-  title={Real-time global illumination on gpus},
-  author={Nijasure, Mangesh and Pattanaik, Sumanta and Goel, Vineet},
-  journal={journal of graphics, gpu, and game tools},
-  volume={10},
-  number={2},
-  pages={55--71},
-  year={2005},
-  publisher={Taylor \& Francis}
-}
-
-@inproceedings{bib:instantradiosity,
- author = {Keller, Alexander},
- title = {Instant Radiosity},
- booktitle = {Proceedings of the 24th Annual Conference on Computer Graphics and Interactive Techniques},
- series = {SIGGRAPH '97},
- year = {1997},
- isbn = {0-89791-896-7},
- pages = {49--56},
- numpages = {8},
-}
-
-@inproceedings{bib:clusturedvisiblity:dong,
-  title={Real-time Indirect Illumination with Clustered Visibility.},
-  author={Dong, Zhao and Grosch, Thorsten and Ritschel, Tobias and Kautz, Jan and Seidel, Hans-Peter},
-  booktitle={VMV},
-  pages={187--196},
-  year={2009}
-}
-@inproceedings{bib:clusturedvisiblity:prutkin,
-  title={Reflective Shadow Map Clustering for Real-Time Global Illumination.},
-  author={Prutkin, Roman and Kaplanyan, Anton and Dachsbacher, Carsten},
-  booktitle={Eurographics (Short Papers)},
-  pages={9--12},
-  year={2012}
-}
-
-@ARTICLE{bib:fangvoxelization,
-    author = {Shiaofen Fang and Hongsheng Chen},
-    title = {Hardware Accelerated Voxelization},
-    journal = {Computers and Graphics},
-    year = {2000},
-    volume = {24},
-    number={3},
-    pages = {433--442}
-}
-@inproceedings{bib:eisemann:solidvox,
- author = {Eisemann, Elmar and D{\'e}coret, Xavier},
- title = {Single-pass GPU Solid Voxelization for Real-time Applications},
- booktitle = {Proceedings of Graphics Interface 2008},
- series = {GI '08},
- year = {2008},
- isbn = {978-1-56881-423-0},
- location = {Windsor, Ontario, Canada},
- pages = {73--80},
- numpages = {8},
-} 
 @InProceedings{bib:eisemann:boundaryvox,
-  author       = "Eisemann, Elmar and D\'ecoret, Xavier",
-  title        = "Fast Scene Voxelization and Applications",
-  booktitle    = "ACM SIGGRAPH Symposium on Interactive 3D Graphics and Games",
-  pages        = "71-78",
-  year         = "2006",
-  publisher    = "ACM SIGGRAPH"
+  Title                    = {Fast Scene Voxelization and Applications},
+  Author                   = {Eisemann, Elmar and D\'ecoret, Xavier},
+  Booktitle                = {Symposium on Interactive 3D Graphics and Games},
+  Year                     = {2006},
+  Pages                    = {71--78},
+  Series                   = {I3D '06}
 }
 
-@inproceedings{bib:dong:voxelization,
-	author = {Dong, Zhao and Chen, Wei and Bao, Hujun and Zhang, Hongxin and Peng, Qunsheng},
-	title = {Real-time Voxelization for Complex Polygonal Models},
-	booktitle = {Proceedings of the Computer Graphics and Applications, 12th Pacific Conference},
-	series = {PG 04},
-	year = {2004},
-	pages = {43-50},
-	numpages = {8}
-}
-@inproceedings{bib:tonemapdrago,
-  title={Adaptive logarithmic mapping for displaying high contrast scenes},
-  author={Drago, Fr{\'e}d{\'e}ric and Myszkowski, Karol and Annen, Thomas and Chiba, Norishige},
-  booktitle={Computer Graphics Forum},
-  volume={22},
-  number={3},
-  pages={419-426},
-  year={2003},
-  organization={Wiley Online Library}
+@Book{bib:realtimeshadowsbook,
+  Title                    = {Real-time shadows},
+  Author                   = {Eisemann, Elmar and Schwarz, Michael and Assarsson, Ulf and Wimmer, Michael},
+  Publisher                = {CRC Press},
+  Year                     = {2011}
 }
 
-@techreport{bib:mortonorder,
-  title={A Computer Oriented Geodetic Data Base and a New Technique in File Sequencing},
-  author={Morton, G.M.},
-  year = {1966},
-  month = {March},
-  day = {1},
-  company ={IBM},
-  Address = {Ottawa, Ontario}
+@Article{bib:fangvoxelization,
+  Title                    = {Hardware Accelerated Voxelization},
+  Author                   = {Shiaofen Fang and Hongsheng Chen},
+  Journal                  = {Computers and Graphics},
+  Year                     = {2000},
+
+  Month                    = {June},
+  Number                   = {3},
+  Pages                    = {433--442},
+  Volume                   = {24}
 }
 
-@inproceedings {bib:fumufu:vct,
-    author  = "McLaren, James",
-    title   = "Cascaded Voxel Cone Tracing in The Tomorrow Children",
-    organization = "Q-Games Ltd.",
-    booktitle = "Computer Entertainment Developers Conference (CEDEC)",
-    year    = 2014,
-    URL = {http://fumufumu.q-games.com/archives/2014_09.php#000934}
-}
-@inproceedings{bib:natypbr,
- author = {Naty Hoffmann},
- title = {Physics and Math of Shading},
- booktitle = {Siggraph PBR Course},
- organization = {2k Games},
- year = {2014},
- location = {Vancouver, Canada},
+@Misc{bib:tripthroughgraphicspipe,
+  Title                    = {A trip through the Graphics Pipeline},
+
+  Author                   = {Fabian Giesen},
+  Year                     = {2011},
+
+  Url                      = {https://fgiesen.wordpress.com/2011/07/09/a-trip-through-the-graphics-pipeline-2011-index/}
 }
 
-@online{bib:McGuire2011Data,
-title = {Computer Graphics Archive},
-author = {Morgan Mc{G}uire},
-year = {2011},
-month = {August},
-url = {http://graphics.cs.williams.edu/data}
+@InProceedings{bib:grittysh,
+  Title                    = {Spherical harmonic lighting: The gritty details},
+  Author                   = {Green, Robin},
+  Booktitle                = {Archives of the Game Developers Conference},
+  Year                     = {2003}
 }
 
-@online{bib:sponzapbr,
-title = {Base color, Roughness and Metallic textures for Sponza},
-author = {Alexandre Pestana},
-year = {2015},
-month = {Februrary},
-url = {http://www.alexandre-pestana.com/pbr-textures-sponza/}
+@Article{bib:irradiancevolume,
+  Title                    = {The irradiance volume},
+  Author                   = {Greger, Gene and Shirley, Peter and Hubbard, Philip M and Greenberg, Donald P},
+  Journal                  = {IEEE Computer Graphics and Applications},
+  Year                     = {1998},
+
+  Month                    = {March},
+  Number                   = {2},
+  Pages                    = {32--43},
+  Volume                   = {18},
+
+  Publisher                = {IEEE}
 }
 
-@online{bib:republique,
-title = {R{\'e}publique Tech Demo},
-author = {Camouflaj},
-year = {2015},
-month = {April},
-url = {https://www.assetstore.unity3d.com/en/#!/content/34352}
-}
-@misc{bib:mitsuba,
-   Author = {Wenzel Jakob},
-   Year = {2010},
-   Note = {http://www.mitsuba-renderer.org},
-   Title = {Mitsuba renderer}
+@MastersThesis{bib:guerrero:thesis,
+  Title                    = {Approximative Real-time Soft Shadows and Diffuse Reflections
+ in Dynamic Scenes},
+  Author                   = {Paul Guerrero},
+  School                   = {Institute of Computer Graphics and Algorithms, Vienna University of Technology},
+  Year                     = {2007},
+  Month                    = {October},
+
+  Keywords                 = {precomputed radiance transfer, indirect illumination, global
+ illumination},
+  Url                      = {http://www.cg.tuwien.ac.at/research/publications/2007/guerrero-2008-dip/}
 }
 
-@article{bib:solidvoxelization,
-    author  = {Michael Schwarz and Hans-Peter Seidel},
-    title   = {Fast Parallel Surface and Solid Voxelization on {GPUs}},
-    journal = {ACM Transactions on Graphics},
-    volume  = {29},
-    number  = {6} # { (Proceedings of SIGGRAPH Asia 2010)},
-    year    = {2010},
-    month   = dec,
-    pages   = {179:1-179:9}
+@InProceedings{bib:biascomp:vsl,
+  Title                    = {Virtual spherical lights for many-light rendering of glossy scenes},
+  Author                   = {Ha{\v{s}}an, Milo{\v{s}} and K{\v{r}}iv{\'a}nek, Jaroslav and Walter, Bruce and Bala, Kavita},
+  Booktitle                = {ACM SIGGRAPH Asia 2009 Papers},
+  Year                     = {2009},
+  Pages                    = {143:1--143:6},
+  Series                   = {SIGGRAPH Asia '09}
 }
-@inproceedings{bib:irradiancecachegradients,
- author = {Ward, Gregory J. and Heckbert, Paul S.},
- title = {Irradiance Gradients},
- booktitle = {ACM SIGGRAPH 2008 Classes},
- series = {SIGGRAPH '08},
- year = {2008},
- location = {Los Angeles, California},
- pages = {72:1--72:17},
- articleno = {72},
- numpages = {17},
-} 
+
+@InProceedings{bib:natypbr,
+  Title                    = {Physics and Math of Shading},
+  Author                   = {Naty Hoffmann},
+  Booktitle                = {Siggraph PBR Course},
+  Year                     = {2014},
+  Organization             = {2k Games},
+
+  Location                 = {Vancouver, Canada}
+}
+
+@Misc{bib:normaloffsetshadowmapping,
+  Title                    = {Saying "Goodbye" to Shadow Acne},
+
+  Author                   = {Daniel Holbert},
+  Note                     = {Poster presented at Games Developer Conference, San Fransisco},
+  Year                     = {2011},
+
+  Institution              = {High Moon Studios},
+  Url                      = {http://www.dissidentlogic.com/old/images/NormalOffsetShadows/GDC_Poster_NormalOffset.png}
+}
+
+@Article{bib:manylods,
+  Title                    = {ManyLoDs: Parallel Many-View Level-of-Detail Selection for Real-Time Global Illumination},
+  Author                   = {Matthias Holländer and Tobias Ritschel and Elmar Eisemann and Tamy Boubekeur},
+  Journal                  = {Computer Graphics Forum},
+  Year                     = {2011},
+
+  Month                    = {June},
+  Number                   = {4},
+  Pages                    = {1233--1240},
+  Volume                   = {30}
+}
+
+@InCollection{bib:openglinsightstransfer,
+  Title                    = {Asynchrounous Buffer Transfers},
+  Author                   = {Ladislav Hrabcak and Arnaud Masserann},
+  Booktitle                = {{O}pen{GL} {I}nsights},
+  Publisher                = {CRC Press},
+  Year                     = {2012},
+  Editor                   = {Patrick Cozzi and Christophe Riccio},
+  Month                    = {July},
+  Pages                    = {391-414},
+
+  ISBN                     = {978-1439893760}
+}
+
+@Misc{bib:mitsuba,
+  Title                    = {Mitsuba renderer},
+
+  Author                   = {Wenzel Jakob},
+  Note                     = {http://www.mitsuba-renderer.org},
+  Year                     = {2010}
+}
+
+@InProceedings{bib:renderingequation,
+  Title                    = {The Rendering Equation},
+  Author                   = {Kajiya, James T.},
+  Booktitle                = {Conference on Computer Graphics and Interactive Techniques},
+  Year                     = {1986},
+  Pages                    = {143--140},
+  Series                   = {SIGGRAPH '86}
+}
+
+@InProceedings{bib:lpt,
+  Title                    = {Cascaded Light Propagation Volumes for Real-time Indirect Illumination},
+  Author                   = {Kaplanyan, Anton and Dachsbacher, Carsten},
+  Booktitle                = {Symposium on Interactive 3D Graphics and Games},
+  Year                     = {2010},
+  Pages                    = {99-107},
+  Series                   = {I3D '10},
+
+  ISBN                     = {978-1-60558-939-8},
+  Location                 = {Washington, D.C.},
+  Numpages                 = {9}
+}
+
+@InProceedings{bib:instantradiosity,
+  Title                    = {Instant Radiosity},
+  Author                   = {Keller, Alexander},
+  Booktitle                = {Conference on Computer Graphics and Interactive Techniques},
+  Year                     = {1997},
+  Pages                    = {49--56},
+  Series                   = {SIGGRAPH '97},
+
+  ISBN                     = {0-89791-896-7},
+  Numpages                 = {8}
+}
+
+@InCollection{bib:biascomp:kk04,
+  Title                    = {Illumination in the presence of weak singularities},
+  Author                   = {Kollig, Thomas and Keller, Alexander},
+  Booktitle                = {Monte Carlo and Quasi-Monte Carlo Methods},
+  Publisher                = {Springer},
+  Year                     = {2004},
+  Pages                    = {245--257}
+}
+
+@Article{bib:radiancecaching,
+  Title                    = {Radiance caching for efficient global illumination computation},
+  Author                   = {Krivanek, Jaroslav and Gautron, Pascal and Pattanaik, Sumanta and Bouatouch, Kadi},
+  Journal                  = {IEEE Transactions on Visualization and Computer Graphics},
+  Year                     = {2005},
+
+  Month                    = {July},
+  Number                   = {5},
+  Pages                    = {550--561},
+  Volume                   = {11},
+
+  Publisher                = {IEEE}
+}
+
+@PhdThesis{bib:lightskinthesis,
+  Title                    = {LightSkin: Globale Echtzeitbeleuchtung f{\"u}r Virtual und Augmented Reality},
+  Author                   = {Philipp Lensing},
+  School                   = {TU Illmenau},
+  Year                     = {2014},
+  Month                    = {July}
+}
+
+@InProceedings{bib:LightskinPaper,
+  Title                    = {LightSkin: Real-Time Global Illumination for Virtual and Mixed Reality},
+  Author                   = {Lensing, Philipp and Broll, Wolfgang},
+  Booktitle                = {Joint Virtual Reality Conference},
+  Year                     = {2013},
+  Pages                    = {17--24},
+  Series                   = {JVRC '13},
+
+  ISBN                     = {978-3-905674-47-7},
+  ISSN                     = {1727-530X}
+}
+
+@Misc{bib:McGuire2011Data,
+  Title                    = {Computer Graphics Archive},
+
+  Author                   = {Morgan Mc{G}uire},
+  Month                    = {August},
+  Year                     = {2011},
+
+  Url                      = {http://graphics.cs.williams.edu/data}
+}
+
+@TechReport{bib:envmipmap,
+  Title                    = {Plausible {B}linn-{P}hong Reflection of Standard Cube {MIP}-Maps},
+  Author                   = {Morgan McGuire and Daniel Evangelakos and James Wilcox and Sam Donow and Michael Mara},
+  Institution              = {Williams College Department of Computer Science},
+  Year                     = {2013},
+  Month                    = {September},
+  Number                   = {CSTR201301},
+
+  Day                      = {9},
+  Insititution             = {Williams College Department of Computer Science},
+  Pages                    = {8}
+}
+
+@InProceedings{bib:fumufu:vct,
+  Title                    = {Cascaded Voxel Cone Tracing in The Tomorrow Children},
+  Author                   = {McLaren, James},
+  Booktitle                = {Computer Entertainment Developers Conference (CEDEC)},
+  Year                     = {2014},
+  Organization             = {Q-Games Ltd.},
+
+  Url                      = {http://fumufumu.q-games.com/archives/2014_09.php#000934}
+}
+
+@InProceedings{bib:HL3Basis,
+  Title                    = {{S}hading in {V}alve's {S}ource {E}ngine},
+  Author                   = {Mitchell, Jason and McTaggart, Gary and Green, Chris},
+  Booktitle                = {ACM SIGGRAPH 2006 Courses},
+  Year                     = {2006},
+  Pages                    = {129--142},
+  Series                   = {SIGGRAPH '06},
+
+  ISBN                     = {1-59593-364-6},
+  Location                 = {Boston, Massachusetts},
+  Numpages                 = {14}
+}
+
+@TechReport{bib:mortonorder,
+  Title                    = {A Computer Oriented Geodetic Data Base and a New Technique in File Sequencing},
+  Author                   = {Morton, Guy M.},
+  Institution              = {IBM},
+  Year                     = {1966},
+
+  Address                  = {Ottawa, Ontario},
+  Month                    = {March},
+
+  Company                  = {IBM},
+  Day                      = {1}
+}
+
+@Article{bib:nijasure:rtirradiancevol,
+  Title                    = {Real-time global illumination on gpus},
+  Author                   = {Nijasure, Mangesh and Pattanaik, Sumanta and Goel, Vineet},
+  Journal                  = {Journal of Graphics, GPU, and Game Tools},
+  Year                     = {2005},
+  Number                   = {2},
+  Pages                    = {55--71},
+  Volume                   = {10},
+
+  Publisher                = {Taylor \& Francis}
+}
+
+@InProceedings{bib:biascomp:novak11,
+  Title                    = {Screen-space bias compensation for interactive high-quality global illumination with virtual point lights},
+  Author                   = {Nov{\'a}k, Jan and Engelhardt, Thomas and Dachsbacher, Carsten},
+  Booktitle                = {Symposium on Interactive 3D Graphics and Games},
+  Year                     = {2011},
+  Pages                    = {119--124},
+  Series                   = {I3D '11}
+}
+
+@InProceedings{bib:clusturedshading,
+  Title                    = {Clustered Deferred and Forward Shading},
+  Author                   = {Olsson, Ola and Billeter, Markus and Assarsson, Ulf},
+  Booktitle                = {Symposium on High-Performance Graphics},
+  Year                     = {2012},
+  Pages                    = {87--96},
+  Series                   = {EGGH-HPG'12},
+
+  Location                 = {Paris, France}
+}
+
+@InProceedings{bib:virtualshadowmaps,
+  Title                    = {Implementing Efficient Virtual Shadow Maps for Many Lights},
+  Author                   = {Ola Olsson and Erik Sintorn and Viktor Kämpe and Markus Billeter and Ulf Assarsson},
+  Booktitle                = {ACM SIGGRAPH 2014 Talks},
+  Year                     = {2014},
+  Pages                    = {50:1},
+  Series                   = {SIGGRAPH '14},
+
+  Location                 = {Vancouver, Canada}
+}
+
+@InProceedings{bib:radiancehints,
+  Title                    = {Real-time diffuse global illumination using radiance hints},
+  Author                   = {Papaioannou, Georgios},
+  Booktitle                = {Symposium on High-Performance Graphics},
+  Year                     = {2011},
+  Pages                    = {15--24},
+  Series                   = {HPG '11}
+}
+
+@Misc{bib:sponzapbr,
+  Title                    = {Base color, Roughness and Metallic textures for {S}ponza},
+
+  Author                   = {Alexandre Pestana},
+  Month                    = {Februrary},
+  Year                     = {2015},
+
+  Url                      = {http://www.alexandre-pestana.com/pbr-textures-sponza/}
+}
+
+@Book{bib:GPUGems2,
+  Title                    = {GPU Gems 2: Programming Techniques for High-Performance Graphics and General-Purpose Computation (Gpu Gems)},
+  Author                   = {Pharr, Matt and Fernando, Randima},
+  Publisher                = {Addison-Wesley Professional},
+  Year                     = {2005},
+
+  ISBN                     = {0321335597}
+}
+
+@Book{bib:pbrt,
+  Title                    = {Physically Based Rendering, Second Edition: From Theory To Implementation},
+  Author                   = {Pharr, Matt and Humphreys, Greg},
+  Publisher                = {Morgan Kaufmann Publishers Inc.},
+  Year                     = {2010},
+
+  Address                  = {San Francisco, CA, USA},
+  Edition                  = {2nd},
+
+  ISBN                     = {0123750792, 9780123750792}
+}
+
+@Misc{bib:oculushighfps,
+  Title                    = {Oculus founder Palmer Luckey thinks 30 frames per second is 'a failure'},
+
+  Author                   = {Shaun Prescott},
+  Month                    = {June},
+  Year                     = {2014},
+
+  Organization             = {PC Gamer},
+  Url                      = {http://www.pcgamer.com/oculus-founder-palmer-luckey-thinks-30-frames-per-second-is-a-failure/}
+}
+
+@InProceedings{bib:clusturedvisiblity:prutkin,
+  Title                    = {Reflective Shadow Map Clustering for Real-Time Global Illumination},
+  Author                   = {Prutkin, Roman and Kaplanyan, Anton and Dachsbacher, Carsten},
+  Booktitle                = {Eurographics Short Papers},
+  Year                     = {2012},
+  Pages                    = {9--12}
+}
+
+@InProceedings{bib:clusteredpreconvoledradiancecaching,
+  Title                    = {Clustered Pre-convolved Radiance Caching},
+  Author                   = {Hauke Rehfeld and Tobias Zirr and Carsten Dachsbacher},
+  Booktitle                = {Eurographics Symposium on Parallel Graphics and Visualization},
+  Year                     = {2014},
+  Pages                    = {25--32},
+  Series                   = {EGPGV '14}
+}
+
+@Article{bib:RealtimeGIOverview,
+  Title                    = {The State of the Art in Interactive Global Illumination},
+  Author                   = {Ritschel, Tobias and Dachsbacher, Carsten and Grosch, Thorsten and Kautz, Jan},
+  Journal                  = {Computer Graphics Forum},
+  Year                     = {2012},
+
+  Month                    = {Februrary},
+  Number                   = {1},
+  Pages                    = {160--188},
+  Volume                   = {31},
+
+  Acmid                    = {2283310},
+  Address                  = {Amsterdam, The Netherlands, The Netherlands},
+  ISSN                     = {0167-7055},
+  Issue_date               = {February 2012},
+  Numpages                 = {29},
+  Publisher                = {Elsevier North-Holland, Inc.}
+}
+
+@Article{bib:imperfectshadowmaps:adapative,
+  Title                    = {Making Imperfect Shadow Maps View-Adaptive: High-Quality Global Illumination in Large Dynamic Scenes},
+  Author                   = {Ritschel, Tobias and Eisemann, Elmar and Ha, Inwoo and Kim, James DK and Seidel, Hans-Peter},
+  Journal                  = {Computer Graphics Forum},
+  Year                     = {2011},
+
+  Month                    = {December},
+  Number                   = {8},
+  Pages                    = {2258--2269},
+  Volume                   = {30}
+}
+
+@Article{bib:microrendering,
+  Title                    = {Micro-Rendering for Scalable, Parallel Final Gathering},
+  Author                   = {Tobias Ritschel and Thomas Engelhardt and Thorsten Grosch and  Hans-Peter Seidel and Jan Kautz and Carsten Dachsbacher},
+  Journal                  = {ACM Transactions on Graphics},
+  Year                     = {2009},
+
+  Month                    = {December},
+  Number                   = {5},
+  Pages                    = {132:1--132:8},
+  Volume                   = {28}
+}
+
+@Article{bib:imperfectshadowmaps,
+  Title                    = {Imperfect Shadow Maps for Efficient Computation of Indirect Illumination},
+  Author                   = {Tobias Ritschel and Thorsten Grosch and Min H. Kim and Hans-Peter Seidel and Carsten Dachsbacher and Jan Kautz},
+  Journal                  = {ACM Transactions on Graphics},
+  Year                     = {2008},
+
+  Month                    = {December},
+  Number                   = {5},
+  Pages                    = {129:1--129:8},
+  Volume                   = {27}
+}
+
+@Article{bib:preconvoledradiancecaching,
+  Title                    = {Pre-convolved Radiance Caching},
+  Author                   = {Daniel Scherzer and Chuong H. Nguyen and Tobias Ritschel and Hans-Peter Seidel},
+  Journal                  = {Computer Graphics Forum},
+  Year                     = {2012},
+
+  Month                    = {June},
+  Number                   = {31},
+  Pages                    = {1391--1397},
+  Volume                   = {4}
+}
+
+@Article{bib:solidvoxelization,
+  Title                    = {Fast Parallel Surface and Solid Voxelization on {GPUs}},
+  Author                   = {Michael Schwarz and Hans-Peter Seidel},
+  Journal                  = {ACM Transactions on Graphics},
+  Year                     = {2010},
+
+  Month                    = {December},
+  Number                   = {6},
+  Pages                    = {179:1-179:9},
+  Volume                   = {29}
+}
+
+@Article{bib:concentricmaps,
+  Title                    = {A Low Distortion Map Between Disk and Square},
+  Author                   = {Shirley, Peter and Chiu, Kenneth},
+  Journal                  = {Journal of Graphics Tools},
+  Year                     = {1997},
+
+  Month                    = {December},
+  Number                   = {3},
+  Pages                    = {45--52},
+  Volume                   = {2},
+
+  ISSN                     = {1086-7651},
+  Issue_date               = {1997},
+  Numpages                 = {8}
+}
+
+@InProceedings{bib:stupidsh,
+  Title                    = {Stupid spherical harmonics ({SH}) tricks},
+  Author                   = {Sloan, Peter-Pike},
+  Booktitle                = {Archives of the Game Developers Conference},
+  Year                     = {2008}
+}
+
+@InProceedings{bib:layeredrsm,
+  Title                    = {Layered Reflective Shadow Maps for Voxel-based Indirect Illumination},
+  Author                   = {Masamichi Sugihara and Randall Rauwendaal and Marco Salvi},
+  Booktitle                = {Symposium on High-Performance Graphics},
+  Year                     = {2014},
+  Pages                    = {117--125},
+  Series                   = {HPG '14}
+}
+
+@InProceedings{bib:voxelgi,
+  Title                    = {Voxel-based Global Illumination},
+  Author                   = {Thiedemann, Sinje and Henrich, Niklas and Grosch, Thorsten and M{\"u}ller, Stefan},
+  Booktitle                = {Symposium on Interactive 3D Graphics and Games},
+  Year                     = {2011},
+  Pages                    = {103--110},
+  Series                   = {I3D '11}
+}
+
+@Article{bib:radiancecachechromaticcompression,
+  Title                    = {Real-time Radiance Caching using Chrominance Compression},
+  Author                   = {Kostas Vardis and Georgios Papaioannou and Anastasios Gkaravelis},
+  Journal                  = {Journal of Computer Graphics Techniques},
+  Year                     = {2014},
+
+  Month                    = {December},
+  Number                   = {4},
+  Pages                    = {111--131},
+  Volume                   = {3}
+}
+
+@InProceedings{bib:irradiancecachegradients,
+  Title                    = {Irradiance Gradients},
+  Author                   = {Ward, Gregory J. and Heckbert, Paul S.},
+  Booktitle                = {ACM SIGGRAPH 2008 Classes},
+  Year                     = {2008},
+  Pages                    = {72:1--72:17},
+  Series                   = {SIGGRAPH '08},
+
+  Articleno                = {72},
+  Location                 = {Los Angeles, California},
+  Numpages                 = {17}
+}
+
+@Article{bib:irradiancecaching,
+  Title                    = {A Ray Tracing Solution for Diffuse Interreflection},
+  Author                   = {Ward, Gregory J. and Rubinstein, Francis M. and Clear, Robert D.},
+  Journal                  = {ACM SIGGRAPH Computer Graphics},
+  Year                     = {1988},
+  Number                   = {4},
+  Pages                    = {85--92},
+  Volume                   = {22}
+}
+
+@Article{bib:mipmap,
+  Title                    = {Pyramidal parametrics},
+  Author                   = {Williams, Lance},
+  Journal                  = {ACM SIGGRAPH Computer Graphics},
+  Year                     = {1983},
+
+  Month                    = {July},
+  Number                   = {3},
+  Pages                    = {1--11},
+  Volume                   = {17}
+}
+
+@Article{bib:shadowmapping,
+  Title                    = {Casting Curved Shadows on Curved Surfaces},
+  Author                   = {Williams, Lance},
+  Journal                  = {ACM SIGGRAPH Computer Graphics},
+  Year                     = {1978},
+
+  Month                    = {August},
+  Number                   = {3},
+  Pages                    = {270--274},
+  Volume                   = {12}
+}
+
+@Book{bib:colorscience,
+  Title                    = {Color science: concepts and methods, quantitative data and formulae},
+  Author                   = {Wyszecki, G{\"u}nther and Stiles, W. S.},
+  Publisher                = {John Wiley \& Sons},
+  Year                     = {1982},
+
+  ISBN                     = {9780471021063},
+  Lccn                     = {82002794}
+}
+
+@Manual{bib:amdhardwaredoc,
+  Title                    = {Developer Guides, Manuals \& ISA Documents},
+  Organization             = {AMD},
+  Year                     = {2015},
+
+  Url                      = {http://developer.amd.com/resources/documentation-articles/developer-guides-manuals/ }
+}
+
+@Manual{bib:amdoccupancy,
+  Title                    = {APP Profiler Kernel Occupancy},
+  Organization             = {AMD},
+  Year                     = {2015},
+
+  Url                      = {http://developer.amd.com/tools-and-sdks/archive/amd-app-profiler/user-guide/app-profiler-kernel-occupancy/}
+}
+
+@Manual{bib:cudaprogguide,
+  Title                    = {CUDA Programming Guide v7.0},
+  Organization             = {Nvidia},
+  Year                     = {2015},
+
+  Url                      = {http://docs.nvidia.com/cuda/cuda-c-programming-guide/}
+}
+
+@Manual{bib:intelhardwaredoc,
+  Title                    = {Developer Documents for Intel® Processor Graphics},
+  Organization             = {Intel},
+  Year                     = {2015},
+
+  Url                      = {https://software.intel.com/en-us/articles/intel-graphics-developers-guides }
+}
+
+@Manual{bib:openglquickref,
+  Title                    = {Open{G}{L} 4.5 Quick Reference Card},
+  Note                     = {Rev. 0814},
+  Organization             = {Khronos Group},
+  Year                     = {2014},
+
+  Url                      = {https://www.khronos.org/files/opengl45-quick-reference-card.pdf}
+}
+
+@Manual{bib:openglspec,
+  Title                    = {Open{G}{L} 4.5 Core Profile Specification},
+  Month                    = {October},
+  Organization             = {Khronos Group},
+  Year                     = {2014},
+
+  Url                      = {https://www.opengl.org/registry/doc/glspec45.core.pdf}
+}
 
