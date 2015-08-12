@@ -155,7 +155,6 @@ Obviously though, due to the characteristics of our graphics card (number of mul
 More experiments with different thread group sizes would be necessary for a deeper insight into this matter.
 \\
 This experiment also shows that the allocate pass is more sensible to the cache count than the apply pass for large cache counts.
-\todo{Experiments considering cascading? Impact of transitions?}
 
 \subsection{SH Band Count} \label{sec:eva:shperf}
 \begin{table}[htbp]
@@ -358,7 +357,7 @@ Testing multiple VALs at once with a single cone (shadow lod) is based on the as
 The two ways in which lighting information is saved, have each their own accuracy issues.
 Since our SH representation (for diffuse lighting) uses only very few bands, it can catch radiance only at very low frequencies.
 Using higher SH basis would improve this but leads inevitable to stronger ringing artifacts.
-While high frequencies are usually not necessary to estimate the irradiance, the representation is far from accurate. \todo{can't find references with numbers. why?}
+While high frequencies are usually not necessary to estimate the irradiance, the representation is not entirely accurate.
 The specular lighting on the other hand is limited by the per-cache specular environement map resolution that determines practically how large the maximal supported Blinn-Phong exponent is.
 Saving only a hemisphere does not introduce any new errors but the hemispherical projection creates some distortion - to filter samples on this map is not identical with filtering on the hemisphere.
 More important, the isotropic filtering process via mipmaps is flawed, as samples on higher mipmap-levels do not represent correct integrals over the anisotropic Blinn-Phong lobes.
