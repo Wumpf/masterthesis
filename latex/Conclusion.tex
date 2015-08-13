@@ -12,10 +12,10 @@ After an allocation pass that fills the CAV, the actual lighting pass is execute
 The lighting pass evaluates the radiance from a reflective shadow map, using virtual area lights as proposed by Lensing et al. \cite{bib:LightskinPaper}.
 Radiance is saved in a low order SH representation for each cache to perform diffuse lighting later on.
 Optionally, shadow cones are traced in a pre-filtered voxel volume.
-Governed by a global shadow LOD setting, cones are may be traced for bundles of virtual lights (from the reflective shadow map).
+Governed by a global shadow LOD setting, cones may be traced for bundles of virtual lights (from the reflective shadow map).
 Since the SH representation is not sufficient to depict glossy reflections, additionally the hemispherical specular environment maps can be used:
 Each cache is associated with a small rectangular projection of the hemisphere pointing to the viewer.
-Radiances is added to this texture for each visible virtual light.
+Radiance is added to this texture for each visible virtual light.
 The maps are pre-filtered to allow fast evaluation of reflection with different exponents.
 \\
 Finally, the data is evaluated and interpolated per pixel in the cache interpolation pass using per-pixel normals and material properties.
@@ -37,9 +37,9 @@ This way the approach is free of any synchronization stalls and frees the CPU fo
 % -> temp coherency
 We listed temporal coherency as most important quality criterion.
 While our algorithm is rather stable, we were not able to avoid this issue entirely:
-Typical reflective shadow map flickering can occur when directly lit objects move.
-Another source of incoherency are high resolution specular environment map.
-Note however, that there are no incoherencies at all for camera movements in general and animated objects that are receive little direct light.
+Typical reflective shadow map flickering can occur when moving directly lit objects.
+Another source of incoherency are high resolution specular environment maps.
+Note however, that there are no incoherencies at all for camera movements in general and animated objects that receive little direct light.
 
 % -> quality
 As far as other artifacts are concerned, our approach fares relatively well.
@@ -91,7 +91,7 @@ Though, this process is rather difficult since the most important unshadowed lig
 %
 Another way to alleviate the issues could be to accumulate results from several past frames.
 By jittering the RSM samples, new specular environment map pixels could be filled every frame.
-Currently, the placement positions in the cache buffer and the specular environment map atlas change every frame which makes such multi-frame approaches difficult.
+Currently, the positions at which caches are saved within the cache buffer and the specular environment map atlas change every frame, which makes such multi-frame approaches difficult.
 Additionally, caches entering and leaving the view area would need special care.
 %
 Currently, the specular environment map covers the entire hemisphere, no matter which parts will be sampled in the interpolation pass later on.
@@ -102,7 +102,9 @@ We have assumed that all operations are performed for every cache.
 Which features are computed for which cache could be selected in different frequencies, depending on the feature and distance.
 For example, specular could fade out for distant objects and diffuse lighting does not need to be obtained as often as shadows and reflections.
 %
-The cache placement itself is regular but jittered or even more geometry adaptive alignments should also be explored.
+The cache placement itself is regular.
+This can sometimes lead to jagging artifacts, especially for indirect shadow borders.
+Jittered or even geometry adaptive alignments might be able to solve this problem.
 %
 Chroma down-sampling for SH coefficients as proposed by Vardis et al. \cite{bib:radiancecachechromaticcompression} might enhance the speed of the interpolation pass.
 

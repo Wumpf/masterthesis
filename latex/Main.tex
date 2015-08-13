@@ -306,7 +306,7 @@ r_s = d_s \cdot \sin \alpha = d_s \cdot \frac{max(r_{e1}, r_{e2})}{||\mathrm{c} 
 $d_s$ is the distance of the given sample to the cache. $\mathrm{c}$ and $\mathrm{l}$ are the positions of the cache and light.
 The cone angle $\alpha$ does not need to be evaluated directly. % at any time.
 If all values are given in voxel volume coordinates, the sampled mip-level is simply $log_2(r_s)$.\\
-The distance $d_s$ of the next sample is chosen so that two inner circles touch each other:
+The distance $d_s$ of the next sample is chosen such that two inner circles touch each other:
 \begin{align}
 d_{s'} =& d_s + r_s + r_{s'} = d_s + r_s + d_{s'} \cdot \sin \alpha\\
 d_{s'} =& \frac{d_s + r_s}{1-\sin\alpha} = \frac{d_s + r_s}{1-\frac{r_s}{d_s}} 
