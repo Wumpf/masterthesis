@@ -34,15 +34,25 @@ The test machine contains a Intel i7-3770 CPU and uses Windows 8 64bit as OS.
 \label{fig:testscenes}
 \end{figure}
 \autoref{fig:testscenes} gives an overview over the main test scenes used in this chapter (and throughout the thesis).
+All three scenes have very different detail densities and feature different mixtures of materials.
+
 We use McGuire's \cite{bib:McGuire2011Data} version of the well known Crytek \dataset{Sponza} scene which was modeled by Frank Meinl.
 For a better fit into our physically based pipeline we used the freely provided texture set  by Alexandre Pestana \cite{bib:sponzapbr}.
 Additionally, we placed a continuously rotating Utah teapot with a custom metal-like texture in the scene to show-case specular reflections on a curved surface with varying metallic and roughness values.
-\\
+The setup consists of 278k triangles and a total of 153k vertices.
+Its intensely contrasted curtain colors are a popular show case for global illumination effects.
+We slightly modified the materials to be able to feature glossy reflections.
+
 The \dataset{Sibenik} cathedral scene is as well from McGuire's database \cite{bib:McGuire2011Data}.
 To fill the empty space, we added a dinosaur skeleton from the "Natural History Museeum" modelled by Alvara Luna Bautista and Joel Anderson (available at \url{http://www.3drender.com/challenges/}).
-\\
+The scene is with only 131k triangles and 98k vertices our least complex regular test scenario.
+While the scene itself is very simple, the dinosaur adds some complexity.
+Materials are mostly diffuse in this scene.
+
 The \dataset{Republique} scene was extracted from a Unity3D tech demo for the game "République Remastered" by Camouflaj.
 The entire demo is freely available on the Unity Assetstore \cite{bib:republique}.
+While the scene has with 285k triangles and 353k vertices an raw amount of geometry-data similar to sponza, it is still the most complex due its dense vegetation that comes with many thin features.
+This leads to comparatively difficult shadowing.
 
 \section{Parameter Overview} \label{sec:eva:params}
 How our approach performs depends on several parameters.
@@ -79,6 +89,8 @@ However, in our tests this overlap seems to play a minor role since most tasks a
 \\
 In general such measurements can slow down the rendering process.
 For our scenarios though, we did not measure any drops in the independently measured framerate with activated timer queries.
+\\
+Representative images to the most parameter studies will be presented in the next section.
 
 \subsection{General Breakdown}
 \begin{figure}
@@ -96,7 +108,7 @@ For our scenarios though, we did not measure any drops in the independently meas
 
 First, we want to provide a general overview over how long the different steps of our rendering pipeline usually take.
 For this, we measure all timings along 30 seconds camera flights through our test scenes using the default settings mentioned in \autoref{sec:eva:setup}.
-These paths are shown by the accompanying videos. \todo{MAKE THESE VIDEOS}
+These paths are shown by the accompanying videos.
 The first set of graphs in \autoref{fig:frameratebreakdown:specoff} shows timings without and the second in \autoref{fig:frameratebreakdown:specoff} with indirect specular reflections.
 The stacked area plots are sorted in the order in which the respective passes are issued, starting with the G-buffer creation (light green) at the bottom and ending with the cache interpolation on top (beige).
 The black line at the top of all plots shows the total duration for each recorded frame.
@@ -107,7 +119,7 @@ Since the light does not move in these tests, the rendering of the reflective sh
 The duration of the voxelization pass and its blending + mipmapping is constant as well since there are no changes in resolution, number of written cells or geometrical complexity of the scene.
 More surprisingly, there are also almost no changes over time in the cache allocation pass (bright yellow) even when the cache lighting pass (dark yellow) is significantly slower which hints a higher number of light caches.
 Since the main influence to this and the other two cache related passes is the number of of active caches we will investigate this further in the next section on cache count. 
-The strong changes in the duration of the G-buffer creation pass (especially in \dataset{Sponza}) stem from varying depending on the current view orientation.
+The strong changes in the duration of the G-buffer creation pass (especially in \dataset{Sponza}) stem from varying overdraw depending on the current view orientation.
 
 In general, the performance in the three scenes does not differ much.
 Only the significantly more complex \dataset{Republique} scene performs a bit slower which is observable especially without indirect specular.
@@ -128,27 +140,30 @@ The steadiness of the cache allocation pass comes most likely from the fact that
 Weather an attempt is redundant or not might not as important for the runtime.
 The cache apply pass on the other hand has a strict control flow, i.e. it executes the same code insensitive to the number of caches.
 This leaves only the changing number of cache misses as reasonable explanation for its behavior.
-Clearly, the main bottleneck of the cache lighting pass in the preceding tests is not the raw number of caches to be lit, but another factor that changed along the tested camera paths.
-To reduce the number of influences we ran the same experiment in the \dataset{Sponza} scene again with disabled indirect shadow.
 \\
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{eva/cachecountovertime/sponza_noshadow.pdf}
 \caption{Cache count (black) in comparison to indirect lighting passes with inactive indirect shadowing (camera path and other settings as in \autoref{fig:frameratebreakdown:specoff}).}
 \label{fig:cachecountovertime:noshadow}
 \end{figure}
-The results, seen in \autoref{fig:cachecountovertime:noshadow}, show a even more extreme picture:
+\\
+Clearly, the main bottleneck of the cache lighting pass in the preceding tests is not the raw number of caches to be lit, but another factor that changed along the tested camera paths.
+To reduce the number of influences we ran the same experiment in the \dataset{Sponza} scene again with disabled indirect shadow.
+\\
+The results, seen in \autoref{fig:cachecountovertime:noshadow}, show an even more extreme picture:
 Now the duration of the caching pass is almost completely constant, while correlations of the cache count and the performance of the other two parts are much better visible.
 Naturally we suspected a bug in the implementation of the light caching pass that is expected to a have linear performance characteristic in respect to the number of active light caches.
-\begin{figure}
+However, more experiments with higher cache counts show that there is in fact such a linear correlation.
+This time we chose a fixed view point in the \dataset{Sponza} scene, using the default non-specular settings and measure the performance (and cache count) for different CAV resolutions.
+The results are plotted in \autoref{fig:cachecountdirect}.
+\\
+\begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{eva/cachecount.pdf}
 \caption{Performance for different cache counts. Recorded in \dataset{Sponza} with varying CAV resolutions, starting with $16^3$, ending with $192^3$. Otherwise default settings without indirect specular. }
 \label{fig:cachecountdirect}
 \end{figure}
-However, more experiments with higher cache counts show that there is in fact such a linear correlation.
-This time we chose a fixed view point in the \dataset{Sponza} scene, using the default non-specular settings and measure the performance (and cache count) for different CAV resolutions.
-The results are plotted in \autoref{fig:cachecountdirect}.
 The implementation of the cache lighting pass uses 512 threads per group since it performed best on average with this count.
 As the shared memory optimization (see \autoref{sec:impl:details:lighting}) enforces that all threads of a group remain active, this is also the lowest theoretical granularity to which the performance of this pass can react.
 Obviously though, due to the characteristics of our graphics card (number of multiprocessors, minimum/maximum parallel thread groups in flight etc.), the measured granularity is much coarser, especially for a low number of thread groups.
@@ -157,6 +172,9 @@ More experiments with different thread group sizes would be necessary for a deep
 This experiment also shows that the allocate pass is more sensible to the cache count than the apply pass for large cache counts.
 
 \subsection{SH Band Count} \label{sec:eva:shperf}
+For diffuse lighting we use either two or three spherical harmonics bands.
+Using more or a generic count of bands was considered too complex to implement for the large associated performance hit that is expected to bring only slight improvement in lighting.
+In fact, already switching from two to three bands can result in a much costlier cache apply pass, as can be seen in \autoref{tab:shperf}.
 \begin{table}[htbp]
   \centering
     \begin{tabular}{r|rr|rr|rr}
@@ -172,11 +190,9 @@ This experiment also shows that the allocate pass is more sensible to the cache 
 \caption{Performance of indirect lighting and cache apply passes in \si{\milli\second} for different numbers of spherical harmonics bands and CAV resolutions (resulting cache counts in parenthesis) in the \dataset{Sponza} scene. }
 \label{tab:shperf}
 \end{table}
-For diffuse lighting we use either two or three spherical harmonics bands.
-Using more or a generic count of bands was considered too complex to implement for the large associated performance hit that is expected to bring only slight improvement in lighting.
-In fact already switching from two to three bands can result in a much costlier cache apply pass, as can be seen in \autoref{tab:shperf}.
 The increased band count means higher register pressure and more arithmetic for the indirect lighting pass as well.
-However, as the numbers show the impact is here more limited.
+However, as the numbers show, the impact is here more limited.
+Since the main bottleneck is the visibility calculation, a few more or less arithmetic instructions do not have a large influence.
 Other passes are obviously not affected by the precision of our spherical harmonics representation.
 
 \subsection{RSM Resolution}
@@ -199,16 +215,16 @@ Other passes are obviously not affected by the precision of our spherical harmon
 \label{tab:RSMsizeperf}
 \end{table}
 The reflective shadow map resolution has a major impact on the duration of the indirect lighting pass which is practically always the slowest step in our rendering process.
-\autoref{tab:RSMsizeperf} shows how the it behaves with different RSM resolutions in the \dataset{Republique} scene with a fixed view point from which 3045 caches are activated. %(which is still in the region of almost constant cache count performance-region" in \autoref{fig:cachecountdirect}).
+\autoref{tab:RSMsizeperf} shows its influence on the performance in the \dataset{Republique} scene with a fixed view point that activates 3045 caches.
 Increasing the size of the reflective shadow map also increases the number of shadow cones per cache.
-Since we are only interested in the effects of the RSM resolution we canceled that factor out by increasing the shadow lod so that the number of cones stays the same.
+Since we are only interested in the effects of the RSM resolution we canceled that factor out by increasing the shadow lod so that the number of cones stays at 256.
 \\
 Resolutions beyond $128^2$ are practically not usable from a real-time performance standpoint, regardless if indirect shadows and specular effects are activated or not.
 
 \subsection{Indirect Shadow}
 Comparing the statistics on cache count influence with (see \autoref{fig:cachecountovertime}) and without shadowing (see \autoref{fig:cachecountovertime:noshadow}) we can already deduce that indirect shadowing has a rather high performance impact depending on the visible scene portion which determines the average length of the shadow cones.
 More importantly though, is the shadow lod since it determines together with the RSM resolution how many shadow cones are needed for each cache.
-
+\\
 \begin{table}[h]
   \centering
     \begin{tabular}{c|rrrrr}
@@ -229,6 +245,7 @@ More importantly though, is the shadow lod since it determines together with the
 \caption{Performance of the cache lighting pass in \si{\milli\second} for different shadow lods and RSM resolutions in the \dataset{Republique} scene.}
 \label{tab:shadowlod}
 \end{table}
+\\
 \autoref{tab:shadowlod} shows measurements of the duration of the cache lighting pass depending on shadow lod and reflective shadow map resolution.
 The last entry in each column was rendered with a single large shadow cone. 
 Each entry above used a quadrupled number of shadow cones.
@@ -236,9 +253,10 @@ Each entry above used a quadrupled number of shadow cones.
 Another important parameter is the resolution of the voxel volume.
 For simplicity, the application only supports cubic volumes that are aligned to the entire scene.
 This results in rather poor voxel space usage as all our scenes have a larger extent on a single dominant axis.
+\\
 \begin{table}[h]
   \centering
-    \begin{tabular}{rrrrrr}
+    \begin{tabular}{r|rrrrr}
     \toprule
     \diagbox[width=8.5em]{\small{shadow lod}}{\small{Voxel res.}} \,\, & $32^3$ & $64^3$ & $128^3$ & $256^3$ & $512^3$ \\
     \midrule
@@ -254,6 +272,7 @@ This results in rather poor voxel space usage as all our scenes have a larger ex
 \caption{Performance of the cache lighting pass in \si{\milli\second} for different shadow lods and voxel volume resolutions in the \dataset{Republique} scene. RSM resolution was fixed to $64^2$.}
 \label{tab:shadowvoxelres}
 \end{table}
+\\
 \autoref{tab:shadowvoxelres} shows how the resolution of the voxel volume influences the duration of the cache lighting pass.
 For unrealistic high shadow lods there is almost no difference in performance for different voxel resolutions.
 This can easily be explained by the fact that a high shadow lod results in large cones that take only few samples in high order mip-levels, thus using a low resolution version of the voxelization anyways.
@@ -261,7 +280,7 @@ This can easily be explained by the fact that a high shadow lod results in large
 We deliberately did not include measurements on how long the voxelization takes, as this was discussed in the works from which our voxelization-implementation is derived.
 
 \subsection{Indirect Specular} \label{sec:eva:specperf}
-\begin{table}[h!]
+\begin{table}[h]
 \begin{subtable}{\textwidth}
 	\centering
 	\begin{tabular}{c|rrrrr}
@@ -311,22 +330,20 @@ For direct writes, the performance is very stable independently of the specular 
 However, this parameter can also raise memory requirements drastically (see also \autoref{sec:eva:memory}).
 
 \subsection{Resolution Dependence}
-\begin{figure}[h]
+Finally, we want to test the effect of the screen resolution on our global illumination algorithm.
+Both the cache allocation and interpolation (= apply) passes are executed for every screen pixel.
+As expected, our tests in \autoref{fig:resolutionperf} show an almost linear correlation to the number of screen pixels.
+The duration of the allocate pass increases especially slowly with the resolution compared with the allocate and apply passes.
+For this test we used the \dataset{Sibenik} scene and increased the CAV resolution to $64^3$ for a higher cache density.
+%Measurement inaccuracies can arise from the different aspect ratios which lead to slightly varying cache counts for different resolution configurations.
+\begin{figure}[h!]
 \centering
 \includegraphics[width=\textwidth]{eva/screen_resolution.pdf}
 \caption{Performance of cache allocation and interpolation in \si{\milli\second} at different screen resolutions in \dataset{Sibenik} scene. Used CAV with $64^3$, resulting in about 7300 caches.}
 \label{fig:resolutionperf}
 \end{figure}
-Finally, we want to test the effect of the screen resolution on our global illumination algorithm.
-Both the cache allocation and interpolation (= apply) passes are executed for every screen pixel.
-As expected, our tests in \autoref{fig:resolutionperf} show an almost linear correlation to the number of screen pixels.
-However, especially the duration of the allocate pass increases slowly with the resolution.
-For this test we used the \dataset{Sibenik} scene and increased the CAV resolution to $64^3$ for a higher cache density.
-%Measurement inaccuracies can arise from the different aspect ratios which lead to slightly varying cache counts for different resolution configurations.
 
 \newpage
-
-
 \section{Quality}
 While the previous section examined the effect of several parameters on how well the approach performs in terms of computation time, this section will try to evaluate its general visual quality.
 %Unlike before, we will do this in a more feature oriented fashion instead of observing the effect of single configuration tweaks.
@@ -363,6 +380,7 @@ Saving only a hemisphere does not introduce any new errors but the hemispherical
 More important, the isotropic filtering process via mipmaps is flawed, as samples on higher mipmap-levels do not represent correct integrals over the anisotropic Blinn-Phong lobes.
 However, in practice the largest error originates from the assumption that a single VAL does only affect a single pixel in the specular environment map.
 This is more inaccurate with \emph{higher} specular environment maps and lower RSM resolutions.
+Note that all specular reflections can only show directly lit geometry due to the path length restrictions.
 
 %\begin{easylist}
 %# RSM
@@ -406,8 +424,11 @@ Please note that we were not able to include such groundtruth images for the oth
 We chose a single address volume with a resolution of $128^3$, other than that we used the default settings without specular lighting since we were not able to replicate our BRDF setup in the path-tracer.
 Using this rather high cache frequency, our approach is able to depict most shadowing details, however fails to compute them accurately.
 The shadows are generally too bright and - not easily visible due to the tonemapping - tend to darken wide regions that should not be shadowed at all.
+The brightening originates primarily from the thin voxelization which yields too low blocking values in higher voxel volume mipmaps.
 The simple low frequent lighting in this scene though, is no problem for our approach in general.
-Generally speaking, our technique is not able to reproduce high frequency changes in indirect lighting due to the rather sparse distribution of caches.
+%Generally speaking, our technique is not able to reproduce high frequency changes in indirect lighting due to the rather sparse distribution of caches.
+The jagged shadow border on the red ball originates from the regular cache distribution.
+While it is rarely visible on textured surfaces, it is also very hard to avoid.
 
 \subsection{SH Band Comparision} \label{sec:eva:shquality}
 \begin{figure}[h]
@@ -430,7 +451,6 @@ While the shading at the left statue changes only slightly, the right statue is 
 Generally, the setting with more SH bands displays crispier transitions between dark and bright zones but does not necessarily lead to more variations.
 For example, the strongly normal-mapped flag in the middle of the scene barely changed.
 For two or three SH bands we found almost no ringing artifacts in our test cases.
-\todo{sth. on cascading / cache density ?}
 
 \subsection{Indirect Shadow}
 \autoref{fig:shadowcomparision:resolutions} shows indirect shadow for different CAV and voxel resolutions.
@@ -440,6 +460,7 @@ Finer details get lost and Peter Panning is more likely to occur.
 Using multiple cascades, the more distant cascades may have too few caches to represent the shadow at all, as can be seen in the corridor in the upper left of the images.
 Higher voxel resolution has not only advantages:
 While the shadow borders are more accurate (especially for high CAV resolutions), it is also disproportional brighter and tends to miss distant thin features since the volume is less dense in its higher mipmap-levels.
+To avoid these issues, solid voxelization would be necessary.
 \\
 Similar behavior can be observed for the shadow lod, see \autoref{fig:shadowcomparision:lod}.
 With raising shadow lod, the shadow gets brighter and thin features are more likely lost.
@@ -523,7 +544,7 @@ Besides, these images also feature the ability of "colored shadows" which are an
 \includegraphics[width=\textwidth]{eva/shadow/lod5}
 \caption{shadow lod 5}
 \end{subfigure}
-\caption{Indirect shadow for different shadow lods in the \dataset{Sponza} scene using a voxel volume resolution of $256^3$ and CAV resolution of $64^3$. }
+\caption{Indirect shadow for different shadow lods in the \dataset{Sponza} scene using a voxel volume resolution of $256^3$ and CAV resolution of $64^3$. High lods suffer from the low density in higher voxel mipmaps which is the result of thin voxelization (as opposed to solid voxelization). }
 \label{fig:shadowcomparision:lod}
 \end{figure}
 %
@@ -532,7 +553,7 @@ Besides, these images also feature the ability of "colored shadows" which are an
 As seen in \autoref{fig:specular:rescomparision}, the quality of indirect specular lighting seemingly improves straight-forward with higher specular environment map resolutions.
 However, there are massive temporal coherence problems for resolutions beyond $16^2$ per cache.
 The indirect specular lighting is the only part of our solution that has temporal coherency issues under camera movement, since the local hemispheres of the caches are view dependent.
-In combination with the single write each VAL performs on the per cache, this can result in flickering.
+In combination with the single write each VAL performs per cache, this can result in flickering.
 The effect is most problematic with high specular environment map resolutions.
 As \autoref{fig:specular:cachegaps} shows, this leads to gaps on the specular environment map which are surrounded by too bright pixels since their samples should have been distributed into neighboring pixels as well.
 We tried to close these gaps using a post-processing step similar as in imperfect shadow mapping \cite{bib:imperfectshadowmaps} but this did worsen temporal artifacts while not improving the visual quality noticeable.
@@ -570,11 +591,11 @@ However, for smaller resolutions the results are still visual pleasing and rathe
 \end{figure}
 \begin{figure}
 \centering
-\begin{subfigure}[b]{0.3\textwidth}
+\begin{subfigure}[b]{0.35\textwidth}
 \includegraphics[width=\textwidth]{eva/specular/cache64_rsm64}
 \caption{RSM resolution $64^2$.}
 \end{subfigure}
-\begin{subfigure}[b]{0.3\textwidth}
+\begin{subfigure}[b]{0.35\textwidth}
 \includegraphics[width=\textwidth]{eva/specular/cache64_rsm256}
 \caption{RSM resolution $256^2$}
 \end{subfigure}
@@ -582,30 +603,29 @@ However, for smaller resolutions the results are still visual pleasing and rathe
 \label{fig:specular:cachegaps}
 \end{figure}
 
-\newpage
 \section{Memory Consumption} \label{sec:eva:memory}
 \begin{table}[h]
 \centering
 \begin{tabular}{lrr}
 \toprule
-\emph{RSM} & Flux + Depth + Normal & \SI{22.6}{\mebi\byte} \\
-\hspace{0.5cm} \emph{Flux}   & $1024^2 \cdot \SI{6}{\byte} + \mathrm{mipmaps}$ & \SI{8.0}{\mebi\byte} \\
-\hspace{0.5cm} \emph{Normal} & $1024^2 \cdot \SI{4}{\byte} + \mathrm{mipmaps}$ & \SI{5.3}{\mebi\byte} \\
-\hspace{0.5cm} \emph{Depth + Depth}$^2$  & $1024^2 \cdot \SI{4}{\byte} + \mathrm{mipmaps}$ & \SI{5.3}{\mebi\byte} \\
-\hspace{0.5cm} \emph{Depth}  & $1024^2 \cdot \SI{4}{\byte}$ & \SI{4}{\mebi\byte} \\
+RSM & Flux + Depth + Normal & \SI{22.6}{\mebi\byte} \\
+\hspace{0.5cm} \emph{Flux}   & $1024^2 \cdot \SI{6}{\byte} + \mathrm{mipmaps}$ & \textit{8.0\,MiB}\\ %\textit{\SI{8.0}{\mebi\byte}} \\
+\hspace{0.5cm} \emph{Normal} & $1024^2 \cdot \SI{4}{\byte} + \mathrm{mipmaps}$ & \textit{5.3\,MiB}\\ %\textit{\SI{5.3}{\mebi\byte}} \\
+\hspace{0.5cm} \emph{Depth + Depth}$^2$  & $1024^2 \cdot \SI{4}{\byte} + \mathrm{mipmaps}$ & \textit{5.0\,MiB}\\ %\SI{5.3}{\mebi\byte} \\
+\hspace{0.5cm} \emph{Depth}  & $1024^2 \cdot \SI{4}{\byte}$ & \textit{4\,MiB}\\ %\SI{4}{\mebi\byte} \\
 \midrule
 CAV   & $4\times 32^3 \cdot \SI{4}{\byte}$ & \SI{0.5}{\mebi\byte} \\
 \midrule
 Voxel Volume & $128^3 \cdot \SI{1}{\byte} + \mathrm{mipmaps}$ & \SI{2.3}{\mebi\byte} \\
 \midrule
 Cache Buffer & $32768\times\mathrm{cache}$ & \SI{2.5}{\mebi\byte} \\
-\hspace{0.5cm} \emph{Position (+ padding)} & $4 \cdot \SI{4}{\byte}$ & \SI{16}{\byte} \\
-\hspace{0.5cm} \emph{2 Band SH (3 colors)} & $16 \cdot \SI{4}{\byte}$ & \SI{64}{\byte} \\
+\hspace{0.5cm} \emph{Position (+ padding)} & $4 \cdot \SI{4}{\byte}$ & \textit{16\,B}\\ %\SI{16}{\byte} \\
+\hspace{0.5cm} \emph{2 Band SH (3 colors)} & $16 \cdot \SI{4}{\byte}$ & \textit{64\,B}\\ %\SI{64}{\byte} \\
 \midrule
 SpecEnvMap &  $32768\times 16^2 \cdot \SI{4}{\byte}$ & \SI{32}{\mebi\byte} \\
 \midrule
 \midrule
-\textbf{Overall} &       & \textbf{\SI{59.9}{\mebi\byte}} \\
+\textbf{Overall} &       & \textbf{59.9\,MiB}\\ %\SI{59.9}{\mebi\byte} \\
 \bottomrule
 \end{tabular}
 \caption{Memory consumption break-down of the default configuration with maximum of about 32k caches.}
@@ -618,12 +638,12 @@ Further, two depth textures are needed:
 One for holding both depth and squared depth which is used for the cache-lighting and another one which serves as depth buffer during the RSM rendering and as shadow map later on.
 \\
 The cascaded address volumes (CAV) consist of unsigned integers (\SI{4}{\byte}) that address caches in the cache buffer.
-While the voxel volume has a rather high resolution and needs mipmaps, it is still far bellow the memory consumption of the RSM volume since each voxel needs only a single byte.
+While the voxel volume has a rather high resolution and needs mipmaps, it is still far bellow the memory consumption of the RSM textures since each voxel needs only a single byte.
 \\
 The size of the cache buffer depends on the number of used SH bands (two: \SI{64}{\byte} three: \SI{112}{\byte}) and the number of reserved caches.
 For this overview we used assumed a maximum of 32768 caches, which is well beyond everything we measured.
 It would also be possible to adjust this number during the rendering.
-If indirect specular is activated, the maximum cache number plays a more important role since each cache needs an individual specular enthronement buffer (on the atlas).
+If indirect specular is activated, the maximum cache number plays a more important role since each cache needs an individual specular environment buffer (on the atlas).
 With \SI{32}{\mebi\byte} this is the clearly the largest item in this configuration.
 
 \section{Comparison to other Techniques} \label{sec:eva:comparisiontoother}
@@ -646,7 +666,7 @@ RSM can handle the problem by brute force, evaluating the specular lighting for 
 \\
 Most techniques, including our own, cannot handle thin geometries well and show light bleeding artifacts.
 \autoref{sec:fig:rsmbias} already discussed how to fix the typical "bright spot artifacts" of RSM.
-Techniques with even few pre-computations like LightSkin can alleviate this problem, but may still suffer from missing detail for smaller features.
+Techniques with even fewer pre-computations like LightSkin can alleviate this problem, but may still suffer from missing detail for smaller features.
 \\
 With the exception of VCT, memory requirements are rarely a problem for the listed techniques.
 Especially our technique is able to run on a very limited budget, as has been shown in the last section.
