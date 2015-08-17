@@ -473,7 +473,7 @@ While it is rarely visible on textured surfaces, it is also very hard to avoid.
 \label{fig:shcomparision}
 \end{figure}
 The quality difference between two or three spherical harmonics bands for diffuse lighting is often not very high.
-\autoref{fig:shcomparision} shows an example with both negligible and rather good visible differences.
+\autoref{fig:shcomparision} shows an example with both negligible and rather well visible differences.
 While the shading at the left statue changes only slightly, the right statue is more contrasted with three SH bands.
 Generally, the setting with more SH bands displays crisper transitions between dark and bright zones but does not necessarily lead to more variations.
 For example, the strongly normal-mapped flag in the middle of the scene barely changed.
@@ -639,7 +639,7 @@ RSM & Flux + Depth + Normal & \SI{22.6}{\mebi\byte} \\
 \hspace{0.5cm} \emph{Flux}   & $1024^2 \cdot \SI{6}{\byte} + \mathrm{mipmaps}$ & \textit{8.0\,MiB}\\ %\textit{\SI{8.0}{\mebi\byte}} \\
 \hspace{0.5cm} \emph{Normal} & $1024^2 \cdot \SI{4}{\byte} + \mathrm{mipmaps}$ & \textit{5.3\,MiB}\\ %\textit{\SI{5.3}{\mebi\byte}} \\
 \hspace{0.5cm} \emph{Depth + Depth}$^2$  & $1024^2 \cdot \SI{4}{\byte} + \mathrm{mipmaps}$ & \textit{5.0\,MiB}\\ %\SI{5.3}{\mebi\byte} \\
-\hspace{0.5cm} \emph{Depth}  & $1024^2 \cdot \SI{4}{\byte}$ & \textit{4.0\,MiB}\\ %\SI{4}{\mebi\byte} \\
+\hspace{0.5cm} \emph{Depth/Shadow Map}  & $1024^2 \cdot \SI{4}{\byte}$ & \textit{4.0\,MiB}\\ %\SI{4}{\mebi\byte} \\
 \midrule
 CAV   & $4\times 32^3 \cdot \SI{4}{\byte}$ & \SI{0.5}{\mebi\byte} \\
 \midrule
@@ -706,32 +706,32 @@ Especially our technique is able to run on a very limited budget, as has been sh
 \centering
 \begin{tabular}{llllll}
 \toprule
-Method  & \makecell[l]{Ind. shadows quality\\ \& basic approach} & \makecell[l]{Ind. specular freq.\\ \& basic approach} & Typical artifacts & \makecell[l]{Memory requ.\\ \& main bound} & Main perf. bound\\
+Method  & \makecell[l]{\emph{Ind. shadows quality} \& \\basic shadow approach} & \makecell[l]{\emph{Ind. specular freq.}\& \\ basic approach} & Typical artifacts & \makecell[l]{\emph{Memory requ.} \&\\ main bound} & Main perf. bound\\
 \midrule
 
 \specialVspace
 
-Ours    & \makecell[l]{rather accurate\\cone traced (to RSM)}& \makecell[l]{medium \\ radiance hemispheres} & \makecell[l]{specular flickering \\ shadow jaggies, bleeding } & \makecell[l]{low\\spec. env. map} & \makecell[l]{shadow quality, \\ RSM resolution}\\
+Ours    & \makecell[l]{\emph{rather accurate}\\cone traced (to RSM)}& \makecell[l]{\emph{medium} \\ radiance hemispheres} & \makecell[l]{specular flickering \\ shadow jaggies, bleeding } & \makecell[l]{\emph{low}\\spec. env. map} & \makecell[l]{shadow quality, \\ RSM resolution}\\
 
 \specialVspace
 
-\makecell[l]{Vardis et al. \\ \cite{bib:radiancecachechromaticcompression} } & \makecell[l]{coarse\\ray march in low-\\ res. occupancy volume} & \makecell[l]{low (theory)\\spherical harmonics} & light bleeding & \makecell[l]{medium\\SH bands, volumes} & \makecell[l]{volume resolution\\RSM sample count} \\
+\makecell[l]{Vardis et al. \\ \cite{bib:radiancecachechromaticcompression} } & \makecell[l]{\emph{coarse}\\ray march in low-\\ res. occupancy volume} & \makecell[l]{\emph{low (theory)}\\spherical harmonics} & light bleeding & \makecell[l]{\emph{medium}\\SH bands, volumes} & \makecell[l]{volume resolution\\RSM sample count} \\
 
 \specialVspace
 
-\makecell[l]{LightSkin \\ \cite{bib:LightskinPaper}} & \makecell[l]{coarse, no color\\blocker estimates} & \makecell[l]{low\\similar to radiance cache\\encoded as virtual light} &  \makecell[l]{small features wrong \\ slight bleeding} & \makecell[l]{medium\\cache references} & cache count \\
+\makecell[l]{LightSkin \\ \cite{bib:LightskinPaper}} & \makecell[l]{\emph{coarse, no color}\\blocker estimates} & \makecell[l]{\emph{low}\\similar to radiance cache\\encoded as virtual light} &  \makecell[l]{small features wrong \\ slight bleeding} & \makecell[l]{\emph{medium}\\cache references} & cache count \\
 
 \specialVspace
 
-\makecell[l]{VCT \\ \cite{bib:voxelconetracing}} & \makecell[l]{rather accurate\\cone traced (in volume)} & \makecell[l]{high\\approx. with thin cone} & \makecell[l]{blocky reflections \\ bleeding} & \makecell[l]{high\\sparse voxel octree} & \makecell[l]{cone count\\ volume resolution} \\
+\makecell[l]{VCT \\ \cite{bib:voxelconetracing}} & \makecell[l]{\emph{rather accurate}\\cone traced (in volume)} & \makecell[l]{\emph{high}\\approx. with thin cone} & \makecell[l]{blocky reflections \\ bleeding} & \makecell[l]{\emph{high}\\sparse voxel octree} & \makecell[l]{cone count\\ volume resolution} \\
 
 \specialVspace
 
-\makecell[l]{LPV \\ \cite{bib:lpt}} & \makecell[l]{very coarse\\injected blocker volume} & \makecell[l]{very low\\spherical harmonics} & \makecell[l]{heavy bleeding\\limited light range} & \makecell[l]{medium\\SH bands, volumes}  & \makecell[l]{volume resolution,\\SH bands} \\
+\makecell[l]{LPV \\ \cite{bib:lpt}} & \makecell[l]{\emph{very coarse}\\injected blocker volume} & \makecell[l]{\emph{very low}\\spherical harmonics} & \makecell[l]{heavy bleeding\\limited light range} & \makecell[l]{\emph{medium}\\SH bands, volumes}  & \makecell[l]{volume resolution,\\SH bands} \\
 
 \specialVspace
 
-\makecell[l]{RSM \\ \cite{bib:reflectiveshadowmaps}} & n/a & \makecell[l]{arbitrary\\brute force} & \makecell[l]{bright splotches \\ ("fixable")} & \makecell[l]{very low\\RSM} & \makecell[l]{RSM resolution,\\sample-count per pixel}\\
+\makecell[l]{RSM \\ \cite{bib:reflectiveshadowmaps}} & n/a & \makecell[l]{\emph{arbitrary}\\brute force} & \makecell[l]{bright splotches \\ ("fixable")} & \makecell[l]{\emph{very low}\\RSM} & \makecell[l]{RSM resolution,\\sample-count per pixel}\\
 
 
 \bottomrule

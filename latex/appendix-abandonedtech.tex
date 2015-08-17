@@ -7,7 +7,7 @@
 
 Before we aligned all caches in a camera-centered, regular grids, where each cache has no information other than a position, we tried various other techniques. %to fetch various data and place caches dynamically, depending on the geometry.
 The final regular grid technique has several disadvantages:
-A cache has only a position and roughly half of the caches lie behind the to be lit geometry.
+A cache has only a position and roughly half of the caches lie behind the geometry to be lit.
 Since all pixels that will be influenced by a cache may be known up-front, it should be possible to feed more information to the caches.
 Even better, placing caches directly \emph{on} geometry should result in more accurate lighting and could yield a local normal vector and material properties as well, similar to the pre-computed caches in LightSkin \cite{bib:LightskinPaper}.
 As explained by the following examples we were not able to achieve such an intelligent placement of "complex" caches in real-time.
