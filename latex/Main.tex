@@ -257,7 +257,7 @@ To test multiple VALs at once we need an estimate of their spatial distribution.
 %To be able to exploit this property and reduce the number of needed cones, we pre-filter the depth map of the reflective shadow map.
 Inspired by Variance Shadow Maps from Donnelly and Lauritzen \cite{bib:vsm}, we save not only depth but also squared depth in the reflective shadow map and pre-filter the combined depth texture by creating mipmaps.
 As in Variance Shadow Maps, the squared depth will be used to retrieve the variance of the depth value.
-We introduce the \emph{Indirect Shadow LOD} as a global constant parameter that determines for which mip-level cones are traced to check the visibility of the underlying group of virtual lights (0: for each VAL, 1: every four, 2: every 16, ...).
+We introduce the \emph{indirect shadow LOD} as a global constant parameter that determines for which mip-level cones are traced to check the visibility of the underlying group of virtual lights (0: for each VAL, 1: every four, 2: every 16, ...).
 All other lighting computations will still work on the lowest mip-level but use the previously computed shadowing value which stays the same across multiple lights.\\
 
 \begin{figure}[h]
@@ -284,7 +284,7 @@ The average depth $E(d)$ and averaged squared depth $E(d^2)$ of the virtual ligh
 \\
 While the first estimate works well if the virtual lights have very different distances to their origin-light, it underestimates if they are parallel to the near plane of the origin-light.
 Thus, the second estimate (depicted red in \autoref{fig:shadowcone}) is the size of the sample area, projected to the center of the sphere.
-The sample area is determined by the relative sample size, given by the width $w_{near}$ and depth $z_{near}$ of the near clip plane, the RSM resolution $R$ and the chosen Indirect Shadow LOD $l$.
+The sample area is determined by the relative sample size, given by the width $w_{near}$ and depth $z_{near}$ of the near clip plane, the RSM resolution $R$ and the chosen indirect shadow LOD $l$.
 \begin{equation}
 r_{e2} = E(d) \cdot \frac{w_{near}}{z_{near} \cdot R \cdot 2^{-l} }
 \end{equation}
@@ -509,7 +509,7 @@ All shadow cones start with an offset which is as large as two voxel cells to re
 \end{figure}
 Our shadow LOD algorithm requires that a shadowing value is valid for multiple neighboring virtual lights.
 This means that all VALs that share the same shadowing need to be bulk-processed.
-To achieve this without having to re-implement the iteration on the RSM for every shadow lod, we use the \emph{Morton sequence} \cite{bib:mortonorder} which is visualized in \autoref{fig:morton}.
+To achieve this without having to re-implement the iteration on the RSM for every shadow LOD, we use the \emph{Morton sequence} \cite{bib:mortonorder} which is visualized in \autoref{fig:morton}.
 Computing the two-dimensional coordinate from a running integer involves several costly integer operations.
 However, in some cases the lighting process even speed up in our implementation, most likely since the texture resides in the video ram in exactly this or a similar order \cite[p.848]{bib:RealtimeRenderingBook}.
 Note that this more or less forces us to use quadric power of two RSMs since other sizes are more difficult to traverse and introduce exceptions to our shadow sampling scheme.

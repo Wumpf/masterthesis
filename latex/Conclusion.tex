@@ -26,7 +26,7 @@ Finally, the data is evaluated and interpolated per pixel in the cache interpola
 % TODO? -> single indirect bounce, shadow + gloss
 
 % -> no pre-computation
-The technique is entirely invariant of animations and allows to perform arbitrary scene changes at runtime.
+The technique is entirely invariant under animations and allows to perform arbitrary scene changes at runtime.
 The same goes for materials which are allowed to have arbitrary variations over surfaces (contrary to techniques like LightSkin \cite{bib:LightskinPaper}).
 \\
 % -> gpu only
@@ -36,8 +36,8 @@ This way the approach is free of any synchronization stalls and frees the CPU fo
 % SOFT CRITERIA
 % -> temp coherency
 We listed temporal coherency as most important quality criterion.
-While our algorithm is rather stable, we were not able to avoid this issue entirely:
-Typical reflective shadow map flickering can occur when moving directly lit objects.
+While our algorithm is often stable, we were not able to avoid this issue:
+Typical reflective shadow map flickering can occur when moving directly lit objects or the light itself.
 Another source of incoherency are high resolution specular environment maps.
 Note however, that there are no incoherencies at all for camera movements in general and animated objects that receive little direct light.
 
@@ -53,7 +53,7 @@ Still, our new idea of hemispherical environment maps achieves better results th
 Contrary to previous work our approach selects relevant caches in screen space and stores them in a continuous buffer.
 This allows us to compute indirect lighting very efficiently.
 However, as we traverse every single reflective shadow map pixel (similar to in LightSkin \cite{bib:LightskinPaper} but unlike to most techniques which only sample the RSM) this pass is still very expensive.
-In this context the simplifications introduced by the shadow lod showed to be vital for the overall performance.
+In this context the simplifications introduced by the shadow LOD showed to be vital for the overall performance.
 In comparison to the actual cache lighting, the addressing and interpolation overhead seems to be rather low.
 Because of this we refrained to use down-sampling for our screen-depended passes.
 As all cache-based methods, the technique is relatively invariant to resolution changes and is ready for modern "ultra  high definition" displays without the need of upsampling.
@@ -62,11 +62,11 @@ The later has unfortunately, depending on the RSM resolution, a seemingly dispro
 
 % -> memory
 By using modern GPU programming strategies, we were able to work with a very limited memory budget which is superior to the consumptions of most techniques.
-Again, the specular lighting has the highest impact, followed by the RSM which may be rendered with a lower resolution (loosing the advantages of down-sampling and sharing of shadow map for direct lighting).
+Again, the specular lighting has the highest impact, followed by the RSM which may be rendered with a lower resolution (loosing the advantages of down-sampling and sharing the shadow map for direct lighting).
 
 % -> scale
 By cascading our address volumes we are able to handle large scenes easily.
-Though, the large gaps between caches in higher/distant cascades may lead to artifacts, especially for indirect shadow.
+Though the large gaps between caches in distant cascades may lead to artifacts, especially for indirect shadow.
 It may be advisable to perform shadowing and specular lighting only for caches in the closer cascades.
 
 
@@ -77,40 +77,39 @@ Voxel cone traced shadows worked rather well in our context.
 For higher quality, fast solid voxelization as proposed by Schwartz et al. \cite{bib:solidvoxelization} needs to be evaluated.
 Higher performance for thin cones may be achieved by empty space skipping within the volume.
 It may be possible to quickly generate conservative distance fields by leveraging the volume hierarchy.
-%
-Our shadow lod value algorithm is very rigid at the moment and could be made adaptive:
+\\
+Our shadow LOD value algorithm is very rigid at the moment and could be made adaptive:
 By choosing target shadow cone angle, the size of the VAL groups could be varied depending on their distribution.
 However, this is more difficult to implement without severe thread divergence.
-%
-\\
+
 % specular
-A big problem of out specular environment map system are the holes that inevitable originate from the way it is filled.
+A big problem of out specular environment map system are the holes that inevitably originate from the way it is filled.
 These could be fixed either by a more clever hole filling algorithm or a novel way to fill the map.
 Likely it would be much better to fill the map by searching the most relevant virtual lights for each pixel and thus write only once to the map.
-Though, this process is rather difficult since the most important unshadowed light(s) needs to be found as quick as possible.
-%
+This process is rather difficult since the most important unshadowed light(s) needs to be found as quick as possible.
+\\
 Another way to alleviate the issues could be to accumulate results from several past frames.
 By jittering the RSM samples, new specular environment map pixels could be filled every frame.
 Currently, the positions at which caches are saved within the cache buffer and the specular environment map atlas change every frame, which makes such multi-frame approaches difficult.
 Additionally, caches entering and leaving the view area would need special care.
-%
+\\
 Currently, the specular environment map covers the entire hemisphere, no matter which parts will be sampled in the interpolation pass later on.
 The cache allocation pass could additionally store some informations on which parts are actually needed for a given frame.
-\\
+
 % general
 We have assumed that all operations are performed for every cache.
 Which features are computed for which cache could be selected in different frequencies, depending on the feature and distance.
 For example, specular could fade out for distant objects and diffuse lighting does not need to be obtained as often as shadows and reflections.
-%
+\\
 The cache placement itself is regular.
 This can sometimes lead to jagging artifacts, especially for indirect shadow borders.
 Jittered or even geometry adaptive alignments might be able to solve this problem.
-%
+\\
 Chroma down-sampling for SH coefficients as proposed by Vardis et al. \cite{bib:radiancecachechromaticcompression} might enhance the speed of the interpolation pass.
 
 % Big picture. Final words.
 There are many big challenges on the field of real-time global illumination.
-Ultimately, our work did offer some new useful combinations and ideas, but no efficient solutions to indirect shadows or even indirect (glossy) reflections which remain open problems.
+Ultimately, our work did offer some new useful combinations and ideas, but no truly efficient solutions to indirect shadows or even indirect (glossy) reflections which remain open problems.
 We excluded several important aspects like multi-bounce lighting and caustics entirely which need to be explored as well.
 
 

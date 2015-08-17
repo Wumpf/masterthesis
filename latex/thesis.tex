@@ -32,11 +32,6 @@
 \captionsetup{margin=0pt}
 \captionsetup{labelfont=bf}
 
-% Cell colors
-\definecolor{good}{rgb}{0.6,1.0,0.6}
-\definecolor{bad}{rgb}{1.0,0.7,0.7}
-\definecolor{neutral}{rgb}{1.0,0.95,0.5}
-
 % Text floating around figure
 \usepackage{wrapfig}
 % Subfigures
@@ -126,7 +121,8 @@
 \appendix
 \chapter*{Appendices}
 \addcontentsline{toc}{chapter}{Appendices}
-\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesection}{\Alph{section}.}
+\renewcommand{\thesubsection}{\Alph{section}.\arabic{subsection}}
 \subfile{appendix-abandonedtech}
 \subfile{appendix-formulas}
 

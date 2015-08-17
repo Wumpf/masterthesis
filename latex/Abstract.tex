@@ -3,7 +3,7 @@
 
 \addchap{Abstract}
 
-Illumination and thus rendering is a computationally complex problem since correct lighting requires the interaction of every point with the entire scene.
+Illumination and thus rendering is a computationally complex problem since correct lighting requires the interaction of every surface point with the entire scene.
 Accurate global illumination has become the standard in non-interactive applications, i.e. mainly in movies.
 During the last few years it has become more and more important in interactive applications like simulations and games as well.
 The visual importance, especially of the first indirect light bounce, is obvious for most scenes which would be widely unlit otherwise.
@@ -11,11 +11,12 @@ Today, many games use a mixture of pre-computed and real-time techniques to achi
 
 In this thesis, we present a new technique for completely dynamic real-time global illumination that works without any pre-computation.
 We compute single indirect bounce lighting using cascaded regular grids of light caches.
-Which caches need to be lit is determined at runtime that allows fast processing and a very low memory footprint.
+Which caches need to be lit is determined at runtime.
+This allows fast processing and a very low memory footprint.
 Indirect light is obtained from a reflective shadow map, and saved into a spherical harmonics representation for each cache.
 It can then later on be interpolated across several light caches.
 To compute accurate indirect shadow we use voxel cone tracing within a pre-filtered binary voxelization.
-Additionally, we propose hemispherical per-cache environment maps as a more accurate radiance representation that enables indirect specular effects.
+Additionally, we propose hemispherical per-cache environment maps as an additional, more accurate radiance representation to enable indirect specular effects.
 
 The work introduces the reader into the topic of global illumination and gives an overview over many related and similar approaches.
 The extensive evaluation section of this thesis shows that our technique has a very low memory footprint, works well with high screen resolutions and achieves competitive results in both performance and quality.
