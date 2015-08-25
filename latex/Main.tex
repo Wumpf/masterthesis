@@ -60,13 +60,13 @@ To cancel out temporal artifacts caused by moving light caches, we decided to pl
 The main disadvantage of this method is that caches are not placed on surfaces and thus cannot have a specific orientation.
 Since only a small fraction of all grid cells is actually needed at any time (i.e. lies near to geometry), their data is stored in a separate \emph{cache buffer} and only addresses to this buffer are saved within the grid.
 Accordingly, we call this grid the \emph{cache address volume (CAV)}.
-This approach reduces not only the memory consumption drastically, it makes it also much easier to perform the lighting for each cache, since those reside consecutive in a special memory block instead of being scattered within a volume as in Vardis et al. \cite{bib:radiancecachechromaticcompression}.
+This approach reduces not only the memory consumption drastically, it makes it also much easier to perform the lighting for each cache, since those reside consecutively in a special memory block instead of being scattered within a volume as in Vardis et al. \cite{bib:radiancecachechromaticcompression}.
 
 During the cache allocation pass the CAV is cleared and then refilled depending on the current view.
 This is done by a full-screen pass, using the per-pixel world-positions from the previously rendered scene. % (which can be acquired using the depth buffer).
 Each pixel allocates caches at the eight nearest CAV cells by reserving addresses and writing them into the CAV.
 If however an affected cell already contains a valid cache address, it is skipped.
-As pixels do not introduce any data besides the cache allocation itself no additional writes are needed.
+As pixels do not introduce any data besides the cache allocation itself, no additional writes are needed.
 Since neighboring pixels often access the same grid cells, there is room for some effective optimizations using shared memory which are explained in \autoref{sec:impl:cachealloc}.
 \autoref{fig:cachevis} shows a resulting cache distribution already with CAV cascading which is explained in the next section.
 
@@ -87,7 +87,7 @@ For simplicity, all CAV cascades are cubic and have the same resolution, while t
 
 Caches are only allocated in the smallest CAV cascade which encloses a given pixel world-position.
 To be able to allocate all eight nearest CAV cells in a single cascade, special "decision boundaries" which are smaller than the actual cascade are used for cascade selection.
-As the snapped movement introduce temporal incoherency, we move the decision boundaries smoothly with the camera and shrink them further by another grid cell size to ensure that they are fully enclosed by their respective cascades.
+As the snapped movement introduces temporal incoherency, we move the decision boundaries smoothly with the camera and shrink them further by another grid cell size to ensure that they are fully enclosed by their respective cascades.
 \\
 Additionally, there are transition areas between two successive cascades.
 Within these areas, caches are allocated in both cascades to be able to avoid hard edges during the interpolation stage later on.
@@ -119,7 +119,7 @@ The direct lighting process uses the original depth from the RSM as shadow map.
 In the following sections the term RSM denotes the already down-sampled texture set.
 
 \subsection{Diffuse Lighting} \label{sec:impl:diffuse}
-We separate diffuse and specular lighting, making the later an optional feature that may be deactivated to save resources if necessary.
+We separate diffuse and specular lighting, making the latter an optional feature that may be deactivated to save resources if necessary.
 Diffuse lighting is comparatively easy to represent and compute since it is (for a given position and reflectivity) a low frequency function over a surface normal, independent of the current view direction.
 
 %The rendering equation for pure diffuse surfaces is defined as follows (compare \autoref{sec:preq:brdf} and \autoref{sec:preq:renderingeq}):
@@ -138,7 +138,7 @@ Since we are only interested in diffuse lighting, the BRDF $f_r$ and the VAL's i
 f_r(\mathrm{x}, \overrightarrow{\mathrm{x}\mathrm{x}_i}, \omega_o) =& \frac{\rho_d}{\pi}\\
 I_i(\overrightarrow{\mathrm{x}_i\mathrm{x}}) =& \frac{\rho_i}{\pi} \phi_i
 \end{align}
-The final expression for diffuse indirect lighting is accordingly defined as follows:
+The final expression for diffuse indirect lighting is defined as follows:
 \begin{equation} \label{eq:rsmdiffuse}
 L_d (\mathrm{x}) = \frac{\rho_d}{\pi} \sum\limits_{i=1}^{M} 
 (\hat{\mathbf{n}} \cdot \overrightarrow{\mathrm{x}\mathrm{x}_i} )^+ \cdot
@@ -164,7 +164,7 @@ The impact on performance and quality of varying number of SH bands will be disc
 
 \subsection{Specular Lighting} \label{sec:impl:specenvmap}
 As mentioned in \autoref{sec:preq:brdf} we make use of a normalized version of the Blinn-Phong BRDF.
-Using virtual point lights from the reflective shadow map, the specular part of the visible radiance is defined as following:
+Using virtual point lights from the reflective shadow map, the specular part of the visible radiance is defined as follows:
 \begin{equation}
 L_s (\mathrm{x}) = \rho_s \cdot \frac{\gamma + 8}{8\pi} \cdot \sum\limits_{i=1}^{M}
 (\hat{\mathbf{n}}\cdot \overrightarrow{\mathrm{x}\mathrm{x}_i})^+ \cdot L_i \cdot ((\hat{\mathbf{n}} \cdot \hat{\mathbf{h}}_i)^+)^\gamma
@@ -213,9 +213,9 @@ For the projection itself it is important that it introduces as little distortio
 For this purpose we use uniform concentric maps by Shirly and Chiu \cite{bib:concentricmaps}.
 We call the resulting maps \emph{specular environment maps} and store them in a large texture atlas.
 The atlas can easily be addressed by the cache address which was already used for the cache buffer.
-Depending on the quality setting, each cache uses typically a resolution between 8x8 and 32x32 pixels on this atlas.
+Depending on the quality setting, each cache typically uses a resolution between 8x8 and 32x32 pixels on this atlas.
 After all caches are lit, mipmaps of the Specular Environment Map atlas are created.
-Similar to classical reflection maps \cite[p.~308]{bib:RealtimeRenderingBook} they will later be used to estimate the specular lighting for Blinn-Phong exponents bellow $\gamma_{max}$.
+Similar to classical reflection maps \cite[p.~308]{bib:RealtimeRenderingBook} they will later be used to estimate the specular lighting for Blinn-Phong exponents below $\gamma_{max}$.
 \\
 \autoref{fig:specularenvmap} shows visualizations of the specular environment map.
 We found that the method has some weak points that will be later discussed in \autoref{sec:eva:specperf} and \autoref{sec:eva:specquality}.
@@ -311,7 +311,7 @@ The distance $d_s$ of the next sample is chosen such that two inner circles touc
 d_{s'} =& d_s + r_s + r_{s'} = d_s + r_s + d_{s'} \cdot \sin \alpha\\
 d_{s'} =& \frac{d_s + r_s}{1-\sin\alpha} = \frac{d_s + r_s}{1-\frac{r_s}{d_s}} 
 \end{align}
-To avoid needless oversampling for thin cones, step sizes smaller than one voxel are no allowed (as illustrated by the first two samples in \autoref{fig:shadowconestep}).
+To avoid needless oversampling for thin cones, step sizes smaller than one voxel are not allowed (as illustrated by the first two samples in \autoref{fig:shadowconestep}).
 
 Using a trilinear texture filter, the opacity values $\alpha_s$ from the voxel volume are interpolated within and across mip-levels.
 The total visibility $V$ is accumulated front to back:
@@ -384,7 +384,6 @@ The implementation runs entirely on the GPU and makes use of several OpenGL 4.5 
 \caption{Texture setup demonstrated on curtain from sponza scene.}
 \label{fig:texturesample}
 \end{figure}
-\todo{Move section to the appendix?}
 Our material setup resembles what is usually called "metallic setup" in physically based shading (see \autoref{fig:texturesample}).
 To parameterize the Blinn Phong BRDF, all surfaces have a reflectance texture (sRGB), tangent space normal-maps and two material property textures which are combined into a single texture during loading if not already in the desired format.
 The first channel contains a roughness value $r$ from which we derive the Blinn-Phong specular exponent $\gamma$ and the second determines how metallic a surface is:
@@ -412,12 +411,12 @@ The full float depth texture is only used as depth buffer during rendering and f
 
 \subsection{Cache Allocation} \label{sec:impl:cachealloc}
 For simpler addressability all CAV cascades are stored in the same 32bit integer volume texture.
-Since each cascade is cubic and has the same resolution, they can be simply aligned along the x-coordinate.
+Since each cascade is cubic and has the same resolution, they can simply be aligned along the x-coordinate.
 
 The task of the cache allocation pass is to find unique addresses for all needed caches and write them into the CAV.
 For this, a compute shader with a thread for each screen pixel is dispatched.
 Each pixel is only allowed to increase the global cache counter if its destination CAV cell has not already been written.
-This can be easily achieved using the compare and swap atomic operation on the CAV cell and an atomic-add on the global cache counter.
+This can easily be achieved using the compare and swap atomic operation on the CAV cell and an atomic-add on the global cache counter.
 The following simplified GLSL code describes how this process works:
 \begin{lstlisting}[language=GLSL]
 void AllocateCache(uint cascade, uvec3 cachePosition)
@@ -447,7 +446,7 @@ void AllocateCache(uint cascade, uvec3 cachePosition)
 \end{lstlisting}
 Note that this is a very expensive operation (due to the atomics on global memory) which usually executed redundantly since neighboring pixels mark the same caches most of the time.
 To reduce the number of such function calls we first tried to implement a cache in shared memory.
-However, it turned out the newly introduced atomic operations on shared memory to implement such a cache were even more expensive which limited the efficiency considerably.
+However, it turned out that the newly introduced atomic operations on shared memory, used to implement such a cache, were even more expensive which limited the efficiency considerably.
 \\
 Our final version works with shared memory and a simple heuristic that does not rely on atomic operations:
 \begin{lstlisting}[language=GLSL]
@@ -479,12 +478,12 @@ First, every thread writes the packed coordinate of one of its destination cache
 Remember that there are actually eight that influence a single pixel.
 To simplify the process we consider only the one with the lowest coordinate on all axes.
 After a barrier-sync we check if none of the threads to the left, bottom or left-bottom wrote the same coordinate to the cache list.
-The most bottom left thread always calls the allocate function - otherwise no cache would be allocated at all if all threads of a group wrote the same cache address.
+The most bottom left thread always calls the allocate function - otherwise no cache would be allocated at all if all threads of a group wrote the same address into the shared memory.
 \\
 To handle transitions, we use a second cache list in memory where we apply the same scheme.
 As an additional optimization, threads perform the lookup in the opposite direction (top/right), so that it is unlikely that the same thread needs to allocate both the "normal" and the "transition-zone" cache.
 \\
-We achieved the best performance at with a thread group size of $16\times16$.
+We achieved the best performance with a thread group size of $16\times16$.
 
 For a resolution of $2560\times1440$ and a view with about 16 k caches, our methods is roughly six times faster than the primitive approach.
 
@@ -497,7 +496,7 @@ In order to avoid temporal incoherence that arises when objects are moving throu
 Depending on the (manually set) adaption rate, very fast objects may leave only faint traces in the voxel-grid.
 In consequence they will cast no or only dim shadows.
 The perceptually best adaption rate depends on the relative voxel cell size.
-Coarser volumes need slower adaptions since otherwise large shadow features might pop in.
+Coarser volumes need slower adaption, otherwise large shadow features may appear suddenly.
 
 All shadow cones start with an offset which is as large as two voxel cells to reduce the likelihood of accidental self-shadowing. 
 
@@ -562,20 +561,21 @@ for(uint rsmIndex = gl_LocalInvocationID.x; rsmIndex < totalNumRSMPixels; rsmInd
 // ...
 \end{lstlisting}
 Each compute shader thread of a group loads exactly one light into the shared memory, waits for all other threads of its group and then starts to traverse the lights cached in the shared memory.
-This is repeat until all virtual lights have been processed.
+This is repeated until all virtual lights have been processed.
 
 \subsubsection{Specular Lighting} \label{sec:impl:details:specular}
 For the specular environment map atlas we use the low precision floating point format \emph{R11G11B10F}.
-\\
 There are two different ways to handle writes to this texture.
-One way is simply to write values in just the moment they are computed.
+\\
+One way is simply to write values as they are computed.
 However, since multiple VALs might address the same pixel in the specular environment map, a read has to be performed first to add the radiance instead of overwriting existing information.
+\\
 Because of this we experimented with a cached write:
-Each thread holds its portion of the texture first in its registers.
+Each thread holds its portion of the texture in its registers and does not write it to the global texture atlas until all VALs were handled.
 Since even for low resolutions this creates a very high register pressure, it is cheaper to compress this in-memory map.
 As it is expensive to de-/compress from/to \emph{R11G11B10F} in software, we use a custom 32 bit shared exponent format for this task.
 \\
-Due to the different highly lossy compressions both methods yield visually different results.
+Due to the different highly lossy compressions, both methods yield visually different results.
 \autoref{sec:eva:specperf} discusses which technique performs better.
 
 

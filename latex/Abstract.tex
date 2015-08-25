@@ -14,12 +14,12 @@ We compute single indirect bounce lighting using cascaded regular grids of light
 Which caches need to be lit is determined at runtime.
 This allows fast processing and a very low memory footprint.
 Indirect light is obtained from a reflective shadow map, and saved into a spherical harmonics representation for each cache.
-It can then later on be interpolated across several light caches.
+It can then later be interpolated across several light caches.
 To compute accurate indirect shadows we use voxel cone tracing within a pre-filtered binary voxelization.
 Additionally, we propose hemispherical per-cache environment maps for a radiance representation that provides enough accuracy to enable indirect specular effects.
 
 The work introduces the reader into the topic of global illumination and gives an overview over many related and similar approaches.
-The extensive evaluation section of this thesis shows that our technique has a very low memory footprint, works well with high screen resolutions and achieves competitive results in both performance and quality.
-Room for improvement is especially in the performance of the indirect specular lighting and shadowing under higher quality configurations.
+The extensive evaluation section of this thesis shows that our technique has a very low memory footprint, works well with high screen resolutions and achieves competitive results both in terms of performance and quality.
+Improvements can be made especially in the area of performance of the indirect specular lighting and shadowing under higher quality configurations.
 
 \end{document}
